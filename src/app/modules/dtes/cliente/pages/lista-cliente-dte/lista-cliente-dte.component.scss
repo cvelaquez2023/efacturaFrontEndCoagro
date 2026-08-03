@@ -1,0 +1,201 @@
+.demo-table {
+    width: 100%;
+    overflow: auto !important;
+  }
+.mat-header-cell{
+  font-weight: bold;
+  font-size: 10px;
+  justify-content:left;
+  
+
+}  
+.mat-cell{
+  font-size: 10px;
+  font-weight: bold;
+}
+.mat-column-fechaEmision{
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  flex: 0 0 7% !important;
+  width: 7% !important;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-all;
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+}
+
+.mat-column-tipoDte{
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  flex: 0 0 5% !important;
+  width: 5% !important;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-all;
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+}
+
+.mat-column-numeroControl{
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  flex: 0 0 19% !important;
+  width: 19% !important;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-all;
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+}
+
+.mat-column-selloRecibido{
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  flex: 0 0 20% !important;
+  width: 20% !important;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-all;
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+  border-radius: 10px;
+  justify-content: center;
+  font-weight: bold;
+  border-left:50px !important ;
+
+}
+
+.mat-column-estado{
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  flex: 0 0 5% !important;
+  width: 5% !important;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-all;
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+  justify-content: center;
+  border-radius: 10px;
+  font-weight: bold;
+  border:25px !important ;
+  margin: 5px;
+}
+.mat-column-nombreEmisor{
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  flex: 0 0 18% !important;
+  width: 18% !important;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-all;
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+}
+.mat-column-documentoEmisor{
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  flex: 0 0 7% !important;
+  width: 7% !important;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-all;
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+}
+.mat-column-montoTotal{
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  flex: 0 0 5% !important;
+  width: 5% !important;
+  justify-content:right;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-all;
+  
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+}
+.mat-column-actions{
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  flex: 0 0 4% !important;
+  width: 4% !important;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-all;
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+}
+  
+  
+  .mat-form-field {
+    font-size: 14px;
+    width: 100%;
+  }
+  
+
+.search-div{
+    border: 2;
+}
+
+.flex {
+  -webkit-flex: 1 1 0%;
+      -ms-flex: 1 1 0%;
+          flex: 1 1 0%;
+  box-sizing: border-box;
+}
+.flex-20 {
+  -webkit-flex: 1 1 20%;
+      -ms-flex: 1 1 20%;
+          flex: 1 1 20%;
+  max-width: 20%;
+  max-height: 100%;
+  box-sizing: border-box;
+}
+
+.layout-row .flex-33 {
+  -webkit-flex: 1 1 calc(100% / 3);
+      -ms-flex: 1 1 calc(100% / 3);
+          flex: 1 1 calc(100% / 3);
+  box-sizing: border-box;
+}
+
+.layout-row  .flex-66 {
+  -webkit-flex: 1 1 calc(200% / 3);
+      -ms-flex: 1 1 calc(200% / 3);
+          flex: 1 1 calc(200% / 3);
+  box-sizing: border-box;
+}
+
+.layout-row .flex-33 {
+  max-width: calc(100% / 3);
+  max-height: 100%;
+}
+
+.layout-row  .flex-66 {
+  max-width: calc(200% / 3);
+  max-height: 100%;
+}
+
+.layout-column .flex-33 {
+  max-width: 100%;
+  max-height: calc(100% / 3);
+}
+
+.layout-column  .flex-66 {
+  max-width: 100%;
+  max-height: calc(200% / 3);
+}
+
+.izquierdo{
+  float: left;
+  width: 20%;
+  margin-left: 29%;
+}
+.derecho{
+  float:right;
+  margin-right: 29%;
+  width: 20%;
+}

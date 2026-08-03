@@ -1,0 +1,90 @@
+<h1>Relación Articulo Bodega</h1>
+<h2>Articulo:{{ editData.codArticulo }}-{{ editData.descripcion }}</h2>
+<div class="search-div" fxLayout="row" fxLayoutAlign="end end">
+	<button mat-raised-button color="warn" (click)="adicionar()"><mat-icon>add</mat-icon>{{ actionBtn }}</button>
+</div>
+<form class="buscar" [formGroup]="formGroup">
+	<div class="generales" fxLayout="row wrap" fxLayoutAlign="center center">
+		<div
+			fxLayout="row"
+			fxLayout.xs="column"
+			fxLayoutAlign="start stretch"
+			fxFlex.xs="94"
+			fxFlex.sm="80"
+			class="generalContenedor"
+		>
+			<div class="title_box">
+				<div id="content">
+					<div fxLayout="row wrap" fxLayoutAlign="center center" fxFlex="20">
+						<mat-form-field appearance="outline">
+							<mat-label>Bodega</mat-label>
+							<mat-select formControlName="bodega">
+								<mat-option *ngFor="let item of listBodegas" [value]="item.id"
+									>{{ item.codBodega }}-{{ item.nombre }}</mat-option
+								>
+							</mat-select>
+						</mat-form-field>
+					</div>
+					<div fxLayout="row wrap" fxLayoutAlign="center center" fxFlex="20">
+						<mat-form-field appearance="outline">
+							<mat-label>Existencia Mimima</mat-label>
+							<input formControlName="existenciaMin" matInput type="number" />
+						</mat-form-field>
+					</div>
+					<div fxLayout="row wrap" fxLayoutAlign="center center" fxFlex="20">
+						<mat-form-field appearance="outline">
+							<mat-label>Punto reorden</mat-label>
+							<input formControlName="puntoReorden" matInput type="number" />
+						</mat-form-field>
+					</div>
+					<div fxLayout="row wrap" fxLayoutAlign="center center" fxFlex="20">
+						<mat-form-field appearance="outline">
+							<mat-label>Existencia Maxima</mat-label>
+							<input formControlName="existenciaMax" matInput type="number" />
+						</mat-form-field>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+<div class="mat-elevation-z8">
+	<mat-table [dataSource]="listBodega" matSort>
+		<ng-container matColumnDef="codBodega">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Cod-Bodega</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.bodega.codBodega }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="nombre">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.bodega.nombre }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="existenciaMi">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Existencia-Min</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.existenciaMinima }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="puntoReorden">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Punto-Reorden</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.puntoDeOrden }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="existenciaMa">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Existencia-Max</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.existenciaMaxima }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="actions">
+			<mat-header-cell *matHeaderCellDef></mat-header-cell>
+			<mat-cell *matCellDef="let element">
+				<button mat-icon-button (click)="clickEdit(element)">
+					<mat-icon>edit</mat-icon>
+				</button>
+				<button mat-icon-button color="warn" (click)="clickDelete()"><mat-icon>delete</mat-icon></button>
+			</mat-cell>
+		</ng-container>
+
+		<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+		<mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+	</mat-table>
+	<mat-paginator [pageSizeOptions]="[10, 25, 75, 100]" showFirstLastButtons></mat-paginator>
+</div>
+<div mat-dialog-actions [align]="'end'">
+	<button mat-raised-button color="basic" mat-dialog-close>Cerrar</button>
+</div>

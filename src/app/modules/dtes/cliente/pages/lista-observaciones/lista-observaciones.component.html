@@ -1,0 +1,15 @@
+<div class="mat-elevation-z8">
+	<mat-table [dataSource]="listCobradores" matSort>
+		<ng-container matColumnDef="Descripcion">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Descripcion</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.descripcion }}</mat-cell>
+		</ng-container>
+
+		<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+		<mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+	</mat-table>
+	<mat-paginator [pageSizeOptions]="[10, 25, 75, 100]" showFirstLastButtons></mat-paginator>
+	<div mat-dialog-actions [align]="'end'">
+		<button mat-raised-button color="basic" mat-dialog-close>Cerrar</button>
+	</div>
+</div>

@@ -1,0 +1,79 @@
+<form class="formulario grey-100">
+	<div class="title_box">
+		<div id="content">
+			<mat-form-field appearance="outline">
+				<mat-label>Paquete Usuario</mat-label>
+				<mat-select [(value)]="selected" (selectionChange)="selectPaquete($event.value)">
+					<mat-option *ngFor="let paquete of paquetes" [value]="paquete.id">
+						{{ paquete.codPaqueteInv }}-{{ paquete.descripcion }}
+					</mat-option>
+				</mat-select>
+			</mat-form-field>
+			<div class="search-div" fxLayout="column" fxLayoutAlign="end end">
+				<button mat-raised-button color="warn" (click)="openDialog2()"><mat-icon>add</mat-icon>Crear Paquete</button>
+			</div>
+		</div>
+	</div>
+</form>
+
+<div class="search-div" fxLayout="row" fxLayoutAlign="end end">
+	<button *ngIf="selected !== ''" mat-raised-button color="warn" (click)="openDialog(selected)">
+		<mat-icon>add</mat-icon>Crear
+	</button>
+</div>
+<form class="buscar">
+	<mat-form-field class="full-with" appearance="fill">
+		<input matInput (keyup)="applyFilter($event)" placeholder="Buscar Documento" #input />
+	</mat-form-field>
+</form>
+
+<div class="mat-elevation-z8">
+	<mat-table [dataSource]="listDoc" matSort>
+		<ng-container matColumnDef="Consecutivo">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Consecutivo</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.documentoInv }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="Documento">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Documento</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.consecutivoInv.codConsecutivo }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="FechaDoc">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Fecha-Doc</mat-header-cell>
+
+			<mat-cell *matCellDef="let element">{{ element.fechaDocumento | date: 'dd/MM/yyyy' }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="Referencia">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Referencia</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.referencia }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="Usuario">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Usuario</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.usuario }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="Estatus">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Estatus</mat-header-cell>
+			<mat-cell *matCellDef="let element">
+				<mat-checkbox type="checkbox" [(ngModel)]="element.activo"></mat-checkbox>
+			</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="actions">
+			<mat-header-cell *matHeaderCellDef></mat-header-cell>
+			<mat-cell *matCellDef="let element">
+				<button mat-icon-button (click)="clickAplicar(element)">
+					<mat-icon>approval</mat-icon>
+				</button>
+				<button mat-icon-button (click)="clickEdit(element)">
+					<mat-icon>edit</mat-icon>
+				</button>
+				<button mat-icon-button color="warn" (click)="clickDelete(element.id)"><mat-icon>delete</mat-icon></button>
+			</mat-cell>
+		</ng-container>
+
+		<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+		<mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+		<tr class="mat-row" *matNoDataRow>
+			<td class="mat-cell" colspan="4">No data matching the filter "{{ input.value }}"</td>
+		</tr>
+	</mat-table>
+	<mat-paginator [pageSizeOptions]="[10, 25, 75, 100]" showFirstLastButtons></mat-paginator>
+</div>

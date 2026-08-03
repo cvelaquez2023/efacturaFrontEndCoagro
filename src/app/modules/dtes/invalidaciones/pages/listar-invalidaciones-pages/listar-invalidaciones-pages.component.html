@@ -1,0 +1,133 @@
+<form class="buscar" [formGroup]="formGroup">
+	<mat-form-field class="full-with" appearance="fill">
+		<input matInput (keyup)="applyFilter($event)" placeholder="Buscar Documento" #input />
+	</mat-form-field>
+	<div layout="column">
+		<div class="izquierdo">
+			<mat-form-field appearance="outline">
+				<mat-select
+					formControlName="mes"
+					matNativeControl
+					[(ngModel)]="selectedCar"
+					(selectionChange)="selectMes(selectedCar)"
+					name="car"
+				>
+					<mat-option value="1"> Enero </mat-option>
+					<mat-option value="2">Febrero</mat-option>
+					<mat-option value="3">Marzo</mat-option>
+					<mat-option value="4">Abril</mat-option>
+					<mat-option value="5">Mayo</mat-option>
+					<mat-option value="6">Junio</mat-option>
+					<mat-option value="7">Julio</mat-option>
+					<mat-option value="8">Agosto</mat-option>
+					<mat-option value="9">Septiembre</mat-option>
+					<mat-option value="10">Octubre</mat-option>
+					<mat-option value="11">Noviembre</mat-option>
+					<mat-option value="12">Diciembre</mat-option>
+				</mat-select>
+			</mat-form-field>
+		</div>
+		<div class="derecho">
+			<mat-form-field appearance="outline">
+				<mat-select
+					placeholder="Año"
+					matNativeControl
+					formControlName="ano"
+					[(ngModel)]="selectedAno"
+					(selectionChange)="selectAno(selectedAno)"
+				>
+					<mat-option *ngFor="let year of years" [value]="year.value">{{ year.value }}</mat-option>
+				</mat-select>
+			</mat-form-field>
+		</div>
+	</div>
+</form>
+
+<mat-table [dataSource]="listaDocumentos" class="mat-elevation-z8 demo-table" matSort>
+	<ng-container matColumnDef="fecha">
+		<mat-header-cell *matHeaderCellDef mat-sort-header>Fecha Emi.</mat-header-cell>
+		<mat-cell *matCellDef="let element">
+			{{ element.fecha }}
+		</mat-cell>
+	</ng-container>
+	<ng-container matColumnDef="cliente">
+		<mat-header-cell *matHeaderCellDef mat-sort-header>Cliente</mat-header-cell>
+		<mat-cell *matCellDef="let element">{{ element.cliente_origen }}</mat-cell>
+	</ng-container>
+	<ng-container matColumnDef="nombre">
+		<mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</mat-header-cell>
+		<mat-cell *matCellDef="let element">{{ element.nombre }}</mat-cell>
+	</ng-container>
+	<ng-container matColumnDef="documento">
+		<mat-header-cell *matHeaderCellDef mat-sort-header>Dte</mat-header-cell>
+		<mat-cell *matCellDef="let element">{{ element.documento }}</mat-cell>
+	</ng-container>
+	<ng-container matColumnDef="selloRecibido">
+		<mat-header-cell *matHeaderCellDef mat-sort-header>Sello Recibido</mat-header-cell>
+		<mat-cell *matCellDef="let element">{{ element.selloRecibidoInva }}</mat-cell>
+	</ng-container>
+	<ng-container matColumnDef="fechaanulacion">
+		<mat-header-cell *matHeaderCellDef mat-sort-header>Fecha Anulacion</mat-header-cell>
+		<mat-cell *matCellDef="let element">{{ element.fecha_anulacion }}</mat-cell>
+	</ng-container>
+	<ng-container matColumnDef="monto">
+		<mat-header-cell *matHeaderCellDef mat-sort-header>Monto</mat-header-cell>
+		<mat-cell *matCellDef="let element">{{ element.monto | currency }}</mat-cell>
+	</ng-container>
+
+	<ng-container matColumnDef="codigogeneracion">
+		<mat-header-cell *matHeaderCellDef mat-sort-header>Codigo Generacion</mat-header-cell>
+		<mat-cell *matCellDef="let element">{{ element.codigoGeneracion }}</mat-cell>
+	</ng-container>
+	<ng-container matColumnDef="invalidado">
+		<mat-header-cell *matHeaderCellDef mat-sort-header>Invalidado</mat-header-cell>
+		<mat-cell
+			*matCellDef="let element"
+			[ngStyle]="{ 'background-color': element.invalidado === false ? 'red' : '#196F3D' }"
+			>{{ element.invalidado }}</mat-cell
+		>
+	</ng-container>
+	<ng-container matColumnDef="fechahorainva">
+		<mat-header-cell *matHeaderCellDef mat-sort-header>Fecha Invalidacion</mat-header-cell>
+		<mat-cell *matCellDef="let element">{{ element.fechaHoraInva | date: 'dd/mm/yyyy HH:mm:ss' }}</mat-cell>
+	</ng-container>
+
+	<ng-container matColumnDef="horas">
+		<mat-header-cell *matHeaderCellDef mat-sort-header>Hora</mat-header-cell>
+		<mat-cell *matCellDef="let element">{{ element.horas }}</mat-cell>
+	</ng-container>
+	<ng-container matColumnDef="actions">
+		<mat-header-cell *matHeaderCellDef>Accion</mat-header-cell>
+
+		<mat-cell *matCellDef="let element">
+			<button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+				<mat-icon>more_vert</mat-icon>
+			</button>
+
+			<mat-menu #menu="matMenu">
+				<div *ngIf="element.invalidado === false">
+					<button mat-menu-item (click)="clickEdit(element)">
+						<mat-icon>edit</mat-icon>
+						<span>Generar Invalidacion</span>
+					</button>
+					<button mat-menu-item (click)="clickObservaciones(element)">
+						<mat-icon>edit</mat-icon>
+						<span>Leer Observaciones</span>
+					</button>
+				</div>
+			</mat-menu>
+		</mat-cell>
+	</ng-container>
+
+	<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+	<mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+	<tr class="mat-row" *matNoDataRow>
+		<td class="mat-cell" colspan="4">No data matching the filter "{{ input.value }}"</td>
+	</tr>
+</mat-table>
+<mat-paginator
+	[pageSizeOptions]="[5, 10, 25, 75, 100]"
+	[pageIndex]="0"
+	pageSize="10"
+	showFirstLastButtons
+></mat-paginator>

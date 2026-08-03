@@ -1,0 +1,66 @@
+<div mat-dialog-title>
+	<h1>Parametros de Administracion del Sistema</h1>
+</div>
+
+<mat-tab-group mat-align-tabs="center">
+	<mat-tab label="Generales">
+		<form class="formulario grey-100">
+			<mat-form-field appearance="outline">
+				<mat-label>Pais</mat-label>
+				<mat-select>
+					<mat-option style="color: black" *ngFor="let pais of listPais" [value]="pais.id">
+						{{ pais.codPais }}-{{ pais.nombre }}
+					</mat-option>
+				</mat-select>
+			</mat-form-field>
+			<mat-form-field appearance="outline">
+				<mat-label>Tipo Cambio</mat-label>
+				<mat-select>
+					<mat-option *ngFor="let item of listTipoCambio" [value]="item.id">
+						{{ item.codTipoCambio }}-{{ item.descripcion }}
+					</mat-option>
+				</mat-select>
+			</mat-form-field>
+			<mat-form-field appearance="outline">
+				<mat-label>Patron de Centro de Costo</mat-label>
+				<input type="text" formControlName="email" matInput placeholder="Correo Cobrador" />
+			</mat-form-field>
+			<mat-form-field appearance="outline">
+				<mat-label>Nombre Impuesto 1</mat-label>
+				<input type="text" formControlName="email" matInput placeholder="Correo Cobrador" />
+			</mat-form-field>
+			<mat-form-field appearance="outline">
+				<mat-label>Nombre Impuesto 2</mat-label>
+				<input type="text" formControlName="email" matInput placeholder="Correo Cobrador" />
+			</mat-form-field>
+
+			<mat-checkbox>Establecer un minimo excento para impuesto 2</mat-checkbox>
+			<mat-form-field appearance="outline">
+				<mat-label>Importe Minimo Exento</mat-label>
+				<input type="email" formControlName="email" matInput placeholder="Correo Cobrador" />
+			</mat-form-field>
+			<mat-checkbox>Utiliza NCF</mat-checkbox>
+			<mat-form-field appearance="outline">
+				<mat-label>Posiciones Fijas</mat-label>
+				<input type="email" formControlName="email" matInput placeholder="Correo Cobrador" />
+			</mat-form-field>
+			<mat-form-field appearance="outline">
+				<mat-label>Digitos Secuenciales</mat-label>
+				<input type="email" formControlName="email" matInput placeholder="Correo Cobrador" />
+			</mat-form-field>
+			<mat-form-field appearance="outline">
+				<mat-label>Limites para Advertencias</mat-label>
+				<input type="email" formControlName="email" matInput placeholder="Correo Cobrador" />
+			</mat-form-field>
+			<mat-form-field appearance="outline">
+				<mat-label>Dias de Vencimiento</mat-label>
+				<input type="email" formControlName="email" matInput placeholder="Correo Cobrador" />
+			</mat-form-field>
+		</form>
+	</mat-tab>
+	<mat-tab label="Moneda"> Content 2 </mat-tab>
+	<mat-tab label="Fechas"> Content 3 </mat-tab>
+</mat-tab-group>
+<div mat-dialog-actions [align]="'center'">
+	<button mat-raised-button color="warn">Guardar</button>
+</div>

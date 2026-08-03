@@ -1,0 +1,137 @@
+<div mat-dialog-title>
+	<h1>Parámetros de Contabilidad General</h1>
+</div>
+
+<mat-tab-group mat-align-tabs="center">
+	<form class="formulario grey-100" [formGroup]="globalesCGForm">
+		<mat-tab label="Generales">
+			<div class="generales" fxLayout="row wrap" fxLayoutAlign="center none">
+				<div
+					fxLayout="row"
+					fxLayout.xs="column"
+					fxLayoutAlign="start stretch"
+					fxFlex="60"
+					fxFlex.xs="94"
+					fxFlex.sm="80"
+					class="generalContenedor"
+				>
+					<div fxLayout="row wrap" fxLayoutAlign="center none" fxFlex="50">
+						<div class="title_box">
+							<div id="content">
+								<div id="title">Patrón de las Cuentas:</div>
+
+								<mat-form-field appearance="outline">
+									<mat-label>Cuentas</mat-label>
+									<input type="text" formControlName="cuenta" matInput placeholder="Formato de Cuenta" />
+								</mat-form-field>
+								<div id="title">
+									Nota: el patrón de las cuentas contables se define utilizando '9'(Numerico), 'N'(Alfanumerico) y
+									cualquier otro caracter para separar los niveles de jerarquia (99999-NN-NNN9) tiene un numero maximo
+									de 25 caracteres
+								</div>
+							</div>
+						</div>
+					</div>
+					<div fxLayout="row wrap" fxLayoutAlign="center none" fxFlex="50">
+						<div class="title_box">
+							<div id="content">
+								<div id="title">Precisión Numerica:</div>
+
+								<mat-form-field appearance="outline">
+									<mat-label>Decimales</mat-label>
+									<input
+										type="text"
+										formControlName="precisionNumerica"
+										matInput
+										placeholder="DEcimales de Precision"
+										numberOnly
+									/>
+								</mat-form-field>
+
+								<div id="content">
+									<div fxLayout="row wrap" fxLayoutAlign="space-between center" fxFlex="50">
+										<p><mat-checkbox formControlName="truncar">Truncar</mat-checkbox></p>
+										<p><mat-checkbox formControlName="redondear">Redondear</mat-checkbox></p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="generales" fxLayout="row wrap" fxLayoutAlign="center none">
+					<div fxLayout="row wrap" fxLayoutAlign="center none" fxFlex="100">
+						<div class="title_box">
+							<div id="content">
+								<div id="title">Despliegue de Columnas en Asiento:</div>
+
+								<div id="content">
+									<div fxLayout="row wrap" fxLayoutAlign="space-between center" fxFlex="100">
+										<p><mat-checkbox formControlName="centroCostoCuenta">Centro Costo-Cuenta Contable</mat-checkbox></p>
+										<p>-</p>
+										<p>
+											<mat-checkbox formControlName="cuentaCentroCosto">Cuenta Contable -Centro Costo</mat-checkbox>
+										</p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</mat-tab>
+		<mat-tab label="Asiento">
+			<div class="generales" fxLayout="row wrap" fxLayoutAlign="center none">
+				<div
+					fxLayout="row"
+					fxLayout.xs="column"
+					fxLayoutAlign="start stretch"
+					fxFlex="60"
+					fxFlex.xs="94"
+					fxFlex.sm="80"
+					class="generalContenedor"
+				>
+					<div fxLayout="row wrap" fxLayoutAlign="center none" fxFlex="50">
+						<div class="title_box">
+							<div id="content">
+								<div id="title">Nombre Asiento:</div>
+
+								<mat-form-field appearance="outline">
+									<mat-label>Nombre</mat-label>
+									<input type="text" formControlName="nombre" matInput placeholder="nombre de Asiento" />
+								</mat-form-field>
+							</div>
+						</div>
+					</div>
+					<div fxLayout="row wrap" fxLayoutAlign="center none" fxFlex="50">
+						<div class="title_box">
+							<div id="content">
+								<div id="title">Consecutivo:</div>
+
+								<div id="content">
+									<div fxLayout="row wrap" fxLayoutAlign="space-between center" fxFlex="50">
+										<p><mat-checkbox formControlName="paquete">Por Paquete</mat-checkbox></p>
+										<p><mat-checkbox formControlName="paqueteGlobal">Global</mat-checkbox></p>
+										<mat-form-field appearance="outline">
+											<mat-label>Global</mat-label>
+											<input
+												type="text"
+												formControlName="NumeroGlobal"
+												matInput
+												[disabled]="true"
+												placeholder="Numero Global"
+											/>
+										</mat-form-field>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</mat-tab>
+	</form>
+</mat-tab-group>
+<div mat-dialog-actions [align]="'center'" style="margin-bottom: 30px">
+	<button mat-raised-button color="warn">{{ actionBtn }}</button>
+</div>

@@ -1,0 +1,38 @@
+<h1 mat-dialog-title color="warn">Adicionar Usuarios</h1>
+<div mat-dialog-content>
+	<form [formGroup]="usuarioForm">
+		<mat-form-field appearance="outline">
+			<mat-label>Correo</mat-label>
+			<input
+				type="email"
+				formControlName="email"
+				matInput
+				placeholder="Correo Usuario"
+				style="text-transform: lowercase"
+			/>
+		</mat-form-field>
+		<mat-form-field appearance="outline">
+			<mat-label>Nombres</mat-label>
+			<input formControlName="nombres" matInput placeholder="Nombres Usuario" style="text-transform: uppercase" />
+		</mat-form-field>
+		<mat-form-field appearance="outline">
+			<mat-label>Contraseña</mat-label>
+			<input formControlName="password" matInput placeholder="Contraseña Usuario" style="text-transform: uppercase" />
+		</mat-form-field>
+		<mat-form-field appearance="outline">
+			<mat-label>Rol</mat-label>
+			<mat-select formControlName="rol">
+				<mat-option value="Admin">Admin</mat-option>
+				<mat-option value="FAC01">Fac01</mat-option>
+				<mat-option value="FAC02">Fac02</mat-option>
+				<mat-option value="CP001">Cp001</mat-option>
+				<mat-option value="CP002">Cp002</mat-option>
+			</mat-select>
+		</mat-form-field>
+		<mat-checkbox formControlName="activo">Activo</mat-checkbox>
+	</form>
+</div>
+<div mat-dialog-actions [align]="'end'">
+	<button mat-raised-button color="basic" mat-dialog-close>Cerrar</button>
+	<button mat-raised-button color="warn" (click)="clickSave()">{{ actionBtn }}</button>
+</div>

@@ -1,0 +1,68 @@
+<div class="search-div" fxLayout="row" fxLayoutAlign="end end">
+	<button mat-raised-button color="warn" (click)="openDialog()"><mat-icon>add</mat-icon>Crear</button>
+</div>
+<form class="buscar">
+	<mat-form-field class="full-with" appearance="fill">
+		<input matInput (keyup)="applyFilter($event)" placeholder="Buscar Consecutivo" #input />
+	</mat-form-field>
+</form>
+
+<div class="mat-elevation-z8">
+	<mat-table [dataSource]="listConsecutivo" matSort>
+		<ng-container matColumnDef="CodConsecutivo">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>cod Consecutivo</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.codConsecutivo }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="Descripcion">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Descripcion</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.descripcion }}</mat-cell>
+		</ng-container>
+
+		<ng-container matColumnDef="Mascara">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Mascara</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.mascara }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="SiguienteConsec">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Siguiente Consec</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.siguienteConsec }}</mat-cell>
+		</ng-container>
+
+		<ng-container matColumnDef="Tipo">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Tipo</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.tipo }}</mat-cell>
+		</ng-container>
+
+		<ng-container matColumnDef="UltimoUsuario">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Ult-Usuario</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.ultimoUsuario }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="UltFechaHora">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Ult-Fec-Hor</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.ultFechaHora | date: 'dd/MM/yyyy ' }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="actions">
+			<mat-header-cell *matHeaderCellDef>Acciones</mat-header-cell>
+			<mat-cell *matCellDef="let element">
+				<button mat-icon-button (click)="clickEdit(element)">
+					<mat-icon>edit</mat-icon>
+				</button>
+				<button title="Borrar" mat-icon-button color="warn" (click)="clickDelete(element.id)">
+					<mat-icon>delete</mat-icon>
+				</button>
+				<button title="Transacciones Configurables" mat-icon-button color="basic" (click)="clickTransacciones(element)">
+					<mat-icon>settings</mat-icon>
+				</button>
+				<button title="Privilegios de Usuario" mat-icon-button color="secondary" (click)="clickUsuario(element)">
+					<mat-icon>supervisor_account</mat-icon>
+				</button>
+			</mat-cell>
+		</ng-container>
+
+		<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+		<mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+		<tr class="mat-row" *matNoDataRow>
+			<td class="mat-cell" colspan="4">No data matching the filter "{{ input.value }}"</td>
+		</tr>
+	</mat-table>
+	<mat-paginator [pageSizeOptions]="[10, 25, 75, 100]" showFirstLastButtons></mat-paginator>
+</div>

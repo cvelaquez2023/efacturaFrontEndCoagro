@@ -1,0 +1,19 @@
+<h1 mat-dialog-title color="warn">Adicionar Ruta</h1>
+<div mat-dialog-content>
+	<form [formGroup]="rutaForm">
+		<mat-form-field appearance="outline">
+			<mat-label>Codigo de Ruta</mat-label>
+			<input formControlName="codRuta" matInput placeholder="Codigo Ruta" style="text-transform: uppercase" />
+			<mat-error *ngIf="rutaForm.get('codRuta')!.hasError('required')">El maximo de 4 Caracteres</mat-error>
+		</mat-form-field>
+		<mat-form-field appearance="outline">
+			<mat-label>Descripcion</mat-label>
+			<input formControlName="descripcion" matInput placeholder="Descripcion" style="text-transform: uppercase" />
+		</mat-form-field>
+		<mat-checkbox formControlName="activa">Activo</mat-checkbox>
+	</form>
+</div>
+<div mat-dialog-actions [align]="'end'">
+	<button mat-raised-button color="basic" mat-dialog-close>Cerrar</button>
+	<button mat-raised-button color="warn" (click)="clickSave()">{{ actionBtn }}</button>
+</div>

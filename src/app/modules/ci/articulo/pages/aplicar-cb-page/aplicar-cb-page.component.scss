@@ -1,0 +1,129 @@
+@use '../../../../../shared/styles/colors.scss';
+.formulario{
+    margin-top: 10px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+   
+}
+.mat-form-field{  
+    width: 100%;
+  
+              
+}
+
+.title_box { 
+border: colors.$text-color 1px solid; 
+margin: 10px;
+}
+
+.title_box_contable
+{ 
+border: colors.$text-color 1px solid; 
+margin: 10px 100px;
+
+}
+.title_box #title { 
+position: relative; 
+top : -0.5em;
+margin-left: 1em;
+display: inline; 
+background-color: white; 
+
+}
+.title_box #content {
+padding: 10px;
+}
+.existenciaTotal{
+width: 95%;
+}
+.mat-checkbox{
+color: colors.$primary-color;
+}
+.indicadores{
+margin: 1px 0;
+}
+.radio-group {
+display: flex;
+flex-direction: column;
+margin: 15px 0;
+align-items: flex-start;
+}
+
+.radio-button {
+margin: 5px;
+}
+.mat-radio-button{
+color: colors.$primary-color;
+}
+.content_paquete{
+  width: 100%;
+}
+
+.tipoAsiento{
+  display: grid;
+  align-items: center;
+  grid-auto-flow:column;
+  grid-template-columns:repeat(9, 1fr); 
+  grid-gap: 5px;
+}
+.tipo{
+grid-column: 3/ 4
+}
+.descripcion{
+width: 98%;
+}
+
+.contendorTransaccionesLinea{
+display: grid;
+align-items: center;
+justify-content: center;
+grid-auto-flow:column;
+grid-template-columns:repeat(9, 1fr); 
+grid-template-rows: 1fr,1fr;
+grid-gap: 5px;
+}
+.transLineaUno{
+  grid-column: 3/4;
+  
+}
+.transLineaDos{
+grid-column: 5/7;
+
+}
+.transLineaTres{
+grid-column: 8/9;
+
+}
+.centroCosto{
+display: flex;
+justify-content: center;
+}
+
+.right {
+  text-align: right;
+}
+
+
+.table {
+  width: 100vw;
+  max-width: 100%;
+  overflow: auto;
+  margin-bottom: 10px;
+  display: table;
+  border-collapse: collapse;
+  margin: 0px;
+  background-color: rgb(238, 238, 238);
+}
+
+.row,
+	.header-row {
+		display: table-row;
+		min-height: 36px !important;
+	}
+
+::ng-deep .mat-dialog-content {
+    padding: 10px !important;
+}

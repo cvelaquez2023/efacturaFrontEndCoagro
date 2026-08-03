@@ -1,0 +1,192 @@
+<div mat-dialog-content>
+	<form class="formulario grey-100" [formGroup]="Form" (ngSubmit)="onclick()">
+		<div class="generalContenedor" fxLayout="row wrap" fxLayoutAlign="center center">
+			<div fxLayout="row " fxLayoutAlign="center center" fxFlex="20">
+				<mat-form-field appearance="outline">
+					<mat-label>Codigo de Ajuste</mat-label>
+					<input formControlName="codAjuste" matInput placeholder="Codigo Ajuste" />
+				</mat-form-field>
+			</div>
+			<div fxLayout="row wrap" fxLayoutAlign="center center" fxFlex="80">
+				<mat-form-field appearance="outline">
+					<mat-label>Descripcion</mat-label>
+					<input formControlName="descripcion" matInput placeholder="Descripcion" />
+				</mat-form-field>
+			</div>
+		</div>
+		<div>
+			<mat-tab-group mat-align-tabs="center">
+				<mat-tab label="General">
+					<div fxLayout="row wrap" fxLayoutAlign="center none">
+						<div
+							fxLayout="row"
+							fxLayout.xs="column"
+							fxLayoutAlign="start stretch"
+							fxFlex="60"
+							fxFlex.xs="94"
+							fxFlex.sm="80"
+							class="tabContenedor"
+						>
+							<div class="generalContenedor">
+								<mat-form-field appearance="outline">
+									<mat-label>Ajuste Base</mat-label>
+									<mat-select formControlName="ajuste" [(ngModel)]="selected" (selectionChange)="select($event.value)">
+										<mat-option value="A">Aprobación</mat-option>
+										<mat-option value="O">Compras</mat-option>
+										<mat-option value="C">Consumo</mat-option>
+										<mat-option value="E">Ensamble</mat-option>
+										<mat-option value="S">Costo</mat-option>
+										<mat-option value="F">Físico</mat-option>
+										<mat-option value="M">Misceláneo</mat-option>
+										<mat-option value="P">Producción</mat-option>
+										<mat-option value="I">Remisión</mat-option>
+										<mat-option value="R">Reservación</mat-option>
+										<mat-option value="T">Traspaso</mat-option>
+										<mat-option value="N">Vencimineto</mat-option>
+										<mat-option value="V">Ventas</mat-option>
+									</mat-select>
+								</mat-form-field>
+
+								<section class="indicadores">
+									<p><mat-checkbox formControlName="activo">Ajuste Configurable Activo</mat-checkbox></p>
+								</section>
+								<div>
+									<mat-label>Funionalidad: </mat-label>
+									<mat-radio-group class="radio-group" formControlName="funcionalidad">
+										<mat-radio-button class="radio-button" value="E">Equivalente</mat-radio-button>
+										<mat-radio-button class="radio-button" value="O">Opuesta</mat-radio-button>
+										<mat-radio-button class="radio-button" value="A">Ambas</mat-radio-button>
+									</mat-radio-group>
+								</div>
+							</div>
+						</div>
+					</div>
+				</mat-tab>
+				<mat-tab label="SubTipos" *ngIf="selected !== ''">
+					<div fxLayout="row wrap" fxLayoutAlign="space-around none">
+						<div
+							fxLayout="row"
+							fxLayout.xs="column"
+							fxLayoutAlign="start stretch"
+							fxFlex="60"
+							fxFlex.xs="94"
+							fxFlex.sm="80"
+							class="tabContenedor"
+						>
+							<div fxLayout="row wrap" fxLayoutAlign="space-around stretch">
+								<div fxLayout="row wrap" fxFlex="50" fxLayoutAlign="center none ">
+									<div class="title_box">
+										<div id="title">Disponible</div>
+										<mat-selection-list #shoes [multiple]="false" (selectionChange)="selChange($event)">
+											<mat-list-option *ngFor="let subtipo of _subtipo" [value]="subtipo.codigo">
+												{{ subtipo.nombre }}
+											</mat-list-option>
+										</mat-selection-list>
+									</div>
+								</div>
+								<div fxLayout="row wrap" fxFlex="50" fxLayoutAlign="center none">
+									<div class="title_box">
+										<div id="title">Selecionados</div>
+										<mat-selection-list #shoes [multiple]="false">
+											<mat-list-option *ngFor="let subtipoSeleciando of _subtipoSelecionado">
+												{{ subtipoSeleciando.nombre }}
+											</mat-list-option>
+										</mat-selection-list>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</mat-tab>
+				<mat-tab label="SubSubTipos" *ngIf="selected !== ''">
+					<div fxLayout="row wrap" fxLayoutAlign="center none">
+						<div
+							fxLayout="row"
+							fxLayout.xs="column"
+							fxLayoutAlign="start stretch"
+							fxFlex="60"
+							fxFlex.xs="94"
+							fxFlex.sm="80"
+							class="tabContenedor"
+						>
+							<div fxLayout="row wrap" fxLayoutAlign="space-around stretch">
+								<div fxLayout="row wrap" fxFlex="50">
+									<div class="title_box">
+										<div id="title">Disponible</div>
+
+										<mat-selection-list #shoes [multiple]="false" (selectionChange)="selChange2($event)">
+											<mat-list-option *ngFor="let subsubtipo of _subsubtipo" [value]="subsubtipo.codigo">
+												{{ subsubtipo.nombre }}
+											</mat-list-option>
+										</mat-selection-list>
+									</div>
+								</div>
+								<div fxLayout="row wrap" fxFlex="50" fxLayoutAlign="center none">
+									<div class="title_box">
+										<div id="title">Seleccionados</div>
+										<mat-selection-list #shoes2 [multiple]="false">
+											<mat-list-option *ngFor="let subsubtipoSelecionado of _subsubtipoSelecionado">
+												{{ subsubtipoSelecionado.nombre }}
+											</mat-list-option>
+										</mat-selection-list>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</mat-tab>
+				<mat-tab label="Consecutivos">
+					<div fxLayout="row wrap" fxLayoutAlign="center none">
+						<div
+							fxLayout="row"
+							fxLayout.xs="column"
+							fxLayoutAlign="start stretch"
+							fxFlex="60"
+							fxFlex.xs="94"
+							fxFlex.sm="80"
+							class="tabContenedor"
+						></div>
+					</div>
+				</mat-tab>
+				<mat-tab label="Privilegios">
+					<div fxLayout="row wrap" fxLayoutAlign="center none">
+						<div
+							fxLayout="row"
+							fxLayout.xs="column"
+							fxLayoutAlign="start stretch"
+							fxFlex="60"
+							fxFlex.xs="94"
+							fxFlex.sm="80"
+							class="tabContenedor"
+						>
+							<div class="mat-elevation-z8">
+								<mat-table [dataSource]="listConsecutivo" matSort>
+									<ng-container matColumnDef="codigo">
+										<mat-header-cell *matHeaderCellDef mat-sort-header>Código</mat-header-cell>
+										<mat-cell *matCellDef="let element">{{ element.ajusteConfig.codAjusteConfig }}</mat-cell>
+									</ng-container>
+									<ng-container matColumnDef="nombre">
+										<mat-header-cell *matHeaderCellDef mat-sort-header>Descripción</mat-header-cell>
+										<mat-cell *matCellDef="let element">{{ element.ajusteConfig.descripcion }}</mat-cell>
+									</ng-container>
+									<ng-container matColumnDef="tipobase">
+										<mat-header-cell *matHeaderCellDef mat-sort-header>Tipo Base</mat-header-cell>
+										<mat-cell *matCellDef="let element">{{ element.ajusteConfig.ajusteBase }}</mat-cell>
+									</ng-container>
+
+									<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+									<mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+								</mat-table>
+								<mat-paginator [pageSizeOptions]="[10, 25, 75, 100]" showFirstLastButtons></mat-paginator>
+							</div>
+						</div>
+					</div>
+				</mat-tab>
+			</mat-tab-group>
+		</div>
+		<div mat-dialog-actions [align]="'end'">
+			<button mat-raised-button color="basic" mat-dialog-close>Cerrar</button>
+			<button mat-raised-button color="warn" type="submit">{{ actionBtn }}</button>
+		</div>
+	</form>
+</div>

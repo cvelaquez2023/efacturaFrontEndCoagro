@@ -1,0 +1,45 @@
+<div class="search-div" fxLayout="row" fxLayoutAlign="end end">
+	<button mat-raised-button color="warn" (click)="openDialog()"><mat-icon>add</mat-icon>Crear</button>
+</div>
+<form class="buscar">
+	<mat-form-field class="full-with" appearance="fill">
+		<input matInput (keyup)="applyFilter($event)" placeholder="Buscar Clasificacion" #input />
+	</mat-form-field>
+</form>
+
+<div class="mat-elevation-z8">
+	<mat-table [dataSource]="listDatos" matSort>
+		<ng-container matColumnDef="codClasificacion">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>codClasificacion</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.codClasificacion }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="descripcion">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Descripcion</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.descripcion }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="medida">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Medida</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.activa }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="tipo">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>tipo</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.activa }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="actions">
+			<mat-header-cell *matHeaderCellDef></mat-header-cell>
+			<mat-cell *matCellDef="let element">
+				<button mat-icon-button (click)="clickEdit(element)">
+					<mat-icon>edit</mat-icon>
+				</button>
+				<button mat-icon-button color="warn" (click)="clickDelete(element.id)"><mat-icon>delete</mat-icon></button>
+			</mat-cell>
+		</ng-container>
+
+		<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+		<mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+		<tr class="mat-row" *matNoDataRow>
+			<td class="mat-cell" colspan="4">No data matching the filter "{{ input.value }}"</td>
+		</tr>
+	</mat-table>
+	<mat-paginator [pageSizeOptions]="[10, 25, 75, 100]" showFirstLastButtons></mat-paginator>
+</div>

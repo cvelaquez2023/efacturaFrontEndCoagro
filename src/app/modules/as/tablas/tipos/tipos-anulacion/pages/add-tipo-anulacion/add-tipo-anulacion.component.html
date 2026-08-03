@@ -1,0 +1,22 @@
+<h1 mat-dialog-title color="warn">Adicionar Tipo Anulación</h1>
+<div mat-dialog-content>
+	<form [formGroup]="tipoAnulacionForm">
+		<mat-form-field appearance="outline">
+			<mat-label>Codigo Tipo Anulacion</mat-label>
+			<input formControlName="codTipoAnulacion" matInput placeholder="Codigo Tipo Anulación" />
+			<mat-error *ngIf="tipoAnulacionForm.get('codTipoAnulacion')!.hasError('required')"
+				>El maximo de 10 Caracteres</mat-error
+			>
+		</mat-form-field>
+		<mat-form-field appearance="outline">
+			<mat-label>Nombre</mat-label>
+			<input formControlName="nombre" matInput placeholder="Nombre Cobrador" style="text-transform: uppercase" />
+		</mat-form-field>
+
+		<mat-checkbox formControlName="activo">Activo</mat-checkbox>
+	</form>
+</div>
+<div mat-dialog-actions [align]="'end'">
+	<button mat-raised-button color="basic" mat-dialog-close>Cerrar</button>
+	<button mat-raised-button color="warn" (click)="clickSave()">{{ actionBtn }}</button>
+</div>

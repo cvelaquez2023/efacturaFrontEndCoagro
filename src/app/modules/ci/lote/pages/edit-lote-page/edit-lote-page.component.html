@@ -1,0 +1,105 @@
+<form class="formulario" [formGroup]="formLote" (ngSubmit)="adicionar()">
+	<mat-tab-group mat-alig-tabs="center">
+		<mat-tab label="General">
+			<div class="contenedor">
+				<section class="bloqueUno">
+					<div class="contenedordetalle">
+						<div class="inputizq">
+							<mat-form-field appearance="outline">
+								<mat-label>Lote</mat-label>
+								<input formControlName="lote" matInput />
+							</mat-form-field>
+						</div>
+						<div class="inputder">
+							<p class="ckeck">
+								<mat-checkbox formControlName="perecedero">Perecedero</mat-checkbox>
+							</p>
+						</div>
+					</div>
+					<div class="contenedordetalle">
+						<div class="inputizq">
+							<mat-form-field appearance="outline">
+								<mat-label>Articulo</mat-label>
+								<input formControlName="articulo" matInput />
+							</mat-form-field>
+						</div>
+						<div class="inputder">
+							<mat-form-field appearance="outline">
+								<mat-label>Descripcion</mat-label>
+								<input formControlName="descripcion" matInput />
+							</mat-form-field>
+						</div>
+					</div>
+					<div class="contenedordetalle">
+						<div class="inputizq">
+							<mat-form-field appearance="outline">
+								<mat-label>Proveedor</mat-label>
+								<input formControlName="proveedor" matInput />
+							</mat-form-field>
+						</div>
+						<div class="inputder">
+							<mat-form-field appearance="outline">
+								<mat-label>Nombre Proveedor</mat-label>
+								<input formControlName="nomproveedor" matInput />
+							</mat-form-field>
+						</div>
+					</div>
+				</section>
+				<section class="bloqueDos">
+					<div>
+						<mat-form-field appearance="outline">
+							<mat-label>Lote Proveedor</mat-label>
+							<input formControlName="loteprov" matInput />
+						</mat-form-field>
+
+						<mat-form-field appearance="outline">
+							<mat-label>Cantidad</mat-label>
+							<input formControlName="cantidad" matInput />
+						</mat-form-field>
+						<mat-form-field appearance="outline">
+							<mat-label>Entrada</mat-label>
+							<input formControlName="fechaEntrada" matInput />
+						</mat-form-field>
+						<mat-form-field appearance="outline">
+							<mat-label>Cuarentena</mat-label>
+							<input formControlName="fechaCuarentena" matInput />
+						</mat-form-field>
+						<mat-form-field appearance="outline">
+							<mat-label>Vencimiento</mat-label>
+							<input formControlName="fechaVencimiento" matInput />
+						</mat-form-field>
+					</div>
+					<div>
+						<div class="title_box">
+							<div id="title">Estado</div>
+							<div class="contenedor_box">
+								<mat-radio-group formControlName="estado" aria-label="Select an option">
+									<mat-radio-button value="C">Cuarentena</mat-radio-button>
+									<mat-radio-button value="V">Vencido</mat-radio-button>
+									<mat-radio-button value="A">Aprobado</mat-radio-button>
+									<mat-radio-button value="T">Tránsito</mat-radio-button>
+									<mat-radio-button value="R">Reservado</mat-radio-button>
+								</mat-radio-group>
+							</div>
+						</div>
+						<div class="title_box">
+							<div id="title">Tipo de Ingreso</div>
+							<div class="contenedor_box">
+								<mat-radio-group formControlName="ingreso" aria-label="Select an option">
+									<mat-radio-button value="P">Parcial</mat-radio-button>
+									<mat-radio-button value="T">Total</mat-radio-button>
+								</mat-radio-group>
+							</div>
+						</div>
+					</div>
+				</section>
+			</div>
+		</mat-tab>
+		<mat-tab label="Ingreso"></mat-tab>
+		<mat-tab label="Notas"></mat-tab>
+	</mat-tab-group>
+	<div mat-dialog-actions [align]="'end'">
+		<button mat-raised-button type="button" color="warn">Guardar</button>
+		<button mat-raised-button color="basic" mat-dialog-close>Cerrar</button>
+	</div>
+</form>

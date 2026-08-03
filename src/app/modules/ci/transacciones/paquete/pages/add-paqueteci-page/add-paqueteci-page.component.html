@@ -1,0 +1,374 @@
+<form class="formulario" [formGroup]="formPaquete" (ngSubmit)="adicionar()">
+	<div class="formulario_encabezado">
+		<div class="encabezado_consecutivo">
+			<mat-form-field appearance="outline">
+				<mat-label>Consecutivo</mat-label>
+				<mat-select
+					formControlName="codConsecutivo"
+					(selectionChange)="selectConsecutivo($event.value)"
+					[(ngModel)]="seleccion"
+				>
+					<mat-option *ngFor="let consecutivo of consecutivos" [value]="consecutivo.id">
+						{{ consecutivo.codConsecutivo }}
+					</mat-option>
+				</mat-select>
+			</mat-form-field>
+		</div>
+		<div class="encabezado_descripcion">
+			<div *ngFor="let selecion of consecutivoselecionado">
+				<mat-form-field appearance="outline">
+					<input
+						formControlName="descripcion"
+						value="{{ selecion.siguienteConsec }}"
+						placeholder="{{ selecion.siguienteConsec }}"
+						matInput
+					/>
+				</mat-form-field>
+			</div>
+		</div>
+	</div>
+	<mat-tab-group mat-align-tabs="center" class="container_tab_documento">
+		<mat-tab label="Documento">
+			<div class="title_box">
+				<div id="title">Datos</div>
+				<div class="contenedor_box">
+					<div class="box_item1">
+						<mat-form-field appearance="outline">
+							<mat-label>Fecha</mat-label>
+							<input formControlName="fecha" type="date" matInput placeholder="Fecha de Transaccion" />
+						</mat-form-field>
+					</div>
+					<div class="box_item2">
+						<mat-form-field appearance="outline">
+							<mat-label>Referencia</mat-label>
+							<textarea formControlName="referencia" style="width: 600px; height: 75px" matInput></textarea>
+						</mat-form-field>
+					</div>
+				</div>
+			</div>
+
+			<div class="title_box">
+				<div class="contenedor__user">
+					<div class="user__usuario">
+						<mat-form-field appearance="outline">
+							<mat-label>Usuario</mat-label>
+							<input type="text" matInput placeholder="Usuario" readonly />
+						</mat-form-field>
+					</div>
+					<div class="user__nombre">
+						<mat-form-field appearance="outline">
+							<mat-label>Nombre </mat-label>
+							<input type="text" matInput placeholder="Nombre" readonly />
+						</mat-form-field>
+					</div>
+					<div class="user__fechacreacion">
+						<mat-form-field appearance="outline">
+							<mat-label>Fecha Creacion</mat-label>
+							<input type="text" matInput placeholder="Fecha Creacion" readonly />
+						</mat-form-field>
+					</div>
+				</div>
+			</div>
+		</mat-tab>
+		<mat-tab label="Transacción">
+			<div class="contenedor__trans">
+				<div class="title_box">
+					<div class="box__tipo">
+						<div class="tipo__item1">
+							<mat-form-field appearance="outline">
+								<mat-label>Tipo</mat-label>
+								<mat-select
+									formControlName="ajuste"
+									[(ngModel)]="ajusteSelect"
+									(selectionChange)="selectTipo($event.value)"
+								>
+									<mat-option *ngFor="let asjute of ajuste" [value]="asjute.ajusteConfig.id">{{
+										asjute.ajusteConfig.descripcion
+									}}</mat-option>
+								</mat-select>
+							</mat-form-field>
+						</div>
+
+						<div *ngIf="ajusteSelect === 5" class="tipo__item2">
+							<mat-form-field appearance="outline">
+								<mat-label>Fase</mat-label>
+								<input formControlName="fase" type="text" matInput placeholder="Fase" />
+							</mat-form-field>
+						</div>
+						<div *ngIf="ajusteSelect === 5" class="tipo__item3">
+							<mat-form-field appearance="outline">
+								<mat-label>Ordern Cambio</mat-label>
+								<input formControlName="ordenCambio" type="text" matInput placeholder="Orden Cambio" />
+							</mat-form-field>
+						</div>
+					</div>
+					<div *ngIf="ajusteSelect === 2" class="box__cuentacontable">
+						<div class="ctrocosto__item1">
+							<mat-form-field appearance="outline">
+								<mat-label>Ctro Costo</mat-label>
+								<input formControlName="centroCosto" type="text" matInput placeholder="Ctro Costo" />
+							</mat-form-field>
+
+							<mat-checkbox style="padding-left: 10px"></mat-checkbox>
+						</div>
+						<div class="ctacontable__item2">
+							<mat-form-field appearance="outline">
+								<mat-label>Cta.Contable</mat-label>
+								<input type="text" formControlName="cuentaContable" matInput placeholder="Cta.Contable" />
+							</mat-form-field>
+
+							<mat-checkbox style="padding-left: 10px"></mat-checkbox>
+						</div>
+					</div>
+					<div class="box__bodega">
+						<div class="bodega__codigo">
+							<mat-form-field appearance="outline">
+								<mat-label>bodega</mat-label>
+								<mat-select formControlName="bodegaDestino" (selectionChange)="selectBodegaDestino($event.value)">
+									<mat-option *ngFor="let bodega of datosBodega" [value]="bodega.id">
+										{{ bodega.codBodega }}
+									</mat-option>
+								</mat-select>
+							</mat-form-field>
+						</div>
+						<div class="bodega__descripcion">
+							<mat-form-field appearance="outline">
+								<mat-label>Descripcion</mat-label>
+								<input type="text" matInput readonly />
+							</mat-form-field>
+						</div>
+						<div class="bodega__localizacion">
+							<mat-form-field appearance="outline">
+								<mat-label>Localizacion</mat-label>
+								<mat-select formControlName="locDestino">
+									<mat-option *ngFor="let localizacion of localizaciones" [value]="localizacion.id">
+										{{ localizacion.codLocalizacion }}-{{ localizacion.descripcion }}
+									</mat-option>
+								</mat-select>
+							</mat-form-field>
+						</div>
+						<div *ngIf="ajusteSelect === 6" class="bodega__codigodestino">
+							<mat-form-field appearance="outline">
+								<mat-label>Bod.Dest</mat-label>
+								<mat-select formControlName="bodega" (selectionChange)="selectBodega($event.value)">
+									<mat-option *ngFor="let bodega of datosBodega" [value]="bodega.id">
+										{{ bodega.codBodega }}
+									</mat-option>
+								</mat-select>
+							</mat-form-field>
+						</div>
+						<div *ngIf="ajusteSelect === 6" class="bodega__descripcion">
+							<mat-form-field appearance="outline">
+								<mat-label>Descripcion</mat-label>
+								<input type="text" matInput placeholder="Descripcion" readonly />
+							</mat-form-field>
+						</div>
+						<div *ngIf="ajusteSelect === 6" class="bodega__localizaciondestino">
+							<mat-form-field appearance="outline">
+								<mat-label>Loc.Destino</mat-label>
+								<mat-select formControlName="localizacion">
+									<mat-option *ngFor="let localizacion of localizaciones" [value]="localizacion.id">
+										{{ localizacion.codLocalizacion }}-{{ localizacion.descripcion }}
+									</mat-option>
+								</mat-select>
+							</mat-form-field>
+						</div>
+					</div>
+				</div>
+				<!-- Inicio box Articulo -->
+				<div class="title_box">
+					<div class="box__articulo">
+						<div class="articulo__item1">
+							<mat-form-field appearance="outline">
+								<mat-label>Articulo</mat-label>
+								<mat-select formControlName="articulo" (selectionChange)="selectArticulo($event.value)">
+									<mat-option *ngFor="let articulo of existenciaBodega" [value]="articulo.articulo.id">
+										{{ articulo.articulo.codArticulo }}-{{ articulo.articulo.descripcion }}
+									</mat-option>
+								</mat-select>
+							</mat-form-field>
+						</div>
+						<div class="articulo__item2">
+							<mat-form-field appearance="outline">
+								<mat-label>Descripcion</mat-label>
+								<input type="text" matInput placeholder="Descripcion" />
+							</mat-form-field>
+						</div>
+					</div>
+				</div>
+				<!-- Fin box Articulo -->
+				<!-- box de cantidad -->
+				<div class="title_box">
+					<div class="box__cantidad">
+						<div class="cantidad__item1">
+							<mat-form-field appearance="outline">
+								<mat-label>Cantidad</mat-label>
+								<input type="text" formControlName="cantidad" matInput placeholder="Cantidad" appDecimal />
+								<mat-error *ngIf="formPaquete.get('cantidad')!.hasError('required')"
+									>La cantidad es requerido</mat-error
+								>
+								<mat-error *ngIf="formPaquete.get('cantidad')!.hasError('pattern')"
+									>El Formato no es correcto</mat-error
+								>
+							</mat-form-field>
+						</div>
+						<div class="cantidad__item2">
+							<mat-form-field appearance="outline">
+								<mat-label>Cant.Detalle</mat-label>
+								<input
+									formControlName="cantidadDetalle"
+									type="number"
+									matInput
+									placeholder="Cantidad Detalle"
+									appDecimal
+								/>
+								<mat-error *ngIf="formPaquete.get('cantidadDetalle')!.hasError('required')"
+									>La cantidad es requerido</mat-error
+								>
+								<mat-error *ngIf="formPaquete.get('cantidadDetalle')!.hasError('pattern')"
+									>El Formato no es correcto</mat-error
+								>
+							</mat-form-field>
+						</div>
+					</div>
+				</div>
+				<!-- Fin box cantidad -->
+				<!-- Inicio box subtipos y lote -->
+				<div class="title_box">
+					<div class="box__cantidad">
+						<div class="cantidad__item1">
+							<mat-form-field appearance="outline">
+								<mat-label>Tipo</mat-label>
+								<mat-select formControlName="subtipo">
+									<mat-option *ngFor="let ajusteSubtipo of ajusteSubtipo" [value]="ajusteSubtipo.subTipo">
+										{{ ajusteSubtipo.subTipo }}
+									</mat-option>
+								</mat-select>
+							</mat-form-field>
+						</div>
+						<div class="cantidad__item2">
+							<mat-form-field appearance="outline">
+								<mat-label>S.s. tipo</mat-label>
+								<mat-select formControlName="subsubtipo">
+									<mat-option *ngFor="let ajusteSubSubtipo of ajusteSubSubTipo" [value]="ajusteSubSubtipo.subsubtipo">
+										{{ ajusteSubSubtipo.subsubtipo }}
+									</mat-option>
+								</mat-select>
+							</mat-form-field>
+						</div>
+						<div class="cantidad__item3">
+							<mat-form-field appearance="outline">
+								<mat-label>Lote</mat-label>
+								<mat-select formControlName="lote">
+									<mat-option *ngFor="let lote of existenciaLote" [value]="lote.lote.id">
+										{{ lote.lote.codLote }}
+									</mat-option>
+								</mat-select>
+							</mat-form-field>
+						</div>
+						<div>
+							<button mat-raised-button type="button" color="warn" (click)="lote()">Lote</button>
+						</div>
+					</div>
+				</div>
+				<!-- Fin box subtipos y lote -->
+				<!-- Inicio box de costo -->
+				<div class="contenedor_costo">
+					<div class="box__costolocal">
+						<div class="title_box">
+							<div id="title">Costo Unitario Local</div>
+
+							<div class="costo__item">
+								<div class="costo__item1">
+									<mat-form-field appearance="outline">
+										<mat-label>Costo Fical Local</mat-label>
+
+										<input
+											currencyMask
+											[options]="{
+												prefix: '$ ',
+												thousands: ',',
+												decimal: '.',
+												precision: '4',
+												suffix: '',
+												align: 'right',
+												allowNegative: true
+											}"
+											formControlName="costofiscallocal"
+											matInput
+											placeholder="Fiscal Local"
+										/>
+									</mat-form-field>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="box__costodolar">
+						<div class="title_box">
+							<div id="title">Costo Dólar</div>
+
+							<div class="costo__item">
+								<div class="costo__item2">
+									<mat-form-field appearance="outline">
+										<mat-label>Costo Fical Dólar</mat-label>
+										<input formControlName="costofiscaldolar" appKzMaskCurrency="{decimal:'.',milhar:','}" matInput />
+									</mat-form-field>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Fin box de costo -->
+				<!-- Inicio box Precio -->
+				<div class="title_box">
+					<div class="box__cantidad">
+						<div class="cantidad__item1">
+							<mat-form-field appearance="outline">
+								<mat-label>Precio Unitario Local</mat-label>
+								<input
+									formControlName="precioUnitarioLocal"
+									type="number"
+									matInput
+									placeholder="Precio Unitario Local"
+								/>
+							</mat-form-field>
+						</div>
+						<div class="cantidad__item2">
+							<mat-form-field appearance="outline">
+								<mat-label>Precio Unitario Dólar</mat-label>
+								<input
+									formControlName="precioUnitarioDolar"
+									type="number"
+									matInput
+									placeholder="Precio Unitario Dólar"
+								/>
+							</mat-form-field>
+						</div>
+						<div class="butonguardar">
+							<button mat-raised-button color="warn" type="button" (click)="guardar()">Guardar Linea</button>
+						</div>
+					</div>
+				</div>
+				<!-- Fin box Precio -->
+			</div>
+		</mat-tab>
+		<mat-tab class="tabContenedor" label="Existencias"> </mat-tab>
+		<mat-tab class="tabContenedor" label="Líneas">
+			<div fxLayout="row wrap" fxLayoutAlign="center none">
+				<div
+					fxLayout="row"
+					fxLayout.xs="column"
+					fxLayoutAlign="start stretch"
+					fxFlex="80"
+					fxFlex.xs="94"
+					fxFlex.sm="80"
+					class="tabContenedor"
+				></div>
+			</div>
+		</mat-tab>
+	</mat-tab-group>
+	<div mat-dialog-actions [align]="'end'">
+		<button mat-raised-button type="button" color="warn">{{ actionBtn }}</button>
+		<button mat-raised-button color="basic" mat-dialog-close>Cerrar</button>
+	</div>
+</form>

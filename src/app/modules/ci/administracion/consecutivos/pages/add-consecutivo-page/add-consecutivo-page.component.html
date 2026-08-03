@@ -1,0 +1,151 @@
+<form class="formulario grey-100" [formGroup]="consecutivoForm">
+	<div fxLayout="row" fxLayoutAlign="center none">
+		<div fxLayout="row wrap" fxLayoutAlign="center center" fxFlex="30">
+			<mat-form-field appearance="outline">
+				<mat-label>Consecutivo</mat-label>
+				<input formControlName="codConsecutivo" type="text" matInput placeholder="Codigo Consecutivo" />
+			</mat-form-field>
+		</div>
+		<div fxLayout="row wrap" fxLayoutAlign="center center" fxFlex="70">
+			<mat-form-field appearance="outline">
+				<mat-label>Descripcion</mat-label>
+				<input formControlName="descripcion" type="text" matInput placeholder="Descripicon Consecutivo" />
+			</mat-form-field>
+		</div>
+	</div>
+
+	<mat-tab-group mat-align-tabs="center">
+		<mat-tab label="Generales">
+			<div fxLayout="row wrap" fxLayoutAlign="center none">
+				<div
+					fxLayout="row"
+					fxLayout.xs="column"
+					fxLayoutAlign="start stretch"
+					fxFlex="80"
+					fxFlex.xs="94"
+					fxFlex.sm="80"
+					class="generalContenedor"
+				>
+					<div fxLayout="row wrap" fxLayoutAlign="center center" fxFlex="100">
+						<div class="title_box">
+							<div id="content">
+								<mat-form-field appearance="outline">
+									<mat-label>Máscara</mat-label>
+									<input formControlName="mascara" type="text" matInput placeholder="Máscara" [disabled]="true" />
+								</mat-form-field>
+								<mat-form-field appearance="outline">
+									<mat-label>Siguiente Valor</mat-label>
+									<input formControlName="siguienteValor" type="text" matInput placeholder="Siguiente Valor" />
+								</mat-form-field>
+								<mat-form-field appearance="outline">
+									<mat-label>Consecutivo para</mat-label>
+									<mat-select formControlName="consecutivoPara" [disabled]="disableSelect.value">
+										<mat-option value="TINV">Transacciones de Inventario</mat-option>
+										<mat-option value="TPRO">Ordenes de Produccion</mat-option>
+									</mat-select>
+								</mat-form-field>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div fxLayout="row wrap" fxLayoutAlign="center none">
+				<div
+					fxLayout="row"
+					fxLayout.xs="column"
+					fxLayoutAlign="start stretch"
+					fxFlex="60"
+					fxFlex.xs="94"
+					fxFlex.sm="80"
+					class="generalContenedor"
+				>
+					<div fxLayout="row wrap" fxLayoutAlign="center center" fxFlex="100">
+						<div class="title_box">
+							<div id="title">Propiedades</div>
+							<div id="content">
+								<div fxLayout="row wrap" fxLayoutAlign="space-between center" fxFlex="100">
+									<p><mat-checkbox formControlName="editable">Editable</mat-checkbox></p>
+									<p>
+										<mat-checkbox formControlName="asociado"
+											>Asociado con todas las Transacciones Configurables</mat-checkbox
+										>
+									</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</mat-tab>
+		<mat-tab label="Transacciones Configurables">
+			<div fxLayout="row wrap" fxLayoutAlign="center none">
+				<div
+					fxLayout="row"
+					fxLayout.xs="column"
+					fxLayoutAlign="start stretch"
+					fxFlex="80"
+					fxFlex.xs="94"
+					fxFlex.sm="80"
+					class="generalContenedor"
+				>
+					<div fxLayout="row wrap" fxLayoutAlign="center center" fxFlex="100">
+						<div class="title_box">
+							<div id="content">
+								<mat-form-field appearance="outline">
+									<mat-label>Ajustes Configurables</mat-label>
+									<mat-select formControlName="ajuste" [disabled]="disableSelect.value">
+										<mat-option *ngFor="let ajuste of ajustes" [value]="ajuste.id">
+											{{ ajuste.descripcion }}
+										</mat-option>
+									</mat-select>
+								</mat-form-field>
+								<div class="search-div" fxLayout="column" fxLayoutAlign="end end">
+									<button mat-raised-button color="warn" (click)="adicionar()">
+										<mat-icon>add</mat-icon>Adicionar
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- ponemos la tabla -->
+				<div class="mat-elevation-z8">
+					<mat-table [dataSource]="listBodega" matSort>
+						<ng-container matColumnDef="codigo">
+							<mat-header-cell *matHeaderCellDef mat-sort-header>Código</mat-header-cell>
+							<mat-cell *matCellDef="let element">{{ element.ajusteConfig.codAjusteConfig }}</mat-cell>
+						</ng-container>
+						<ng-container matColumnDef="nombre">
+							<mat-header-cell *matHeaderCellDef mat-sort-header>Descripción</mat-header-cell>
+							<mat-cell *matCellDef="let element">{{ element.ajusteConfig.descripcion }}</mat-cell>
+						</ng-container>
+						<ng-container matColumnDef="tipobase">
+							<mat-header-cell *matHeaderCellDef mat-sort-header>Tipo Base</mat-header-cell>
+							<mat-cell *matCellDef="let element">{{ element.ajusteConfig.ajusteBase }}</mat-cell>
+						</ng-container>
+
+						<ng-container matColumnDef="actions">
+							<mat-header-cell *matHeaderCellDef></mat-header-cell>
+							<mat-cell *matCellDef="let element">
+								<button mat-icon-button color="warn" (click)="clickDelete(element.id)">
+									<mat-icon>delete</mat-icon>
+								</button>
+							</mat-cell>
+						</ng-container>
+
+						<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+						<mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+					</mat-table>
+					<mat-paginator [pageSizeOptions]="[10, 25, 75, 100]" showFirstLastButtons></mat-paginator>
+				</div>
+			</div>
+		</mat-tab>
+
+		<mat-tab label="Usuarios"></mat-tab>
+		<mat-tab label="Auditoría"></mat-tab>
+	</mat-tab-group>
+	<div mat-dialog-actions [align]="'end'">
+		<button mat-raised-button color="warn">{{ actionBtn }}</button>
+		<button mat-raised-button color="basic" mat-dialog-close>Cerrar</button>
+	</div>
+</form>

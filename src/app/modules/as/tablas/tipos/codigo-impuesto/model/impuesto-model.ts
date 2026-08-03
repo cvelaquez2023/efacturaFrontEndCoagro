@@ -1,0 +1,56 @@
+export interface ImpuestoModelConsulta {
+	id: number;
+	codImpuesto: string;
+	descripcion: string;
+	Impuesto1: string;
+	Impuesto2: string;
+	UsaImpuesto2Cantidad: string;
+	Impuesto2Cantidad: string;
+	CalculoImp2: string;
+	TipoContabImp1: string;
+	TipoContabImp2: string;
+	ContabDevImp1: string;
+	ContabDevImp2: string;
+	CtrCtaImp1Id: number;
+	CtrCtaImp2GenId: number;
+	CtrCtaImp1GenVtsId: number;
+	CtrCtaImp2GenVtsId: number;
+	CtrCtaImp1DesCompId: number;
+	CtrCtaImp2DesCompId: number;
+	CtrCtaImp1DevCompId: number;
+	CtrCtaImp2DevCompId: number;
+	CtrCtaImp1DevVentasId: number;
+	CtrCtaImp2DevVentasId: number;
+	TipoImpuesto1: string;
+	TipoImpuesto2: string;
+	TipoTarifa1: string;
+	TipoTarifa2: string;
+	Activo: string;
+}
+export interface ICreateImpuesto {
+	CodImpuesto: string;
+	Descripcion: string;
+	Impuesto1: number;
+	Impuesto2: number;
+	UsaImpuesto2Cantidad: string;
+	Impuesto2Cantidad: number;
+	CalculoImp2: string;
+	TipoContabImp1: string;
+	TipoContabImp2: string;
+	ContabDevImp1: string;
+	ContabDevImp2: string;
+	CtrCtaImp1Id: number;
+	CtrCtaImp2Id: number;
+	//CtrCtaImp2GenId: number;
+	CtrCtaImp1GenVtsId: number;
+	CtrCtaImp2GenVtsId: number;
+	CtrCtaImp1DesCompId: number;
+	CtrCtaImp2DesCompId: number;
+	CtrCtaImp1DevCompId: number;
+	CtrCtaImp2DevCompId: number;
+	CtrCtaImp1DevVentasId: number;
+	CtrCtaImp2DevVentasId: number;
+	TipoImpuesto1: string;
+	//TipoImpuesto2: string;
+	Activo: boolean;
+}

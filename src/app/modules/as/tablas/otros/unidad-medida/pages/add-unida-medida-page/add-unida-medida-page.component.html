@@ -1,0 +1,18 @@
+<h1 mat-dialog-title color="warn">Adicionar Unidad de Medida</h1>
+<div mat-dialog-content>
+	<form [formGroup]="f">
+		<mat-form-field appearance="outline">
+			<mat-label>Unidad de Medida</mat-label>
+			<input formControlName="codUnidadMedida" matInput placeholder="Unidad de Medida" />
+			<mat-error *ngIf="f.get('codUnidadMedida')!.hasError('required')">El maximo de 4 Caracteres</mat-error>
+		</mat-form-field>
+		<mat-form-field appearance="outline">
+			<mat-label>Descripcion</mat-label>
+			<input formControlName="descripcion" matInput placeholder="Descripcion" />
+		</mat-form-field>
+	</form>
+</div>
+<div mat-dialog-actions [align]="'end'">
+	<button mat-raised-button color="basic" mat-dialog-close>Cerrar</button>
+	<button mat-raised-button color="warn" (click)="clickSave()">{{ actionBtn }}</button>
+</div>

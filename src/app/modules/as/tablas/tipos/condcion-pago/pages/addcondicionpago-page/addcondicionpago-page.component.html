@@ -1,0 +1,64 @@
+<h1 mat-dialog-title color="warn">Condición Pago</h1>
+<div mat-dialog-content>
+	<form class="formulario grey-100" [formGroup]="codicionPagoForm">
+		<div class="title_box">
+			<div class="bloque">
+				<div class="codigo">
+					<mat-form-field appearance="outline">
+						<mat-label>Codigo Condición Pago</mat-label>
+						<input
+							formControlName="codCondicionPago"
+							matInput
+							placeholder="Codigo Condicion Pago"
+							maxlength="4"
+							style="text-transform: uppercase"
+						/>
+						<mat-error *ngIf="codicionPagoForm.get('codCondicionPago')!.hasError('required')"
+							>El Maximo de 4 Carateres
+						</mat-error>
+					</mat-form-field>
+				</div>
+				<div class="descripcion">
+					<mat-form-field appearance="outline">
+						<mat-label>Descripcion</mat-label>
+						<input
+							formControlName="descripcion"
+							matInput
+							placeholder="Descripcion"
+							style="text-transform: capitalize"
+						/>
+					</mat-form-field>
+				</div>
+			</div>
+			<div class="bloque bloque2">
+				<mat-form-field appearance="outline">
+					<mat-label>Dias Neto</mat-label>
+					<input
+						formControlName="diasNeto"
+						type="number"
+						min="1"
+						step="1"
+						matInput
+						placeholder="Dias Neto"
+						(keydown)="filtro($event)"
+					/>
+				</mat-form-field>
+				<mat-checkbox formControlName="permitePlanPagos">Permite plan de pagos</mat-checkbox>
+			</div>
+			<div class="bloque bloque3">
+				<mat-form-field appearance="outline">
+					<mat-label>Plazo</mat-label>
+					<input formControlName="plazo" type="number" matInput placeholder="Plazos" />
+				</mat-form-field>
+				<mat-form-field appearance="outline">
+					<mat-label>Descuento Contado</mat-label>
+					<input formControlName="descuentoContado" type="number" matInput placeholder="DescuentoContado" />
+				</mat-form-field>
+			</div>
+		</div>
+	</form>
+</div>
+<div mat-dialog-actions [align]="'end'">
+	<button mat-raised-button color="basic" mat-dialog-close>Cerrar</button>
+	<button mat-raised-button color="warn" (click)="clickSave()">{{ actionBtn }}</button>
+</div>

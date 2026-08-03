@@ -1,0 +1,32 @@
+@use '../../../../styles/colors.scss';
+.tree-demo-container{
+    font-family: "Roboto";
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 1px;
+}
+.leaf-node{
+    padding-left: 30px;
+}
+
+.example-tree-invisible{
+    display: none;
+}
+
+.example-tree-ul,
+.example-tree-le {
+    margin-top: 0;
+    margin-bottom: 0;
+    list-style-type: none;
+}
+
+.example-tree .mat-nested-tree-node .nested-node{
+    padding-left: 40px;
+}
+.link:hover{
+        color: colors.$primary-color;
+        cursor: pointer;
+        font-weight: bold;
+      
+}

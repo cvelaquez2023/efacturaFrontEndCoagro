@@ -1,0 +1,171 @@
+<h1 mat-dialog-title color="warn">Datos Sujeto Excluido</h1>
+<div mat-dialog-content>
+	<div fxLayout="column" fxLayoutGap="0px">
+		<form [formGroup]="vendedorForm">
+			<div fxLayout="row wrap">
+				<div fxFlex="25" fxFlex.lt-md="100" fxLayout="column">
+					<mat-form-field appearance="outline">
+						<mat-label>DUI</mat-label>
+						<input
+							formControlName="DUI"
+							matInput
+							placeholder="DUI Proveedor"
+							style="font-weight: bold; color: black; font-size: large"
+							(blur)="onChangeDui($event.target)"
+							[(ngModel)]="_dui"
+						/>
+					</mat-form-field>
+				</div>
+				<div fxFlex="75" fxFlex.lt-md="100" fxLayout="column">
+					<mat-form-field appearance="outline">
+						<mat-label>Nombre</mat-label>
+						<input
+							formControlName="nombre"
+							matInput
+							style="font-weight: bold; color: black; font-size: large"
+							type="text"
+							readonly
+						/>
+					</mat-form-field>
+				</div>
+			</div>
+
+			<mat-form-field appearance="outline">
+				<mat-label>Direccion</mat-label>
+				<input
+					formControlName="direccion"
+					matInput
+					style="font-weight: bold; color: black; font-size: large; text-transform: uppercase"
+					readonly
+				/>
+			</mat-form-field>
+			<div fxLayout="row wrap">
+				<div fxFlex="50" fxFlex.lt-md="100" fxLayout="column">
+					<mat-form-field appearance="outline">
+						<mat-label>Departamento</mat-label>
+						<input
+							formControlName="departamento"
+							matInput
+							style="font-weight: bold; color: black; font-size: large; text-transform: uppercase"
+							readonly
+						/>
+					</mat-form-field>
+				</div>
+				<div fxFlex="50" fxFlex.lt-md="100" fxLayout="column">
+					<mat-form-field appearance="outline">
+						<mat-label>Municipio</mat-label>
+						<input
+							formControlName="municipio"
+							matInput
+							style="font-weight: bold; color: black; font-size: large; text-transform: uppercase"
+							readonly
+						/>
+					</mat-form-field>
+				</div>
+			</div>
+			<div fxLayout="row wrap">
+				<div fxFlex="20" fxFlex.lt-md="100" fxLayout="column">
+					<mat-form-field appearance="outline">
+						<mat-label>Telefono</mat-label>
+						<input
+							formControlName="telefono"
+							matInput
+							style="font-weight: bold; color: black; font-size: large; text-transform: uppercase"
+							readonly
+						/>
+					</mat-form-field>
+				</div>
+				<div fxFlex="80" fxFlex.lt-md="100" fxLayout="column">
+					<mat-form-field appearance="outline">
+						<mat-label>Correo</mat-label>
+						<input
+							formControlName="correo"
+							matInput
+							style="font-weight: bold; color: black; font-size: large"
+							readonly
+						/>
+					</mat-form-field>
+				</div>
+			</div>
+			<div class="title_box">
+				<div id="title">Datos de Sujeto Excluido</div>
+				<div id="content">
+					<div fxLayout="row wrap">
+						<div fxFlex="50" fxFlex.lt-md="100" fxLayout="column">
+							<mat-checkbox formControlName="aplica" (change)="toggle($event)">Aplica Renta</mat-checkbox>
+						</div>
+						<div fxFlex="50" fxFlex.lt-md="100" fxLayout="column">
+							<mat-form-field appearance="outline">
+								<mat-label>Fecha</mat-label>
+								<input
+									formControlName="fecha"
+									matInput
+									style="font-weight: bold; color: black; font-size: large; text-transform: uppercase"
+									type="date"
+									[ngModel]="_fecha | date: 'yyyy-MM-dd'"
+									readonly
+								/>
+							</mat-form-field>
+						</div>
+					</div>
+					<mat-form-field appearance="outline">
+						<mat-label>Aplicación</mat-label>
+						<input
+							formControlName="aplicacion"
+							matInput
+							style="font-weight: bold; color: black; font-size: large; text-transform: uppercase"
+						/>
+					</mat-form-field>
+
+					<div fxLayout="row wrap">
+						<div fxFlex="35" fxFlex.lt-md="100" fxLayout="column">
+							<mat-form-field appearance="outline">
+								<mat-label>Monto</mat-label>
+								<input
+									formControlName="monto"
+									type="text"
+									matInput
+									style="font-weight: bold; color: black; font-size: large; text-transform: uppercase"
+									[ngModel]="_monto | currency: 'USD'"
+									(ngModelChange)="updateCurrencyField($event)"
+									(keypress)="validateFormat($event)"
+								/>
+							</mat-form-field>
+						</div>
+						<div fxFlex="30" fxFlex.lt-md="100" fxLayout="column">
+							<mat-form-field appearance="outline">
+								<mat-label>Renta</mat-label>
+								<input
+									formControlName="renta"
+									matInput
+									type="text"
+									readonly
+									[ngModel]="_renta | currency: 'USD'"
+									style="font-weight: bold; color: black; font-size: large; text-transform: uppercase"
+								/>
+							</mat-form-field>
+						</div>
+						<div fxFlex="35" fxFlex.lt-md="100" fxLayout="column">
+							<mat-form-field appearance="outline">
+								<mat-label>Total a Pagar</mat-label>
+								<input
+									formControlName="total"
+									matInput
+									type="text"
+									readonly
+									[ngModel]="_total | currency: 'USD'"
+									style="font-weight: bold; color: black; font-size: large; text-transform: uppercase"
+								/>
+							</mat-form-field>
+						</div>
+					</div>
+				</div>
+			</div>
+		</form>
+
+		<div mat-dialog-actions [align]="'end'">
+			<button mat-raised-button color="basic" mat-dialog-close>Cerrar</button>
+			<button mat-raised-button color="warn" [disabled]="guardar" (click)="clickSave()">Guardar</button>
+		</div>
+	</div>
+</div>

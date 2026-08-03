@@ -1,0 +1,38 @@
+table {
+    width: 100%;
+  }
+  
+  .mat-form-field {
+    font-size: 14px;
+    width: 100%;
+  }
+  
+  td, th {
+    width: 25%;
+  }
+.search-div{
+    border: 2;
+}
+
+.title_box { 
+  border: black 1px solid; 
+  margin: 10px;
+  }
+  
+  .title_box_contable
+  { 
+  border: black 1px solid; 
+  margin: 10px 100px;
+  
+  }
+  .title_box #title { 
+  position: relative; 
+  top : -0.5em;
+  margin-left: 1em;
+  display: inline; 
+  background-color: white; 
+  
+  }
+  .title_box #content {
+  padding: 10px;
+  }

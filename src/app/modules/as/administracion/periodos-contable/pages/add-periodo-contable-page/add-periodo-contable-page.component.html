@@ -1,0 +1,28 @@
+<h1 mat-dialog-title color="warn">Adicionar Periodos</h1>
+<div mat-dialog-content style="padding-top: 10px">
+	<form [formGroup]="PeriodosForm">
+		<mat-form-field appearance="outline">
+			<mat-label>Fecha Final</mat-label>
+			<input type="date" formControlName="fechafinal" matInput placeholder="Placeholder" />
+		</mat-form-field>
+		<mat-form-field appearance="outline">
+			<mat-label>Descripcion</mat-label>
+			<input formControlName="descripcion" matInput placeholder="Placeholder" />
+		</mat-form-field>
+		<mat-form-field appearance="outline">
+			<mat-label>Contabilidad</mat-label>
+			<mat-select formControlName="contabilidad" [disabled]="disableSelect.value">
+				<mat-option value="F">Fiscal</mat-option>
+				<mat-option value="C">Corporativa</mat-option>
+			</mat-select>
+		</mat-form-field>
+		<mat-checkbox formControlName="estado">Estado</mat-checkbox>
+		<div>
+			<mat-checkbox formControlName="periodoAnual">Fin Periodo Anual</mat-checkbox>
+		</div>
+	</form>
+</div>
+<div mat-dialog-actions [align]="'end'">
+	<button mat-raised-button color="basic" mat-dialog-close>Cerrar</button>
+	<button mat-raised-button color="warn" (click)="clickSave()">{{ actionBtn }}</button>
+</div>

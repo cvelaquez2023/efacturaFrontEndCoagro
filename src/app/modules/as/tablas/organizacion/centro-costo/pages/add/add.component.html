@@ -1,0 +1,37 @@
+<h1 mat-dialog-title color="warn">Centro Costo</h1>
+<div mat-dialog-content>
+	<form [formGroup]="centrocostoForm">
+		<mat-form-field appearance="outline">
+			<mat-label>Centro Costo</mat-label>
+			<input
+				formControlName="codCentroCosto"
+				matInput
+				placeholder="Centro Costo"
+				[(ngModel)]="centroCosto"
+				(blur)="onBlurMethid()"
+			/>
+			<mat-error *ngIf="centrocostoForm.get('codCentroCosto')!.hasError('required')"
+				>El maximo de 20 Caracteres</mat-error
+			>
+			<mat-error *ngIf="centrocostoForm.get('codCentroCosto')!.hasError('pattern')">No cumple con el formato</mat-error>
+		</mat-form-field>
+		<mat-form-field appearance="outline">
+			<mat-label>Descripcion</mat-label>
+			<input formControlName="descripcion" matInput placeholder="Descripcion" />
+		</mat-form-field>
+		<mat-form-field appearance="outline">
+			<mat-label>Tipo</mat-label>
+			<mat-select formControlName="tipo" style="color: brown" [disabled]="disableSelect.value">
+				<mat-option value="A">Ambos</mat-option>
+				<mat-option value="G">Gastos</mat-option>
+				<mat-option value="I">Ingreso</mat-option>
+			</mat-select>
+		</mat-form-field>
+
+		<mat-checkbox formControlName="aceptaDatos">Acepta Datos</mat-checkbox>
+	</form>
+</div>
+<div mat-dialog-actions [align]="'end'">
+	<button mat-raised-button color="basic" mat-dialog-close>Cerrar</button>
+	<button mat-raised-button color="warn" (click)="clickSave()">{{ actionBtn }}</button>
+</div>

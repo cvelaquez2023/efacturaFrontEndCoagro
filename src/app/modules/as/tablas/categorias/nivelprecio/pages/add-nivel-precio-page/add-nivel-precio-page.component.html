@@ -1,0 +1,45 @@
+<h1 mat-dialog-title color="warn">Nivel de Precio</h1>
+<div mat-dialog-content>
+	<form class="formulario grey-100" [formGroup]="formNivelPrecio">
+		<mat-form-field appearance="outline">
+			<mat-label>Nivel Precio</mat-label>
+			<input
+				type="text"
+				formControlName="nivelPrecio"
+				matInput
+				placeholder="Nivel Precio"
+				style="text-transform: uppercase"
+			/>
+			<mat-error *ngIf="formNivelPrecio.get('nivelPrecio')!.hasError('required')">El Campo es requerido</mat-error>
+			<mat-error *ngIf="formNivelPrecio.get('nivelPrecio')!.hasError('maxLength')">El Correo no es valido</mat-error>
+		</mat-form-field>
+		<mat-form-field appearance="outline">
+			<mat-label>Moneda</mat-label>
+			<mat-select formControlName="moneda" style="color: brown" [disabled]="disableSelect.value">
+				<mat-option value="L">Local</mat-option>
+				<mat-option value="D">Dólar</mat-option>
+			</mat-select>
+		</mat-form-field>
+		<mat-form-field appearance="outline">
+			<mat-label>Esquema</mat-label>
+			<mat-select formControlName="esquema" style="color: brown" [disabled]="disableSelect.value">
+				<mat-option value="K">NORMAL</mat-option>
+				<mat-option value="M">MARGEN</mat-option>
+				<mat-option value="N">MARKUP</mat-option>
+				<mat-option value="X">MULTIPLICADOR</mat-option>
+			</mat-select>
+		</mat-form-field>
+		<mat-form-field appearance="outline">
+			<mat-label>Condición Pago</mat-label>
+			<mat-select formControlName="condPago" style="color: brown" [disabled]="disableSelect.value">
+				<mat-option *ngFor="let condicionPago of condicionPago" [value]="condicionPago.id">
+					{{ condicionPago.codCondicionPago }}-{{ condicionPago.descripcion }}
+				</mat-option>
+			</mat-select>
+		</mat-form-field>
+	</form>
+</div>
+<div mat-dialog-actions [align]="'end'">
+	<button mat-raised-button color="basic" mat-dialog-close>Cerrar</button>
+	<button mat-raised-button color="warn" (click)="clickSave()">{{ actionBtn }}</button>
+</div>

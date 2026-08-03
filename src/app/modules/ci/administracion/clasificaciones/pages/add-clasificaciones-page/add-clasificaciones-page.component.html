@@ -1,0 +1,17 @@
+<h1 mat-dialog-title color="warn">Adicionar Clasificacion</h1>
+<div mat-dialog-content>
+	<form [formGroup]="claForm">
+		<mat-form-field appearance="outline">
+			<mat-label>Codigo de Clasificacion</mat-label>
+			<input formControlName="codClasificacion" matInput placeholder="Placeholder" />
+		</mat-form-field>
+		<mat-form-field appearance="outline">
+			<mat-label>Descripcion</mat-label>
+			<input formControlName="descripcion" matInput placeholder="Placeholder" />
+		</mat-form-field>
+	</form>
+</div>
+<div mat-dialog-actions [align]="'end'">
+	<button mat-raised-button color="basic" mat-dialog-close>Cerrar</button>
+	<button mat-raised-button color="warn" (click)="clickSave()">{{ actionBtn }}</button>
+</div>

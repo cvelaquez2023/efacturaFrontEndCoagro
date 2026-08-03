@@ -1,0 +1,161 @@
+<div class="search-div" fxLayout="row" fxLayoutAlign="end end">
+	<button mat-raised-button color="warn" (click)="openDialog()"><mat-icon>add</mat-icon>Adicionar</button>
+</div>
+<form class="buscar" [formGroup]="formGroup">
+	<mat-form-field class="full-with" appearance="fill">
+		<input matInput (keyup)="applyFilter($event)" placeholder="Buscar Sujeto Excluido" #input />
+	</mat-form-field>
+	<div layout="column">
+		<div class="izquierdo">
+			<mat-form-field appearance="outline">
+				<mat-select
+					formControlName="mes"
+					matNativeControl
+					[(ngModel)]="selectedCar"
+					(selectionChange)="selectMes(selectedCar)"
+					name="car"
+				>
+					<mat-option value="1">Enero</mat-option>
+					<mat-option value="2">Febrero</mat-option>
+					<mat-option value="3">Marzo</mat-option>
+					<mat-option value="4">Abril</mat-option>
+					<mat-option value="5">Mayo</mat-option>
+					<mat-option value="6">Junio</mat-option>
+					<mat-option value="7">Julio</mat-option>
+					<mat-option value="8">Agosto</mat-option>
+					<mat-option value="9">Septiembre</mat-option>
+					<mat-option value="10">Octubre</mat-option>
+					<mat-option value="11">Noviembre</mat-option>
+					<mat-option value="12">Diciembre</mat-option>
+				</mat-select>
+			</mat-form-field>
+		</div>
+		<div class="derecho">
+			<mat-form-field appearance="outline">
+				<mat-select
+					placeholder="Año"
+					matNativeControl
+					formControlName="ano"
+					[(ngModel)]="selectedAno"
+					(selectionChange)="selectAno(selectedAno)"
+				>
+					<mat-option *ngFor="let year of years" [value]="year.value">{{ year.value }}</mat-option>
+				</mat-select>
+			</mat-form-field>
+		</div>
+	</div>
+</form>
+
+<mat-table [dataSource]="listaDocumentos" class="mat-elevation-z8 demo-table" matSort>
+	<ng-container matColumnDef="fechaEmision">
+		<mat-header-cell *matHeaderCellDef mat-sort-header>Fecha Emi.</mat-header-cell>
+		<mat-cell *matCellDef="let element">
+			{{ element.fechaemision }}
+		</mat-cell>
+	</ng-container>
+	<ng-container matColumnDef="tipoDte">
+		<mat-header-cell *matHeaderCellDef mat-sort-header>Tipo DTE</mat-header-cell>
+		<mat-cell *matCellDef="let element">{{ element.tipoDoc }}</mat-cell>
+	</ng-container>
+
+	<ng-container matColumnDef="numeroControl">
+		<mat-header-cell *matHeaderCellDef mat-sort-header>Dte</mat-header-cell>
+		<mat-cell *matCellDef="let element">{{ element.Dte }}</mat-cell>
+	</ng-container>
+	<ng-container matColumnDef="modulo">
+		<mat-header-cell *matHeaderCellDef mat-sort-header>Modulo</mat-header-cell>
+		<mat-cell *matCellDef="let element">{{ element.mudulo }}</mat-cell>
+	</ng-container>
+	<ng-container matColumnDef="selloRecibido">
+		<mat-header-cell *matHeaderCellDef mat-sort-header>Sello Recibido</mat-header-cell>
+		<mat-cell
+			*matCellDef="let element"
+			[ngStyle]="{ 'background-color': element.selloRecibido === 'ND' ? 'red' : '' }"
+			>{{ element.selloRecibido }}</mat-cell
+		>
+	</ng-container>
+
+	<ng-container matColumnDef="estado">
+		<mat-header-cell *matHeaderCellDef mat-sort-header>Estado</mat-header-cell>
+		<mat-cell
+			*matCellDef="let element"
+			[ngStyle]="{ 'background-color': element.estado === 'RECHAZADO' ? 'red' : '#196F3D' }"
+			>{{ element.estado }}</mat-cell
+		>
+	</ng-container>
+
+	<ng-container matColumnDef="nombreEmisor">
+		<mat-header-cell *matHeaderCellDef mat-sort-header>Nombre de Receptor</mat-header-cell>
+		<mat-cell *matCellDef="let element">{{ element.nombre }}</mat-cell>
+	</ng-container>
+	<ng-container matColumnDef="documentoEmisor">
+		<mat-header-cell *matHeaderCellDef mat-sort-header>Nit</mat-header-cell>
+		<mat-cell *matCellDef="let element">{{ element.Documento }}</mat-cell>
+	</ng-container>
+	<ng-container matColumnDef="montoTotal">
+		<mat-header-cell *matHeaderCellDef mat-sort-header>Monto</mat-header-cell>
+		<mat-cell *matCellDef="let element">{{ element.montoTotal | currency }}</mat-cell>
+	</ng-container>
+	<ng-container matColumnDef="actions">
+		<mat-header-cell *matHeaderCellDef>Accion</mat-header-cell>
+
+		<mat-cell *matCellDef="let element">
+			<button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+				<mat-icon>more_vert</mat-icon>
+			</button>
+
+			<mat-menu #menu="matMenu">
+				<div *ngIf="element.estado === 'RECHAZADO'">
+					<button mat-menu-item (click)="clickEdit(element)">
+						<mat-icon>edit</mat-icon>
+						<span>Leer Observaciones</span>
+					</button>
+					<button mat-menu-item (click)="clickCP(element)">
+						<mat-icon>note</mat-icon>
+						<span>Reenviar MH y CP</span>
+					</button>
+					<button mat-menu-item (click)="clickCH(element)">
+						<mat-icon>note</mat-icon>
+						<span>Reenviar MH y CH</span>
+					</button>
+				</div>
+				<div *ngIf="element.estado === 'PENDIENTE'">
+					<button mat-menu-item (click)="clickImprimir(element)">
+						<mat-icon>note</mat-icon>
+						<span>Imprimir </span>
+					</button>
+					<button mat-menu-item (click)="clickCP(element)">
+						<mat-icon>note</mat-icon>
+						<span>Enviar MH y CP </span>
+					</button>
+					<button mat-menu-item (click)="clickCH(element)">
+						<mat-icon>note</mat-icon>
+						<span>Enviar MH y CH </span>
+					</button>
+				</div>
+				<div *ngIf="element.estado === 'PROCESADO'">
+					<button mat-menu-item (click)="clickImprimir(element)">
+						<mat-icon>note</mat-icon>
+						<span>Imprimir </span>
+					</button>
+					<button mat-menu-item (click)="clickCB(element)">
+						<mat-icon>note</mat-icon>
+						<span>Enviar Correo Cliente </span>
+					</button>
+				</div>
+			</mat-menu>
+		</mat-cell>
+	</ng-container>
+
+	<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+	<mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+	<tr class="mat-row" *matNoDataRow>
+		<td class="mat-cell" colspan="4">No data matching the filter "{{ input.value }}"</td>
+	</tr>
+</mat-table>
+<mat-paginator
+	[pageSizeOptions]="[5, 10, 25, 75, 100]"
+	[pageIndex]="0"
+	pageSize="10"
+	showFirstLastButtons
+></mat-paginator>

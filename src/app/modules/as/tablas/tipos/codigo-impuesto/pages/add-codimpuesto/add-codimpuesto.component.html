@@ -1,0 +1,296 @@
+<h1 mat-dialog-title color="warn">Codigo Impuesto</h1>
+<div mat-dialog-content class="mt-typography">
+	<form class="formulario grey-100" [formGroup]="formCodigoImpuesto" (ngSubmit)="onclick()">
+		<div class="generalContenedor" fxLayout="row wrap" fxLayoutAlign="center center">
+			<div id="content">
+				<div fxLayout="row wrap" fxLayoutAlign="center center" fxFlex="20">
+					<mat-form-field appearance="outline">
+						<mat-label>Codigo</mat-label>
+						<input
+							formControlName="codigo"
+							type="text"
+							matInput
+							placeholder="Codigo Impuesto"
+							style="text-transform: uppercase"
+							maxlength="10"
+						/>
+					</mat-form-field>
+				</div>
+				<div fxLayout="row wrap" fxLayoutAlign="center center" fxFlex="70">
+					<mat-form-field appearance="outline">
+						<mat-label>Descripcion</mat-label>
+						<input
+							formControlName="descripcion"
+							type="text"
+							matInput
+							placeholder="Descripcion"
+							style="text-transform: uppercase"
+						/>
+					</mat-form-field>
+				</div>
+				<div fxLayout="row wrap" fxLayoutAlign="center center" fxFlex="10">
+					<mat-checkbox formControlName="activo" class="example-margin">Activo</mat-checkbox>
+				</div>
+			</div>
+		</div>
+		<mat-tab-group mat-align-tabs="center">
+			<mat-tab label="Impuesto1">
+				<div fxLayout="row wrap" fxLayoutAlign="center center">
+					<div
+						fxLayout="row"
+						fxLayout.xs="column"
+						fxLayoutAlign="start stretch"
+						fxFlex="90"
+						fxFlex.xs="94"
+						fxFlex.sm="90"
+						class="generalContenedor"
+					>
+						<div fxLayout="row wrap" fxLayoutAlign="center none" fxFlex="50">
+							<div class="title_box">
+								<div id="title">Contabilización del Impuesto IVA</div>
+								<div id="content">
+									<mat-radio-group formControlName="tipoContabImp1">
+										<mat-radio-button class="example-margin" value="U">Cuenta Única</mat-radio-button>
+										<mat-radio-button class="example-margin" value="S"
+											>Cuenta separada para Ventas y para Compras</mat-radio-button
+										>
+									</mat-radio-group>
+									<mat-checkbox formControlName="contDevImp1" class="example-margin" [(ngModel)]="disabledDev"
+										>Contabilizar por separado las devoluciones</mat-checkbox
+									>
+								</div>
+							</div>
+						</div>
+
+						<div fxLayout="row wrap" fxLayoutAlign="center none" fxFlex="50">
+							<div class="title_box">
+								<div id="content">
+									<mat-form-field appearance="outline">
+										<mat-label>Tipo de Impuesto</mat-label>
+										<input
+											formControlName="tipoImpuesto"
+											type="text"
+											matInput
+											placeholder="Descripcion"
+											style="text-transform: uppercase"
+										/>
+									</mat-form-field>
+									<mat-form-field appearance="outline">
+										<mat-label>IVA</mat-label>
+										<input
+											formControlName="impuesto1"
+											type="number"
+											matInput
+											placeholder="Descripcion"
+											style="text-transform: uppercase"
+										/>
+									</mat-form-field>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div fxLayout="row wrap" fxLayoutAlign="center center" fxFlex="100">
+						<div class="title_box">
+							<div id="title">Cuenta Contable Única</div>
+							<div id="content">
+								<mat-form-field class="input" appearance="outline">
+									<mat-label>Impuesto Generado</mat-label>
+									<mat-select formControlName="ctrCtaImp1Id">
+										<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+											>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+											{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+										</mat-option>
+									</mat-select>
+								</mat-form-field>
+							</div>
+						</div>
+					</div>
+					<div fxLayout="row wrap" fxLayoutAlign="center center" fxFlex="100">
+						<div class="title_box">
+							<div id="title">Cuenta Separada para Ventas y para Compras</div>
+							<div id="content">
+								<mat-form-field appearance="outline">
+									<mat-label>Impuesto Generado(por las ventas)</mat-label>
+									<mat-select formControlName="ctrCtaImp1GenVtsId">
+										<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+											>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+											{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+										</mat-option>
+									</mat-select>
+								</mat-form-field>
+								<mat-form-field appearance="outline">
+									<mat-label>Impuesto Descontable(por las compras)</mat-label>
+									<mat-select formControlName="ctrCtaImp1DesCompId">
+										<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+											>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+											{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+										</mat-option>
+									</mat-select>
+								</mat-form-field>
+							</div>
+						</div>
+					</div>
+					<div fxLayout="row wrap" fxLayoutAlign="center center" fxFlex="100">
+						<div class="title_box">
+							<div id="title">Cuenta para Devoluciones</div>
+							<div id="content">
+								<mat-form-field appearance="outline">
+									<mat-label>Impuesto Generado(devolución compras)</mat-label>
+									<mat-select formControlName="ctrCtaImp1DevCompId">
+										<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+											>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+											{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+										</mat-option>
+									</mat-select>
+								</mat-form-field>
+								<mat-form-field appearance="outline">
+									<mat-label>Impuesto Descontable (devolución ventas)</mat-label>
+									<mat-select formControlName="ctrCtaImp1DevVentasId">
+										<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+											>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+											{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+										</mat-option>
+									</mat-select>
+								</mat-form-field>
+							</div>
+						</div>
+					</div>
+				</div>
+			</mat-tab>
+			<mat-tab label="Impuesto2">
+				<div fxLayout="row wrap" fxLayoutAlign="center center">
+					<div
+						fxLayout="row"
+						fxLayout.xs="column"
+						fxLayoutAlign="start stretch"
+						fxFlex="90"
+						fxFlex.xs="94"
+						fxFlex.sm="90"
+						class="generalContenedor"
+					>
+						<div fxLayout="row wrap" fxLayoutAlign="center none" fxFlex="50">
+							<div class="title_box">
+								<div id="title">Contabilización del Impuesto 1%</div>
+								<div id="content">
+									<mat-radio-group formControlName="tipoContabImp2">
+										<mat-radio-button class="example-margin" value="U">Cuenta Única</mat-radio-button>
+										<mat-radio-button class="example-margin" value="S"
+											>Cuenta separada para Ventas y para Compras</mat-radio-button
+										>
+									</mat-radio-group>
+									<mat-checkbox formControlName="contDevImp2" class="example-margin" [(ngModel)]="disabledDev2"
+										>Contabilizar por separado las devoluciones</mat-checkbox
+									>
+								</div>
+							</div>
+						</div>
+
+						<div fxLayout="row wrap" fxLayoutAlign="center none" fxFlex="50">
+							<div class="title_box">
+								<div id="title">Formulación</div>
+								<div id="content">
+									<div fxLayout="row wrap" fxLayoutAlign="center none" fxFlex="50">
+										<mat-radio-group formControlName="usaImpuesto2Cantidad">
+											<mat-radio-button class="example-margin" value="N">Porcentaje</mat-radio-button>
+											<mat-radio-button class="example-margin" value="S">Cantidad</mat-radio-button>
+										</mat-radio-group>
+									</div>
+									<div fxLayout="row wrap" fxLayoutAlign="center none" fxFlex="50">
+										<mat-form-field appearance="outline">
+											<input
+												formControlName="impuesto2"
+												type="number"
+												matInput
+												placeholder="0.00"
+												style="text-transform: uppercase"
+											/>
+										</mat-form-field>
+									</div>
+								</div>
+								<div class="title_box">
+									<div id="title">Calculo de Impuesto por ...</div>
+									<div id="content">
+										<mat-radio-group formControlName="calculoImp2">
+											<mat-radio-button class="example-margin" value="S">SubTotal </mat-radio-button>
+											<mat-radio-button class="example-margin" value="I">SubTotal+Impuesto 1</mat-radio-button>
+										</mat-radio-group>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div fxLayout="row wrap" fxLayoutAlign="center center" fxFlex="100">
+						<div class="title_box">
+							<div id="title">Cuenta Contable Única</div>
+							<div id="content">
+								<mat-form-field class="input" appearance="outline">
+									<mat-label>Impuesto Generado</mat-label>
+									<mat-select formControlName="ctrCtaImp2Id">
+										<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+											>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+											{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+										</mat-option>
+									</mat-select>
+								</mat-form-field>
+							</div>
+						</div>
+					</div>
+					<div fxLayout="row wrap" fxLayoutAlign="center center" fxFlex="100">
+						<div class="title_box">
+							<div id="title">Cuenta Separada para Ventas y para Compras</div>
+							<div id="content">
+								<mat-form-field appearance="outline">
+									<mat-label>Impuesto Generado(por las ventas)</mat-label>
+									<mat-select formControlName="ctrCtaImp2GenVtsId">
+										<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+											>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+											{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+										</mat-option>
+									</mat-select>
+								</mat-form-field>
+								<mat-form-field appearance="outline">
+									<mat-label>Impuesto Descontable(por las compras)</mat-label>
+									<mat-select formControlName="ctrCtaImp2DesCompId">
+										<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+											>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+											{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+										</mat-option>
+									</mat-select>
+								</mat-form-field>
+							</div>
+						</div>
+					</div>
+					<div fxLayout="row wrap" fxLayoutAlign="center center" fxFlex="100">
+						<div class="title_box">
+							<div id="title">Cuenta para Devoluciones</div>
+							<div id="content">
+								<mat-form-field appearance="outline">
+									<mat-label>Impuesto Generado(devolución compras)</mat-label>
+									<mat-select formControlName="ctrCtaImp2DevCompId">
+										<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+											>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+											{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+										</mat-option>
+									</mat-select>
+								</mat-form-field>
+								<mat-form-field appearance="outline">
+									<mat-label>Impuesto Descontable (devolución ventas)</mat-label>
+									<mat-select formControlName="ctrCtaImp2DevVentasId">
+										<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+											>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+											{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+										</mat-option>
+									</mat-select>
+								</mat-form-field>
+							</div>
+						</div>
+					</div>
+				</div>
+			</mat-tab>
+		</mat-tab-group>
+		<div mat-dialog-actions [align]="'end'">
+			<button mat-raised-button color="basic" mat-dialog-close>Cerrar</button>
+			<button mat-raised-button color="warn" type="submit" [disabled]="disableButtonSave">{{ actionBtn }}</button>
+		</div>
+	</form>
+</div>

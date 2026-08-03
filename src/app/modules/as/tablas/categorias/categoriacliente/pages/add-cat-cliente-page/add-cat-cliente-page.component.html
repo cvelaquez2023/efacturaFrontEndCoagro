@@ -1,0 +1,326 @@
+<mat-dialog-content class="mt-typography">
+	<form class="formulario grey-100" [formGroup]="formCategoriaCliente" (ngSubmit)="onclickCategoria()">
+		<div class="generalContenedor" fxLayout="row wrap" fxLayoutAlign="center center">
+			<div class="title_box">
+				<div id="content">
+					<div fxLayout="row wrap" fxLayoutAlign="center center" fxFlex="30">
+						<mat-form-field appearance="outline">
+							<mat-label>Categoria Cliente</mat-label>
+							<input
+								formControlName="categoria"
+								type="text"
+								matInput
+								placeholder="Categoria Cliente"
+								style="text-transform: uppercase"
+								maxlength="10"
+							/>
+						</mat-form-field>
+					</div>
+					<div fxLayout="row wrap" fxLayoutAlign="center center" fxFlex="70">
+						<mat-form-field appearance="outline">
+							<mat-label>Descripcion</mat-label>
+							<input
+								formControlName="nombre"
+								type="text"
+								matInput
+								placeholder="Descripcion"
+								style="text-transform: uppercase"
+							/>
+						</mat-form-field>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<mat-tab-group mat-align-tabs="center">
+			<mat-tab label="Facturación">
+				<div class="generales" fxLayout="row wrap" fxLayoutAlign="center center">
+					<div
+						fxLayout="row"
+						fxLayout.xs="column"
+						fxLayoutAlign="start stretch"
+						fxFlex="90"
+						fxFlex.xs="94"
+						fxFlex.sm="90"
+						class="generalContenedor"
+					>
+						<div class="title_box">
+							<div id="content">
+								<div fxLayout="row wrap" fxLayoutAlign="center center" fxFlex="100">
+									<mat-form-field appearance="outline">
+										<mat-label>Ventas Centro Cuenta</mat-label>
+										<mat-select formControlName="CtrCtaVentasId">
+											<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+												>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+												{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+											</mat-option>
+										</mat-select>
+									</mat-form-field>
+									<mat-form-field appearance="outline">
+										<mat-label>Ventas Exentas Centro Cuenta </mat-label>
+										<mat-select formControlName="CtrCtaVentasExentaId">
+											<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+												>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+												{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+											</mat-option>
+										</mat-select>
+									</mat-form-field>
+									<mat-form-field appearance="outline">
+										<mat-label>Dev.Sobre Vtas. Centro Cuenta</mat-label>
+										<mat-select formControlName="CtrCtaDevSobreVtaId">
+											<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+												>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+												{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+											</mat-option>
+										</mat-select>
+									</mat-form-field>
+									<mat-form-field appearance="outline">
+										<mat-label>Descuento Gral. Centro Cuenta</mat-label>
+										<mat-select formControlName="CtrCtaDescuentaGralId">
+											<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+												>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+												{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+											</mat-option>
+										</mat-select>
+									</mat-form-field>
+									<mat-form-field appearance="outline">
+										<mat-label>Costo de Ventas Centro Cuenta</mat-label>
+										<mat-select formControlName="CtrCtaCostoVentasId">
+											<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+												>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+												{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+											</mat-option>
+										</mat-select>
+									</mat-form-field>
+									<mat-form-field appearance="outline">
+										<mat-label>Descuento Lineas Centro Cuenta</mat-label>
+										<mat-select formControlName="CtrCtaDescuentoLineaId">
+											<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+												>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+												{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+											</mat-option>
+										</mat-select>
+									</mat-form-field>
+									<mat-form-field appearance="outline">
+										<mat-label>Costo Líneas Centro Cuenta</mat-label>
+										<mat-select formControlName="CtrCtaCostoLineasId">
+											<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+												>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+												{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+											</mat-option>
+										</mat-select>
+									</mat-form-field>
+									<mat-form-field appearance="outline">
+										<mat-label>Pago de Contado Centro Cuenta</mat-label>
+										<mat-select formControlName="CtrCtaPagoContadoId">
+											<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+												>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+												{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+											</mat-option>
+										</mat-select>
+									</mat-form-field>
+									<mat-form-field appearance="outline">
+										<mat-label>Comision Vendedor Centro Cuenta</mat-label>
+										<mat-select formControlName="CtrCtaComisionVendedorId">
+											<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+												>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+												{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+											</mat-option>
+										</mat-select>
+									</mat-form-field>
+									<mat-form-field appearance="outline">
+										<mat-label>Comision Cobrador Centro Cuenta</mat-label>
+										<mat-select formControlName="CtrCtaComisionCobradorId">
+											<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+												>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+												{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+											</mat-option>
+										</mat-select>
+									</mat-form-field>
+									<mat-form-field appearance="outline">
+										<mat-label>Desc.Bonificación Centro Cuenta</mat-label>
+										<mat-select formControlName="CtrCtaDescBonificacionId">
+											<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+												>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+												{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+											</mat-option>
+										</mat-select>
+									</mat-form-field>
+									<mat-form-field appearance="outline">
+										<mat-label>Ajuste x Redondeo Centro Cuenta</mat-label>
+										<mat-select formControlName="CtrCtaAjustesRedondeoId">
+											<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+												>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+												{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+											</mat-option>
+										</mat-select>
+									</mat-form-field>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</mat-tab>
+			<mat-tab label="Cuentas por Cobrar">
+				<div class="generales" fxLayout="row wrap" fxLayoutAlign="center center">
+					<div
+						fxLayout="row"
+						fxLayout.xs="column"
+						fxLayoutAlign="start stretch"
+						fxFlex="90"
+						fxFlex.xs="94"
+						fxFlex.sm="80"
+						class="generalContenedor"
+					>
+						<div class="title_box">
+							<div id="content">
+								<div fxLayout="row wrap" fxLayoutAlign="center center" fxFlex="100">
+									<mat-form-field appearance="outline">
+										<mat-label>Cuenta por Cobrar</mat-label>
+										<mat-select formControlName="ctrCtaCuentasXCobrar">
+											<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+												>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+												{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+											</mat-option>
+										</mat-select>
+									</mat-form-field>
+									<mat-form-field appearance="outline">
+										<mat-label>Letra por Cobrar</mat-label>
+										<mat-select formControlName="ctrCtaLetraxCobrar">
+											<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+												>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+												{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+											</mat-option>
+										</mat-select>
+									</mat-form-field>
+									<mat-form-field appearance="outline">
+										<mat-label>Pronto Pago</mat-label>
+										<mat-select formControlName="ctrCtaProntoPago">
+											<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+												>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+												{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+											</mat-option>
+										</mat-select>
+									</mat-form-field>
+									<mat-form-field appearance="outline">
+										<mat-label>Intereses de Mora</mat-label>
+										<mat-select formControlName="ctrCtaInteresesdeMora">
+											<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+												>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+												{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+											</mat-option>
+										</mat-select>
+									</mat-form-field>
+									<mat-form-field appearance="outline">
+										<mat-label>Recibos</mat-label>
+										<mat-select formControlName="ctrCtaRecibos">
+											<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+												>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+												{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+											</mat-option>
+										</mat-select>
+									</mat-form-field>
+									<mat-form-field appearance="outline">
+										<mat-label>IVA</mat-label>
+										<mat-select formControlName="ctrCtaImpuesto1">
+											<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+												>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+												{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+											</mat-option>
+										</mat-select>
+									</mat-form-field>
+									<mat-form-field appearance="outline">
+										<mat-label>1%</mat-label>
+										<mat-select formControlName="ctrCtaImpuesto2">
+											<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+												>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+												{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+											</mat-option>
+										</mat-select>
+									</mat-form-field>
+									<mat-form-field appearance="outline">
+										<mat-label>Anticipos</mat-label>
+										<mat-select formControlName="ctrCtaAnticipos">
+											<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+												>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+												{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+											</mat-option>
+										</mat-select>
+									</mat-form-field>
+									<mat-form-field appearance="outline">
+										<mat-label>Cierre Débitos</mat-label>
+										<mat-select formControlName="ctrCtaCierreDebitos">
+											<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+												>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+												{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+											</mat-option>
+										</mat-select>
+									</mat-form-field>
+									<mat-form-field appearance="outline">
+										<mat-label>Cierre Créditos</mat-label>
+										<mat-select formControlName="ctrCtaCierreCreditos">
+											<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+												>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+												{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+											</mat-option>
+										</mat-select>
+									</mat-form-field>
+									<mat-form-field appearance="outline">
+										<mat-label>Interés Corriente </mat-label>
+										<mat-select formControlName="ctrCtaInteresCorriente">
+											<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+												>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+												{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+											</mat-option>
+										</mat-select>
+									</mat-form-field>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</mat-tab>
+			<mat-tab label="Rubros">
+				<div class="generales" fxLayout="row wrap" fxLayoutAlign="center center">
+					<div
+						fxLayout="row"
+						fxLayout.xs="column"
+						fxLayoutAlign="start stretch"
+						fxFlex="90"
+						fxFlex.xs="94"
+						fxFlex.sm="80"
+						class="generalContenedor"
+					></div>
+					<div class="title_box">
+						<div id="content">
+							<div fxLayout="row wrap" fxLayoutAlign="center center" fxFlex="100">
+								<mat-form-field appearance="outline">
+									<mat-label>Rubro 1 CC</mat-label>
+									<mat-select formControlName="Rubro1CC">
+										<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+											>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+											{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+										</mat-option>
+									</mat-select>
+								</mat-form-field>
+								<mat-form-field appearance="outline">
+									<mat-label>Rubro 2 CC</mat-label>
+									<mat-select formControlName="Rubro2CC">
+										<mat-option *ngFor="let item of listCentroCuenta" [value]="item.id"
+											>{{ item.centroCosto.codCentroCosto }}-{{ item.centroCosto.descripcion }} |
+											{{ item.cuentaContable.codCuentaContable }}-{{ item.cuentaContable.descripcion }}
+										</mat-option>
+									</mat-select>
+								</mat-form-field>
+							</div>
+						</div>
+					</div>
+				</div>
+			</mat-tab>
+		</mat-tab-group>
+		<div mat-dialog-actions [align]="'end'">
+			<button mat-raised-button color="basic" mat-dialog-close>Cerrar</button>
+			<button mat-raised-button color="warn" type="submit" [disabled]="disableButtonSave">{{ actionBtn }}</button>
+		</div>
+	</form>
+</mat-dialog-content>

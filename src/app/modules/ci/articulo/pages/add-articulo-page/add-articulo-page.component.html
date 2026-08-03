@@ -1,0 +1,786 @@
+<form class="formulario grey-100" [formGroup]="formGroup" (ngSubmit)="onclickArticulo()">
+	<div class="generalContenedor" fxLayout="row wrap" fxLayoutAlign="center center">
+		<div class="title_box">
+			<div id="content">
+				<div fxLayout="row wrap" fxLayoutAlign="center center" fxFlex="20">
+					<mat-form-field appearance="outline">
+						<mat-label>Codigo Articulo</mat-label>
+						<input formControlName="codArticulo" type="text" matInput placeholder="Codigo Articulo" />
+						<mat-error *ngIf="formGroup.get('codArticulo')!.hasError('required')">El maximo de 20 Caracteres</mat-error>
+					</mat-form-field>
+				</div>
+				<div fxLayout="row wrap" fxLayoutAlign="center center" fxFlex="80">
+					<mat-form-field appearance="outline">
+						<mat-label>Descripcion Articulo</mat-label>
+						<input formControlName="descripcion" type="text" matInput placeholder="Descripicon Articulo" />
+						<mat-error *ngIf="formGroup.get('descripcion')!.hasError('required')"
+							>El maximo de 120 Caracteres</mat-error
+						>
+					</mat-form-field>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<mat-tab-group mat-align-tabs="center">
+		<mat-tab label="Generales">
+			<div fxLayout="row wrap" fxLayoutAlign="center none">
+				<div
+					fxLayout="row"
+					fxLayout.xs="column"
+					fxLayoutAlign="start stretch"
+					fxFlex="60"
+					fxFlex.xs="94"
+					fxFlex.sm="80"
+					class="generalContenedor"
+				>
+					<div fxLayout="row wrap" fxLayoutAlign="center center" fxFlex="50">
+						<div class="title_box">
+							<div id="title">Imagen</div>
+							<div id="content">
+								<img *ngIf="imageField.value" [src]="imageField.value" />
+								<input hidden (change)="onFileSelected($event)" #fileInput type="file" accept=".jpg,.jpeg,.png" />
+							</div>
+						</div>
+						<button mat-raised-button color="primary" (click)="fileInput.click()" type="button">
+							<mat-icon>camera</mat-icon>
+							IMAGEN
+						</button>
+					</div>
+
+					<div fxLayout="row wrap" fxLayoutAlign="center none" fxFlex="50">
+						<div class="title_box">
+							<div id="title">Generales</div>
+							<div id="content">
+								<mat-form-field appearance="outline">
+									<mat-label>Tipo</mat-label>
+									<mat-select formControlName="tipo" style="color: brown" [disabled]="disableSelect.value">
+										<mat-option value="T">Terminado</mat-option>
+										<mat-option value="M">Materia Prima</mat-option>
+										<mat-option value="E">Semielaborado</mat-option>
+										<mat-option value="Z">Mat.Empaque</mat-option>
+										<mat-option value="P">Proceso</mat-option>
+										<mat-option value="R">Reproceso</mat-option>
+										<mat-option value="L">Laboral</mat-option>
+										<mat-option value="O">Otros</mat-option>
+										<mat-option value="E">Suministros</mat-option>
+										<mat-option value="R">Refaccion</mat-option>
+										<mat-option value="S">Servicio</mat-option>
+										<mat-option value="C">Coproducto</mat-option>
+										<mat-option value="Q">Subproducto</mat-option>
+										<mat-option value="D">Desecho</mat-option>
+										<mat-option value="F">Fantasma</mat-option>
+										<mat-option value="K">Kit</mat-option>
+									</mat-select>
+								</mat-form-field>
+								<section class="indicadores">
+									<p><mat-checkbox formControlName="activo">Activo</mat-checkbox></p>
+									<p><mat-checkbox formControlName="tiendaLinea">Tienda Linea</mat-checkbox></p>
+									<p><mat-checkbox formControlName="ventaTarjeta">Venta Con Tarjeta Credito</mat-checkbox></p>
+								</section>
+							</div>
+						</div>
+
+						<div class="title_box">
+							<div id="title">Codigo Barra Unidad Detalle</div>
+
+							<div id="content">
+								<mat-form-field appearance="outline">
+									<mat-label>Codigo Barras Unida Detalle</mat-label>
+									<input formControlName="codBarraDetalle" type="text" matInput placeholder="Decimales para Costo" />
+								</mat-form-field>
+							</div>
+						</div>
+						<div class="title_box">
+							<div id="title">Codigo Barra Unidad Venta</div>
+							<div id="content">
+								<mat-form-field appearance="outline">
+									<mat-label>Codigo Barras Unidad Ventas</mat-label>
+									<input formControlName="codBarraVenta" type="text" matInput placeholder="Decimales para Costo" />
+								</mat-form-field>
+							</div>
+						</div>
+					</div>
+
+					<div fxLayout="row wrap" fxLayoutAlign="center none" fxFlex="50">
+						<div class="title_box">
+							<div id="title">Existencia</div>
+							<div id="content">
+								<mat-form-field appearance="outline">
+									<mat-label>Minima</mat-label>
+									<input formControlName="existenciaMinima" type="number" matInput placeholder="Existencia Minima" />
+								</mat-form-field>
+								<mat-form-field appearance="outline">
+									<mat-label>Reorden</mat-label>
+									<input formControlName="existenciaReorden" type="number" matInput placeholder="Punto de Reorden" />
+								</mat-form-field>
+								<mat-form-field appearance="outline">
+									<mat-label>Máxima</mat-label>
+									<input formControlName="existenciaMaxima" type="number" matInput placeholder="Existencia Máxima" />
+								</mat-form-field>
+							</div>
+						</div>
+						<div class="title_box">
+							<div id="title">Costos</div>
+							<div id="content">
+								<mat-form-field appearance="outline">
+									<mat-label>Fiscal</mat-label>
+									<mat-select formControlName="costoFiscal" [disabled]="disableSelect.value">
+										<mat-option value="E">Estándar</mat-option>
+										<mat-option value="L">PEPS</mat-option>
+										<mat-option value="P">Promedio</mat-option>
+										<mat-option value="S">UEPS</mat-option>
+										<mat-option value="U">Ultimo</mat-option>
+									</mat-select>
+								</mat-form-field>
+								<mat-form-field appearance="outline">
+									<mat-label>Corporativa</mat-label>
+									<mat-select formControlName="costoCorporativo" [disabled]="disableSelect.value">
+										<mat-option value="E">Estándar</mat-option>
+										<mat-option value="L">PEPS</mat-option>
+										<mat-option value="P">Promedio</mat-option>
+										<mat-option value="S">UEPS</mat-option>
+										<mat-option value="U">Ultimo</mat-option>
+									</mat-select>
+								</mat-form-field>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</mat-tab>
+		<mat-tab label="Clasificacion">
+			<div class="generales" fxLayout="row wrap" fxLayoutAlign="center center">
+				<div
+					fxLayout="row"
+					fxLayout.xs="column"
+					fxLayoutAlign="start stretch"
+					fxFlex="60"
+					fxFlex.xs="94"
+					fxFlex.sm="80"
+					class="generalContenedor"
+				>
+					<div class="title_box">
+						<div id="title">Clasificación</div>
+
+						<div id="content">
+							<div fxLayout="row wrap" fxLayoutAlign="center center" fxFlex="20">
+								<mat-form-field appearance="outline">
+									<mat-label>Clasificacion 1</mat-label>
+									<mat-select formControlName="clas1">
+										<mat-option *ngFor="let item of listClasArt" [value]="item.id">{{ item.descripcion }}</mat-option>
+									</mat-select>
+								</mat-form-field>
+								<mat-form-field appearance="outline">
+									<mat-label>Clasificacion 2</mat-label>
+									<mat-select formControlName="clas2">
+										<mat-option *ngFor="let item of listClasArt" [value]="item.id">{{ item.descripcion }}</mat-option>
+									</mat-select>
+								</mat-form-field>
+								<mat-form-field appearance="outline">
+									<mat-label>Clasificacion 3</mat-label>
+									<mat-select formControlName="clas3">
+										<mat-option *ngFor="let item of listClasArt" [value]="item.id">{{ item.descripcion }}</mat-option>
+									</mat-select>
+								</mat-form-field>
+								<mat-form-field appearance="outline">
+									<mat-label>Clasificacion 4</mat-label>
+									<mat-select formControlName="clas4">
+										<mat-option *ngFor="let item of listClasArt" [value]="item.id">{{ item.descripcion }}</mat-option>
+									</mat-select>
+								</mat-form-field>
+								<mat-form-field appearance="outline">
+									<mat-label>Clasificacion 5</mat-label>
+									<mat-select formControlName="clas5">
+										<mat-option *ngFor="let item of listClasArt" [value]="item.id">{{ item.descripcion }}</mat-option>
+									</mat-select>
+								</mat-form-field>
+								<mat-form-field appearance="outline">
+									<mat-label>Clasificacion 6</mat-label>
+									<mat-select formControlName="clas6">
+										<mat-option *ngFor="let item of listClasArt" [value]="item.id">{{ item.descripcion }}</mat-option>
+									</mat-select>
+								</mat-form-field>
+							</div>
+							<div fxLayout="row wrap" fxLayoutAlign="center center" fxFlex="80">
+								<mat-form-field appearance="outline">
+									<mat-label>Clasificacion 1</mat-label>
+									<input type="text" matInput placeholder="Texto de Clasificacion 1" />
+								</mat-form-field>
+								<mat-form-field appearance="outline">
+									<mat-label>Clasificacion 2</mat-label>
+									<input type="text" matInput placeholder="Texto de Clasificacion 2" />
+								</mat-form-field>
+								<mat-form-field appearance="outline">
+									<mat-label>Clasificacion 3</mat-label>
+									<input type="text" matInput placeholder="Texto de Clasificacion 3" />
+								</mat-form-field>
+								<mat-form-field appearance="outline">
+									<mat-label>Clasificacion 4</mat-label>
+									<input type="text" matInput placeholder="Texto de Clasificacion 3" />
+								</mat-form-field>
+								<mat-form-field appearance="outline">
+									<mat-label>Clasificacion 5</mat-label>
+									<input type="text" matInput placeholder="Texto de Clasificacion 3" />
+								</mat-form-field>
+								<mat-form-field appearance="outline">
+									<mat-label>Clasificacion 6</mat-label>
+									<input type="text" matInput placeholder="Texto de Clasificacion 3" />
+								</mat-form-field>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="generales" fxLayout="row wrap" fxLayoutAlign="center center">
+				<div
+					fxLayout="row"
+					fxLayout.xs="column"
+					fxLayoutAlign="start stretch"
+					fxFlex="60"
+					fxFlex.xs="94"
+					fxFlex.sm="80"
+					class="generalContenedor"
+				>
+					<div class="title_box">
+						<div id="title">Clase</div>
+
+						<div id="content">
+							<mat-radio-group formControlName="clase" class="radio-group">
+								<mat-radio-button class="radio-button" value="A">A</mat-radio-button>
+								<mat-radio-button class="radio-button" value="B">B</mat-radio-button>
+								<mat-radio-button class="radio-button" value="C">C</mat-radio-button>
+								<mat-radio-button class="radio-button" value="D">D</mat-radio-button>
+							</mat-radio-group>
+						</div>
+					</div>
+				</div>
+			</div>
+		</mat-tab>
+		<mat-tab label="Proveedor">
+			<div class="generales" fxLayout="row wrap" fxLayoutAlign="center center">
+				<div
+					fxLayout="row"
+					fxLayout.xs="column"
+					fxLayoutAlign="start stretch"
+					fxFlex="60"
+					fxFlex.xs="94"
+					fxFlex.sm="80"
+					class="generalContenedor"
+				>
+					<div class="title_box">
+						<div id="content">
+							<div fxLayout="row wrap" fxFlex="30">
+								<mat-form-field appearance="outline">
+									<mat-label>Proveedor</mat-label>
+									<mat-select formControlName="proveedor">
+										<mat-option value="48">Proveedor Demo</mat-option>
+									</mat-select>
+								</mat-form-field>
+								<mat-form-field appearance="outline">
+									<mat-label>Pais de Manufactura</mat-label>
+									<mat-select formControlName="paismanofactura">
+										<mat-option *ngFor="let item of listPais" [value]="item.id"
+											>{{ item.codPais }}-{{ item.nombre }}</mat-option
+										>
+									</mat-select>
+								</mat-form-field>
+							</div>
+							<div fxLayout="row wrap" fxFlex="80">
+								<mat-form-field appearance="outline">
+									<mat-label>Nombre Proveedor</mat-label>
+									<input type="text" matInput placeholder="Nombre proveedor" />
+								</mat-form-field>
+								<mat-form-field appearance="outline">
+									<mat-label>Nombre pais</mat-label>
+									<input type="text" matInput placeholder="Nombre Pais" />
+								</mat-form-field>
+							</div>
+						</div>
+						<div id="content">
+							<div fxLayout="row wrap" fxFlex="30">
+								<mat-form-field appearance="outline">
+									<mat-label>Tipo País/Región</mat-label>
+									<input type="text" matInput placeholder="Tipo pais" />
+								</mat-form-field>
+							</div>
+							<div fxLayout="row wrap" fxFlex="30">
+								<mat-form-field appearance="outline">
+									<mat-label>Código Artículo</mat-label>
+									<input formControlName="codArtProveedor" type="text" matInput placeholder="Tipo pais" />
+								</mat-form-field>
+							</div>
+						</div>
+
+						<div id="content">
+							<div fxLayout="row wrap" fxFlex="30">
+								<mat-form-field appearance="outline">
+									<mat-label>Orden Mínima</mat-label>
+									<input formControlName="ordenMinima" type="number" matInput placeholder="Cantidad Minima" />
+								</mat-form-field>
+							</div>
+							<div fxLayout="row wrap" fxFlex="30">
+								<mat-form-field appearance="outline">
+									<mat-label>Reabastecimiento</mat-label>
+									<input formControlName="rebastesimineto" type="number" matInput placeholder="Reabastecimiento" />
+								</mat-form-field>
+							</div>
+						</div>
+
+						<div id="content">
+							<div fxLayout="row wrap" fxFlex="30">
+								<mat-form-field appearance="outline">
+									<mat-label>Lote Múltiplo</mat-label>
+									<input formControlName="multiploLote" type="number" matInput placeholder="Lote Multiplo" />
+								</mat-form-field>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</mat-tab>
+		<mat-tab label="Otros">
+			<div class="generales" fxLayout="row wrap" fxLayoutAlign="center center">
+				<div
+					fxLayout="row"
+					fxLayout.xs="column"
+					fxLayoutAlign="start stretch"
+					fxFlex="60"
+					fxFlex.xs="94"
+					fxFlex.sm="80"
+					class="generalContenedor"
+				>
+					<div fxLayout="row wrap" fxLayoutAlign="center none">
+						<div class="title_box">
+							<div id="content">
+								<div fxLayout="row wrap" fxFlex="50">
+									<mat-form-field appearance="outline">
+										<mat-label>Conteo Ciclico</mat-label>
+										<input formControlName="conteoCiclico" type="number" matInput placeholder="Conteo Ciclico dias" />
+									</mat-form-field>
+									<mat-form-field appearance="outline">
+										<mat-label>Número de Bultos</mat-label>
+										<input formControlName="bultos" type="number" matInput placeholder="Numero de Búltos" />
+									</mat-form-field>
+								</div>
+								<div fxLayout="row wrap" fxFlex="50">
+									<mat-form-field appearance="outline">
+										<mat-label>GTN</mat-label>
+										<input formControlName="gtn" type="text" matInput placeholder="GTN" />
+									</mat-form-field>
+									<mat-form-field appearance="outline">
+										<mat-label>Manufacturador</mat-label>
+										<input formControlName="manufactura" type="text" matInput placeholder="Nombre Manufacturador" />
+									</mat-form-field>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="generales" fxLayout="row wrap" fxLayoutAlign="center center">
+				<div
+					fxLayout="row"
+					fxLayout.xs="column"
+					fxLayoutAlign="start stretch"
+					fxFlex="60"
+					fxFlex.xs="94"
+					fxFlex.sm="80"
+					class="generalContenedor"
+				>
+					<div fxLayout="row wrap" fxLayoutAlign="center none">
+						<div class="title_box">
+							<div id="title">Unidades</div>
+							<div id="content">
+								<div fxLayout="row wrap" fxFlex="50" fxLayoutAlign="center center">
+									<div fxLayout="row wrap" fxFlex="90" fxLayoutAlign="center center">
+										<mat-form-field appearance="outline">
+											<mat-label>Peso Neto</mat-label>
+											<input formControlName="pesoNeto" type="number" matInput placeholder="Peso Neto" />
+										</mat-form-field>
+										<mat-form-field appearance="outline">
+											<mat-label>Peso Bruto</mat-label>
+											<input formControlName="pesoBruto" type="number" matInput placeholder="Peso Bruto" />
+										</mat-form-field>
+										<mat-form-field appearance="outline">
+											<mat-label>Volumen</mat-label>
+											<input formControlName="volumen" type="number" matInput placeholder="Volumen" />
+										</mat-form-field>
+									</div>
+									<div fxLayout="column" fxFlex="10" fxLayoutGap="30px">
+										<p>KB</p>
+										<p>KB</p>
+										<p>L</p>
+									</div>
+								</div>
+
+								<div fxLayout="row wrap" fxFlex="50">
+									<div fxLayout="row wrap" fxFlex="70" fxLayoutAlign="center center">
+										<mat-form-field appearance="outline">
+											<mat-label>Almacenamiento</mat-label>
+											<mat-select formControlName="almacenamiento">
+												<mat-option *ngFor="let item of listUndMedida" [value]="item.id">{{
+													item.codUnidadMedida
+												}}</mat-option>
+											</mat-select>
+										</mat-form-field>
+										<mat-form-field appearance="outline">
+											<mat-label>Unidad Detalle</mat-label>
+											<mat-select formControlName="detalle">
+												<mat-option *ngFor="let item of listUndMedida" [value]="item.id">{{
+													item.codUnidadMedida
+												}}</mat-option>
+											</mat-select>
+										</mat-form-field>
+										<mat-form-field appearance="outline">
+											<mat-label>Múltiplo Venta</mat-label>
+											<mat-select formControlName="venta">
+												<mat-option *ngFor="let item of listUndMedida" [value]="item.id">{{
+													item.codUnidadMedida
+												}}</mat-option>
+											</mat-select>
+										</mat-form-field>
+									</div>
+									<div fxLayout="column" fxFlex="30" fxLayoutAlign="center center">
+										<p>Conversión</p>
+										<mat-form-field appearance="outline">
+											<mat-label>Múltiplo Detalle</mat-label>
+											<input formControlName="multiploDetalle" type="number" matInput placeholder="Múltipo Ventas" />
+										</mat-form-field>
+										<mat-form-field appearance="outline">
+											<mat-label>Múltiplo Venta</mat-label>
+											<input type="number" formControlName="multiploVenta" matInput placeholder="Múltipo Ventas" />
+										</mat-form-field>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="generales" fxLayout="row wrap" fxLayoutAlign="center center">
+				<div
+					fxLayout="row"
+					fxLayout.xs="column"
+					fxLayoutAlign="start stretch"
+					fxFlex="60"
+					fxFlex.xs="94"
+					fxFlex.sm="80"
+					class="generalContenedor"
+				>
+					<div fxLayout="row wrap" fxLayoutAlign="center none">
+						<div class="title_box">
+							<div id="content">
+								<div fxLayout="row wrap" fxFlex="30">
+									<mat-form-field appearance="outline">
+										<mat-label>Impuesto</mat-label>
+										<mat-select formControlName="codigoImpuesto">
+											<mat-option *ngFor="let item of listImpuesto" [value]="item.id">{{
+												item.codImpuesto
+											}}</mat-option>
+										</mat-select>
+									</mat-form-field>
+									<mat-form-field appearance="outline">
+										<mat-label>Cuentas</mat-label>
+										<mat-select formControlName="cuenta">
+											<mat-option *ngFor="let item of listCuenta" [value]="item.id">{{ item.Descripcion }}</mat-option>
+										</mat-select>
+									</mat-form-field>
+								</div>
+								<div fxLayout="row wrap" fxFlex="70">
+									<mat-form-field appearance="outline">
+										<mat-label>Nombre Impuesto</mat-label>
+										<input type="text" matInput placeholder="Nombre Impuesto" />
+									</mat-form-field>
+									<mat-form-field appearance="outline">
+										<mat-label>Nombre Cuenta </mat-label>
+										<input type="text" matInput placeholder="Nombre Impuesto" />
+									</mat-form-field>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="generales" fxLayout="row wrap" fxLayoutAlign="center center">
+				<div
+					fxLayout="row"
+					fxLayout.xs="column"
+					fxLayoutAlign="start stretch"
+					fxFlex="60"
+					fxFlex.xs="94"
+					fxFlex.sm="80"
+					class="generalContenedor"
+				>
+					<div fxLayout="row wrap" fxLayoutAlign="center none">
+						<div class="title_box">
+							<div id="title">Retención</div>
+							<div id="content">
+								<div fxLayout="row wrap" fxFlex="30">
+									<mat-form-field appearance="outline">
+										<mat-label>Ventas</mat-label>
+										<mat-select formControlName="retencionVentas">
+											<mat-option *ngFor="let item of listImpuesto" [value]="item.id">{{
+												item.codImpuesto
+											}}</mat-option>
+										</mat-select>
+									</mat-form-field>
+									<mat-form-field appearance="outline">
+										<mat-label>Compras</mat-label>
+										<mat-select formControlName="retencionCompras">
+											<mat-option *ngFor="let item of listImpuesto" [value]="item.id">{{
+												item.codImpuesto
+											}}</mat-option>
+										</mat-select>
+									</mat-form-field>
+									<mat-form-field appearance="outline">
+										<mat-label>Modelo</mat-label>
+										<mat-select formControlName="retencionModelo">
+											<mat-option *ngFor="let item of listImpuesto" [value]="item.id">{{
+												item.codImpuesto
+											}}</mat-option>
+										</mat-select>
+									</mat-form-field>
+								</div>
+								<div fxLayout="row wrap" fxFlex="70">
+									<mat-form-field appearance="outline">
+										<mat-label>Retencion Ventas</mat-label>
+										<input type="text" matInput placeholder="GTN" />
+									</mat-form-field>
+									<mat-form-field appearance="outline">
+										<mat-label>Retencion Compras</mat-label>
+										<input type="text" matInput placeholder="Nombre Manufacturador" />
+									</mat-form-field>
+									<mat-form-field appearance="outline">
+										<mat-label>Retencion Modelo</mat-label>
+										<input type="text" matInput placeholder="Nombre Manufacturador" />
+									</mat-form-field>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="generales" fxLayout="row wrap" fxLayoutAlign="center center">
+				<div
+					fxLayout="row"
+					fxLayout.xs="column"
+					fxLayoutAlign="start stretch"
+					fxFlex="60"
+					fxFlex.xs="94"
+					fxFlex.sm="80"
+					class="generalContenedor"
+				>
+					<div fxLayout="row wrap" fxLayoutAlign="center none">
+						<div class="title_box">
+							<div id="title">Otros</div>
+							<div id="content">
+								<div fxLayout="row wrap" fxFlex="30">
+									<mat-form-field appearance="outline">
+										<mat-label>Estilo</mat-label>
+										<input formControlName="estilo" type="text" matInput placeholder="Digite Codigo Estilo" />
+									</mat-form-field>
+									<mat-form-field appearance="outline">
+										<mat-label>Talla</mat-label>
+										<input formControlName="talla" type="text" matInput placeholder="Digite Codigo de Talla" />
+									</mat-form-field>
+									<mat-form-field appearance="outline">
+										<mat-label>Color</mat-label>
+										<input formControlName="color" type="text" matInput placeholder="Digite Codigo Color" />
+									</mat-form-field>
+								</div>
+								<div fxLayout="row wrap" fxFlex="70">
+									<mat-form-field appearance="outline">
+										<mat-label>Descripcion Estilo</mat-label>
+										<input formControlName="nombreEstilo" type="text" matInput placeholder="Descripcion Estilo" />
+									</mat-form-field>
+									<mat-form-field appearance="outline">
+										<mat-label>Descripcion de Talla</mat-label>
+										<input formControlName="nombreTalla" type="text" matInput placeholder="Descripcion de Talla" />
+									</mat-form-field>
+									<mat-form-field appearance="outline">
+										<mat-label>Descripcion de Color</mat-label>
+										<input formControlName="nombreColor" type="text" matInput placeholder="Descripcion de Color" />
+									</mat-form-field>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</mat-tab>
+		<mat-tab label="Nota">
+			<div class="generales" fxLayout="row wrap" fxLayoutAlign="center center">
+				<div
+					fxLayout="row"
+					fxLayout.xs="column"
+					fxLayoutAlign="start stretch"
+					fxFlex="60"
+					fxFlex.xs="94"
+					fxFlex.sm="80"
+					class="generalContenedor"
+				>
+					<div fxLayout="row wrap" fxLayoutAlign="center none">
+						<div class="title_box">
+							<div id="content">
+								<textarea formControlName="nota" style="width: 600px; height: 400px" matInput placeholder="Comment">
+								</textarea>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</mat-tab>
+		<!-- Validar que la empresa Utiliza Lotes para activar la pestaña -->
+		<mat-tab label="Lote">
+			<div class="generales" fxLayout="row wrap" fxLayoutAlign="center center">
+				<div
+					fxLayout="row"
+					fxLayout.xs="column"
+					fxLayoutAlign="start stretch"
+					fxFlex="60"
+					fxFlex.xs="94"
+					fxFlex.sm="80"
+					class="generalContenedor"
+				>
+					<div fxLayout="row wrap" fxLayoutAlign="center none">
+						<div class="title_box">
+							<div id="content">
+								<section class="indicadores">
+									<p><mat-checkbox formControlName="usaLote">Usa Lotes</mat-checkbox></p>
+								</section>
+								<div class="generales" fxLayout="row wrap" fxLayoutAlign="center center">
+									<div fxLayout="row wrap" fxLayoutAlign="center none">
+										<div class="title_box">
+											<div id="content">
+												<section class="indicadores">
+													<p><mat-checkbox formControlName="perecedero">Perecedero</mat-checkbox></p>
+												</section>
+												<section class="indicadores">
+													<p><mat-checkbox formControlName="obligaCuarentena">Obliga Cuarentena</mat-checkbox></p>
+												</section>
+												<div fxLayout="row wrap" fxLayoutAlign="center none">
+													<div id="content">
+														<div fxLayout="row wrap" fxFlex="50" fxLayoutAlign="center center">
+															<div fxLayout="row wrap" fxFlex="90" fxLayoutAlign="center center">
+																<mat-form-field appearance="outline">
+																	<mat-label>Minimo de Vida Compras</mat-label>
+																	<input
+																		formControlName="mimimoVidaCompra"
+																		type="number"
+																		matInput
+																		placeholder="Minimo de Vida Compras"
+																	/>
+																</mat-form-field>
+																<mat-form-field appearance="outline">
+																	<mat-label>Minimo de Vida Consumo</mat-label>
+																	<input
+																		formControlName="mimimoVidaConsumo"
+																		type="number"
+																		matInput
+																		placeholder="Minimo de Vida Consumo"
+																	/>
+																</mat-form-field>
+																<mat-form-field appearance="outline">
+																	<mat-label>Minimo de Vida Venta</mat-label>
+																	<input
+																		formControlName="mimimoVidaVenta"
+																		type="number"
+																		matInput
+																		placeholder="Minimo de Vida Venta"
+																	/>
+																</mat-form-field>
+															</div>
+															<div fxLayout="column" fxFlex="10" fxLayoutGap="30px">
+																<p>dias</p>
+																<p>dias</p>
+																<p>dias</p>
+															</div>
+														</div>
+
+														<div fxLayout="row wrap" fxFlex="50">
+															<div fxLayout="row wrap" fxFlex="70" fxLayoutAlign="center start">
+																<mat-form-field appearance="outline">
+																	<mat-label>Vida Útil Promedio</mat-label>
+																	<input
+																		formControlName="vidaUtilPromedio"
+																		type="number"
+																		matInput
+																		placeholder="Vida Útil Promedio"
+																	/>
+																</mat-form-field>
+																<mat-form-field appearance="outline">
+																	<mat-label>Cuarentena</mat-label>
+																	<input formControlName="cuarentena" type="number" matInput placeholder="Cuarentena" />
+																</mat-form-field>
+															</div>
+															<div fxLayout="column" fxFlex="30" fxLayoutAlign="start start">
+																<p>dias</p>
+
+																<p>dias</p>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</mat-tab>
+		<mat-tab label="Auditorias">
+			<div class="generales" fxLayout="row wrap" fxLayoutAlign="center center">
+				<div
+					fxLayout="row"
+					fxLayout.xs="column"
+					fxLayoutAlign="start stretch"
+					fxFlex="60"
+					fxFlex.xs="94"
+					fxFlex.sm="80"
+					class="generalContenedor"
+				>
+					<div fxLayout="row wrap" fxLayoutAlign="center none">
+						<div class="title_box">
+							<div id="content">
+								<div fxLayout="row wrap" fxFlex="80" fxLayoutAlign="center center">
+									<div fxLayout="row wrap" fxFlex="80" fxLayoutAlign="center start">
+										<mat-form-field appearance="outline">
+											<mat-label>Usuario Creacion</mat-label>
+											<input formControlName="usuarioCreacion" type="text" matInput />
+										</mat-form-field>
+										<mat-form-field appearance="outline">
+											<mat-label>Usuario Modificacion</mat-label>
+											<input formControlName="usuarioModificacion" type="text" matInput />
+										</mat-form-field>
+									</div>
+								</div>
+
+								<div fxLayout="row wrap" fxFlex="50">
+									<div fxLayout="row wrap" fxFlex="50" fxLayoutAlign="center start">
+										<mat-form-field appearance="outline">
+											<mat-label>Fecha Creacion</mat-label>
+											<input formControlName="fechaCreacion" type="text" matInput />
+										</mat-form-field>
+										<mat-form-field appearance="outline">
+											<mat-label>Fecha Modificacion</mat-label>
+											<input formControlName="fechaModificacion" type="text" matInput />
+										</mat-form-field>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</mat-tab>
+	</mat-tab-group>
+
+	<div mat-dialog-actions [align]="'end'">
+		<button mat-raised-button color="basic" mat-dialog-close>Cerrar</button>
+		<button mat-raised-button color="warn" type="submit" [disabled]="disableButtonSave">{{ actionBtn }}</button>
+	</div>
+</form>

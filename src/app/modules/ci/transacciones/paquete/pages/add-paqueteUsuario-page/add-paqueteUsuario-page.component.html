@@ -1,0 +1,29 @@
+<h2>Paquete de Inventario</h2>
+<form class="formulario grey-100" [formGroup]="paqueteForm">
+	<div fxLayout="row" fxLayoutAlign="center none">
+		<div fxLayout="row wrap" fxLayoutAlign="center center" fxFlex="30">
+			<mat-form-field appearance="outline">
+				<mat-label>Paquete</mat-label>
+				<input
+					[(ngModel)]="inputValue"
+					(ngModelChange)="inputValue = $event.toUpperCase()"
+					formControlName="codPaqueteInv"
+					type="text"
+					matInput
+					placeholder="Codigo Paquete"
+				/>
+				<mat-error *ngIf="paqueteForm.get('codPaqueteInv')!.hasError('required')">El maximo de 4 Caracteres</mat-error>
+			</mat-form-field>
+		</div>
+		<div fxLayout="row wrap" fxLayoutAlign="center center" fxFlex="70">
+			<mat-form-field appearance="outline">
+				<mat-label>Descripcion</mat-label>
+				<input formControlName="descripcion" type="text" matInput placeholder="Descripicon Paquete" />
+			</mat-form-field>
+		</div>
+	</div>
+	<div mat-dialog-actions [align]="'end'">
+		<button mat-raised-button color="warn" (click)="clickSave()">Guardar</button>
+		<button mat-raised-button color="basic" mat-dialog-close>Cerrar</button>
+	</div>
+</form>

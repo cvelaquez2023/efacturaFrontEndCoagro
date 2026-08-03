@@ -1,0 +1,75 @@
+<div class="search-div" fxLayout="row" fxLayoutAlign="end end">
+	<button mat-raised-button color="warn" (click)="openDialog()"><mat-icon>add</mat-icon>Crear</button>
+	<button mat-mini-fab="warn">
+		<mat-icon>Excel</mat-icon>
+	</button>
+</div>
+<form class="buscar">
+	<mat-form-field class="full-with" appearance="fill">
+		<input matInput (keyup)="applyFilter($event)" placeholder="Buscar Ajuste" #input />
+	</mat-form-field>
+</form>
+
+<div class="mat-elevation-z8">
+	<mat-table [dataSource]="listAjuste" matSort>
+		<ng-container matColumnDef="codAjuste">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>cod-Ajuste</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.codAjusteConfig }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="descripcion">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Descripcion</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.descripcion }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="ajusteBase">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Ajuste-Base</mat-header-cell>
+			<mat-cell *matCellDef="let element" [ngSwitch]="element.ajusteBase">
+				<ng-container *ngSwitchCase="'A'"> Aprobación </ng-container>
+				<ng-container *ngSwitchCase="'C'"> Consumo </ng-container>
+				<ng-container *ngSwitchCase="'F'"> Fisico </ng-container>
+				<ng-container *ngSwitchCase="'I'"> Remisión </ng-container>
+				<ng-container *ngSwitchCase="'M'"> Misceláneo </ng-container>
+				<ng-container *ngSwitchCase="'N'"> Vencimineto</ng-container>
+				<ng-container *ngSwitchCase="'O'"> Compras </ng-container>
+				<ng-container *ngSwitchCase="'P'"> Producción </ng-container>
+				<ng-container *ngSwitchCase="'R'"> Reservación </ng-container>
+				<ng-container *ngSwitchCase="'S'"> Costo </ng-container>
+				<ng-container *ngSwitchCase="'T'"> Traspaso </ng-container>
+				<ng-container *ngSwitchCase="'E'"> Emsamble </ng-container>
+				<ng-container *ngSwitchCase="'V'"> Ventas </ng-container>
+			</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="activa">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Activo</mat-header-cell>
+			<mat-cell *matCellDef="let element">
+				<mat-checkbox type="checkbox" [(ngModel)]="element.activa"></mat-checkbox>
+			</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="ingreso">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Funcionalidad</mat-header-cell>
+			<mat-cell *matCellDef="let element" [ngSwitch]="element.ingreso">
+				<ng-container *ngSwitchCase="'A'"> Ambas </ng-container>
+				<ng-container *ngSwitchCase="'E'"> Equivalente </ng-container>
+				<ng-container *ngSwitchCase="'O'"> Opuesta </ng-container>
+			</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="actions">
+			<mat-header-cell *matHeaderCellDef>Acciones</mat-header-cell>
+			<mat-cell *matCellDef="let element">
+				<button mat-icon-button (click)="clickEdit()">
+					<mat-icon>edit</mat-icon>
+				</button>
+
+				<button mat-icon-button color="warn" (click)="clickDelete()">
+					<mat-icon>delete</mat-icon>
+				</button>
+			</mat-cell>
+		</ng-container>
+
+		<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+		<mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+		<tr class="mat-row" *matNoDataRow>
+			<td class="mat-cell" colspan="4">No data matching the filter "{{ input.value }}"</td>
+		</tr>
+	</mat-table>
+	<mat-paginator [pageSizeOptions]="[10, 25, 75, 100]" showFirstLastButtons></mat-paginator>
+</div>

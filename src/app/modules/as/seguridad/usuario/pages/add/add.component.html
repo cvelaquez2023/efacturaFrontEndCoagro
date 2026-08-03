@@ -1,0 +1,63 @@
+<h1 mat-dialog-title color="warn">Adicionar Usuarios</h1>
+<mat-dialog-content class="mt-typography">
+	<form class="formulario grey-100" autocomplete="off" [formGroup]="formGroup" (ngSubmit)="clickRegister()">
+		<div class="generalContenedor" fxLayout="row wrap" fxLayoutAlign="center center">
+			<div id="content">
+				<div fxLayout="row wrap" fxLayoutAlign="center center" fxFlex="50">
+					<mat-form-field appearance="outline">
+						<mat-label>Nombres</mat-label>
+						<input matInput type="text" placeholder="Nombres" formControlName="firstName" />
+						<mat-error *ngIf="firtsField.hasError('required')">El Campo es requerido</mat-error>
+					</mat-form-field>
+					<mat-form-field appearance="outline">
+						<mat-label>Correo</mat-label>
+						<input matInput type="email" placeholder="E-mail" formControlName="email" />
+						<mat-error *ngIf="emailField.hasError('required')">El e-mail es requerido</mat-error>
+						<mat-error *ngIf="emailField.hasError('email')">Ingrese un e-mail valido</mat-error>
+					</mat-form-field>
+					<mat-form-field appearance="outline">
+						<mat-label>Contraseña</mat-label>
+						<input matInput type="password" placeholder="Contrasena" formControlName="password" />
+						<mat-error *ngFor="let item of getErrors('password')">{{ item }}</mat-error>
+					</mat-form-field>
+					<mat-form-field appearance="outline">
+						<mat-label>Documento</mat-label>
+						<mat-select formControlName="typeDocument">
+							<mat-option [value]="1"> DUI </mat-option>
+							<mat-option [value]="2"> NIT </mat-option>
+						</mat-select>
+						<mat-error *ngIf="typeDocumentField.hasError('required')">Selecione un documento</mat-error>
+					</mat-form-field>
+				</div>
+				<div fxLayout="row wrap" fxLayoutAlign="center center" fxFlex="50">
+					<mat-form-field appearance="outline">
+						<mat-label>Apellidos</mat-label>
+						<input matInput type="text" placeholder="Apellidos" formControlName="lastName" />
+						<mat-error *ngIf="lastNameField.hasError('required')">El Campo es requerido</mat-error>
+					</mat-form-field>
+					<mat-form-field appearance="outline">
+						<mat-label>Edad</mat-label>
+						<input matInput type="number" placeholder="Edad" formControlName="age" />
+					</mat-form-field>
+					<mat-form-field appearance="outline">
+						<mat-label>Repetir Contraseña</mat-label>
+						<input matInput type="password" placeholder="Repetir Contrasena" formControlName="confirmPassword" />
+						<mat-error *ngFor="let item of getErrors('confirmPassword')">{{ item }}</mat-error>
+					</mat-form-field>
+					<mat-form-field appearance="outline">
+						<mat-label>Numero Documento</mat-label>
+						<input matInput type="text" placeholder="Nro Documento" formControlName="documentNumber" />
+						<mat-error *ngIf="documentNumberField.hasError('required')">Ingrese el nro de documento</mat-error>
+						<mat-error *ngIf="documentNumberField.hasError('dnierror')"
+							>El Numero de DUI debe tener 10 caracteres</mat-error
+						>
+					</mat-form-field>
+				</div>
+			</div>
+		</div>
+		<div mat-dialog-actions [align]="'end'">
+			<button mat-raised-button color="basic" mat-dialog-close>Cerrar</button>
+			<button mat-raised-button color="warn" type="submit">REGISTRARSE</button>
+		</div>
+	</form>
+</mat-dialog-content>
