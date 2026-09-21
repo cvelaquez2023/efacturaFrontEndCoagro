@@ -1,0 +1,76 @@
+<div class="parametros-container">
+	<h2>Parámetros del Módulo</h2>
+
+	<p *ngIf="!cargando && !existeConfiguracion" class="aviso-creacion">
+		Aún no existe una configuración de Globales de Ruteo. Complete al menos el NIT en la carpeta Corporativo y presione Guardar para crearla.
+	</p>
+
+	<div *ngIf="cargando" class="spinner-wrapper">
+		<mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
+	</div>
+
+	<form *ngIf="!cargando" [formGroup]="parametrosForm" class="parametros-form">
+		<mat-tab-group mat-align-tabs="center" class="parametros-tabs">
+			<mat-tab *ngFor="let tab of tabs" [label]="tab">
+				<div class="tab-content">
+					<section class="checkbox-grid" *ngIf="booleanFieldsForTab(tab).length">
+						<mat-checkbox
+							*ngFor="let campo of booleanFieldsForTab(tab)"
+							class="checkbox-item"
+							[checked]="parametrosForm.get(campo.key)?.value === 'S'"
+							[disabled]="campo.readOnly"
+							(change)="toggleBoolean(campo.key, $event.checked)"
+						>
+							{{ campo.label }}
+						</mat-checkbox>
+					</section>
+
+					<section class="fields-section" *ngIf="inputFieldsForTab(tab).length">
+						<div class="row">
+							<div *ngFor="let campo of inputFieldsForTab(tab)" [ngClass]="colClass(campo)">
+								<mat-form-field appearance="outline">
+									<mat-label>{{ campo.label }}</mat-label>
+
+									<input
+										*ngIf="campo.type === 'text' && campo.digitsOnly"
+										[formControlName]="campo.key"
+										matInput
+										[readonly]="campo.readOnly"
+										[attr.maxlength]="campo.maxLength || null"
+										(keydown)="soloDigitos($event)"
+										(paste)="onPasteDigits($event, campo.key)"
+									/>
+									<input
+										*ngIf="campo.type === 'text' && !campo.digitsOnly"
+										[formControlName]="campo.key"
+										matInput
+										[readonly]="campo.readOnly"
+										[attr.maxlength]="campo.maxLength || null"
+									/>
+									<input
+										*ngIf="campo.type === 'password'"
+										[formControlName]="campo.key"
+										matInput
+										type="password"
+										[attr.maxlength]="campo.maxLength || null"
+									/>
+									<input *ngIf="campo.type === 'number'" [formControlName]="campo.key" matInput type="number" />
+									<textarea *ngIf="campo.type === 'textarea'" [formControlName]="campo.key" matInput rows="3"></textarea>
+
+									<mat-hint *ngIf="campo.hint && !errorFor(campo)">{{ campo.hint }}</mat-hint>
+									<mat-error *ngIf="errorFor(campo)">{{ errorFor(campo) }}</mat-error>
+								</mat-form-field>
+							</div>
+						</div>
+					</section>
+				</div>
+			</mat-tab>
+		</mat-tab-group>
+
+		<div mat-dialog-actions [align]="'end'" class="acciones">
+			<button mat-raised-button color="warn" (click)="guardar()">
+				{{ existeConfiguracion ? 'Guardar' : 'Crear Configuración' }}
+			</button>
+		</div>
+	</form>
+</div>

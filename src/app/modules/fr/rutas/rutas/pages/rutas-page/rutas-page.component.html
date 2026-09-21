@@ -1,0 +1,55 @@
+<h2>Rutas</h2>
+
+<div class="search-div" fxLayout="row" fxLayoutAlign="space-between center">
+	<form class="buscar">
+		<mat-form-field class="full-with" appearance="fill">
+			<mat-icon matPrefix>search</mat-icon>
+			<input matInput (keyup)="applyFilter($event)" placeholder="Buscar Ruta" #input />
+		</mat-form-field>
+	</form>
+	<button mat-raised-button color="warn" (click)="openDialog()" matTooltip="Nueva Ruta (Ctrl + N)">
+		<mat-icon>add</mat-icon>Crear
+	</button>
+</div>
+
+<div class="rt-table-wrap mat-elevation-z8">
+	<mat-table [dataSource]="listRutas" matSort class="rt-table">
+		<ng-container matColumnDef="ruta">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Ruta</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.RUTA }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="descripcion">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Descripción</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.DESCRIPCION }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="activa">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Activa</mat-header-cell>
+			<mat-cell *matCellDef="let element">
+				<mat-icon [color]="element.ACTIVA === 'S' ? 'primary' : 'warn'">{{ element.ACTIVA === 'S' ? 'check_circle' : 'cancel' }}</mat-icon>
+				{{ element.ACTIVA === 'S' ? 'Ruta Activa' : 'Ruta Inactiva' }}
+			</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="periodicidad">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Periodicidad</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.PERIODICIDAD === 'D' ? 'Periodicidad Diaria' : 'Periodicidad Semanal' }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="actions">
+			<mat-header-cell *matHeaderCellDef></mat-header-cell>
+			<mat-cell *matCellDef="let element" class="actions-cell">
+				<button mat-icon-button color="primary" (click)="clickEdit(element)" matTooltip="Editar">
+					<mat-icon>edit</mat-icon>
+				</button>
+				<button mat-icon-button color="warn" (click)="clickDelete(element.RUTA)" matTooltip="Eliminar">
+					<mat-icon>delete</mat-icon>
+				</button>
+			</mat-cell>
+		</ng-container>
+
+		<mat-header-row *matHeaderRowDef="displayedColumns" class="rt-header-row"></mat-header-row>
+		<mat-row *matRowDef="let row; columns: displayedColumns" class="rt-row"></mat-row>
+		<tr class="mat-row" *matNoDataRow>
+			<td class="mat-cell" colspan="5">No hay datos que coincidan con el filtro "{{ input.value }}"</td>
+		</tr>
+	</mat-table>
+	<mat-paginator [pageSizeOptions]="[10, 25, 75, 100]" showFirstLastButtons></mat-paginator>
+</div>

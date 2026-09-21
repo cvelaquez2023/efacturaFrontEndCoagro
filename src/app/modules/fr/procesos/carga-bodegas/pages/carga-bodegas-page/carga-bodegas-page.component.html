@@ -1,0 +1,58 @@
+<h2>Cargar Bodegas</h2>
+<p class="subtitulo">Seleccione las bodegas ya existentes en el ERP que desea habilitar en el módulo de rutas.</p>
+
+<div class="row">
+	<div class="col-12 col-md-70">
+		<mat-form-field class="full-with" appearance="fill">
+			<mat-label>Buscar bodega</mat-label>
+			<input matInput (keyup)="onBuscar($event)" placeholder="Código o nombre de la bodega" />
+		</mat-form-field>
+	</div>
+	<div class="col-12 col-md-30 seleccionados-wrapper">
+		<span class="seleccionados-info">{{ selectedBodegas.size }} seleccionado(s)</span>
+	</div>
+</div>
+
+<div *ngIf="cargando" class="spinner-wrapper">
+	<mat-progress-spinner mode="indeterminate" diameter="36"></mat-progress-spinner>
+</div>
+
+<div *ngIf="!cargando" class="mat-elevation-z8 grid-wrapper">
+	<mat-table [dataSource]="bodegasErp">
+		<ng-container matColumnDef="seleccionado">
+			<mat-header-cell *matHeaderCellDef class="check-cell"></mat-header-cell>
+			<mat-cell *matCellDef="let element" class="check-cell">
+				<mat-checkbox [checked]="isSelected(element.BODEGA)" (change)="toggleBodega(element, $event.checked)"></mat-checkbox>
+			</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="codigo">
+			<mat-header-cell *matHeaderCellDef>Código</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.BODEGA }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="descripcion">
+			<mat-header-cell *matHeaderCellDef>Descripción</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.NOMBRE }}</mat-cell>
+		</ng-container>
+
+		<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+		<mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+		<tr class="mat-row" *matNoDataRow>
+			<td class="mat-cell sin-datos" [attr.colspan]="displayedColumns.length">No hay bodegas que coincidan con la búsqueda</td>
+		</tr>
+	</mat-table>
+	<mat-paginator
+		[length]="total"
+		[pageIndex]="page - 1"
+		[pageSize]="limit"
+		[pageSizeOptions]="[20, 50, 100]"
+		showFirstLastButtons
+		(page)="onPageChange($event)"
+	></mat-paginator>
+</div>
+
+<div class="acciones-wrapper">
+	<button mat-raised-button color="warn" [disabled]="selectedBodegas.size === 0 || procesando" (click)="cargarSeleccionados()">
+		<mat-icon>cloud_upload</mat-icon>
+		Cargar ({{ selectedBodegas.size }})
+	</button>
+</div>

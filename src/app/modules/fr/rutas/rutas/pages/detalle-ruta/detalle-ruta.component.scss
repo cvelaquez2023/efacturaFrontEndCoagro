@@ -1,0 +1,191 @@
+.dr-title-icon {
+	vertical-align: middle;
+	margin-right: 6px;
+}
+.dr-content {
+	min-width: 70vw;
+	max-width: 90vw;
+}
+
+/* Ruta Asignada / Asignación de Agente / Actividad de la Ruta */
+.dr-header {
+	margin-bottom: 16px;
+}
+.dr-box {
+	padding: 10px 14px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+.dr-box-title {
+	font-weight: 600;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	color: rgba(0, 0, 0, 0.7);
+	margin-bottom: 4px;
+}
+.dr-field-row {
+	display: flex;
+	align-items: baseline;
+	gap: 6px;
+	flex-wrap: wrap;
+}
+.dr-label {
+	color: rgba(0, 0, 0, 0.6);
+	font-size: 0.85rem;
+}
+.dr-value {
+	font-weight: 600;
+}
+.dr-desc {
+	color: rgba(0, 0, 0, 0.6);
+	font-style: italic;
+}
+.dr-f1-full {
+	justify-content: flex-start;
+	text-align: left;
+}
+.dr-f1-full mat-icon {
+	margin-right: 6px;
+}
+.dr-box mat-radio-group {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+.dr-divider {
+	margin: 18px 0 14px;
+}
+.dr-section-title {
+	font-weight: 600;
+	color: rgba(0, 0, 0, 0.7);
+	margin: 4px 0;
+}
+.dr-section-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 4px;
+}
+.dr-section-actions {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+}
+.dr-cargando {
+	display: flex;
+	justify-content: center;
+	padding: 24px;
+}
+
+/* Insignia de estado de asignación del cliente, con menú para elegir el día */
+.dr-chip-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	padding: 2px 6px;
+	min-width: 0;
+}
+.dr-chip-caret {
+	color: rgba(0, 0, 0, 0.4);
+}
+.dr-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 3px 10px 3px 6px;
+	border-radius: 999px;
+	font-size: 0.78rem;
+	font-weight: 600;
+	line-height: 1.4;
+	white-space: nowrap;
+}
+.dr-chip mat-icon {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+}
+.dr-chip--NO_ASIGNADO {
+	background: rgba(0, 0, 0, 0.06);
+	color: rgba(0, 0, 0, 0.55);
+}
+.dr-chip--EN_OTRAS_RUTAS {
+	background: rgba(255, 152, 0, 0.14);
+	color: #b26a00;
+}
+.dr-chip--RUTA_ACTUAL_Y_OTRAS {
+	background: rgba(244, 67, 54, 0.12);
+	color: #c62828;
+}
+.dr-chip--EN_RUTA_ACTUAL {
+	background: rgba(76, 175, 80, 0.14);
+	color: #2e7d32;
+}
+
+.dr-nota {
+	margin-top: 12px;
+	font-size: 0.85rem;
+	color: rgba(0, 0, 0, 0.6);
+}
+
+/* Consecutivos por compañía */
+.dr-table-wrap {
+	overflow-x: auto;
+	max-height: 32vh;
+	border-radius: 4px;
+}
+.dr-table {
+	width: 100%;
+	white-space: nowrap;
+}
+.dr-table th.mat-header-cell {
+	position: sticky;
+	top: 0;
+	background: #fafafa;
+	font-size: 0.78rem;
+	color: rgba(0, 0, 0, 0.6);
+	padding: 0 10px;
+	z-index: 1;
+}
+.dr-table td.mat-cell {
+	padding: 4px 10px;
+	font-size: 0.85rem;
+}
+.dr-table input {
+	width: 100%;
+	border: none;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+	background: transparent;
+	padding: 4px 2px;
+	font: inherit;
+}
+.dr-table input:focus {
+	outline: none;
+	border-bottom: 2px solid #f44336;
+}
+.dr-row-selected {
+	background-color: rgba(244, 67, 54, 0.08);
+}
+.dr-f1-value {
+	margin-right: 2px;
+}
+.dr-f1-btn {
+	width: 26px;
+	height: 26px;
+	line-height: 26px;
+}
+.dr-f1-btn mat-icon {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+}
+.dr-na {
+	color: rgba(0, 0, 0, 0.3);
+}
+.dr-empty {
+	text-align: center;
+	color: rgba(0, 0, 0, 0.54);
+	padding: 14px 0;
+	font-size: 0.85rem;
+}

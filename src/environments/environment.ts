@@ -4,8 +4,8 @@
 
 export const environment = {
 	production: false,
-	host: 'http://192.168.7.44:5000/api/v1',
-	//host: 'http://localhost:5000/api/v1',
+	//host: 'http://192.168.1.7:5000/api/v1',
+	host: 'http://localhost:5000/api/v1',
 	empresa: 'H2C S.A. de C.V.'
 };
 
@@ -15,5 +15,5 @@ export const environment = {
  *
  * This import should be commented out in production mode because it will have a negative impact
  * on performance if an error is thrown.
- */
+ */ 
 // import 'zone.js/plugins/zone-error';  // Included with Angular CLI.

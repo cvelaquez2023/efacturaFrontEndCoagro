@@ -34,5 +34,11 @@
 			</mat-expansion-panel-header>
 			<app-tree-usuario></app-tree-usuario>
 		</mat-expansion-panel>
+		<mat-expansion-panel (click)="FRclick()">
+			<mat-expansion-panel-header>
+				<mat-panel-title> <mat-icon>alt_route</mat-icon> <span>Facturación de Rutas</span> </mat-panel-title>
+			</mat-expansion-panel-header>
+			<app-tree-fr></app-tree-fr>
+		</mat-expansion-panel>
 	</mat-accordion>
 </mat-nav-list>

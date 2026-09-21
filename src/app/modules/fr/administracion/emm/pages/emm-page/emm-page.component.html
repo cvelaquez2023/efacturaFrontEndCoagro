@@ -1,0 +1,40 @@
+<h2>Configuracion del EMM</h2>
+<p>Configuracion de la fuente de datos que utiliza el Enterprise Mobility Manager para sincronizar los dispositivos moviles.</p>
+
+<form [formGroup]="emmForm">
+	<mat-form-field appearance="outline">
+		<mat-label>Compania</mat-label>
+		<input formControlName="compania" matInput />
+	</mat-form-field>
+	<mat-form-field appearance="outline">
+		<mat-label>Tipo de Servidor</mat-label>
+		<mat-select formControlName="tipoServidor">
+			<mat-option value="SQLServer">SQL Server</mat-option>
+			<mat-option value="Oracle">Oracle</mat-option>
+		</mat-select>
+	</mat-form-field>
+	<mat-form-field appearance="outline">
+		<mat-label>Servidor</mat-label>
+		<input formControlName="servidor" matInput placeholder="Nombre del servidor o TNS" />
+	</mat-form-field>
+	<mat-form-field appearance="outline">
+		<mat-label>Proveedor</mat-label>
+		<mat-select formControlName="proveedor">
+			<mat-option value="SQLServer">SQL Server</mat-option>
+			<mat-option value="Oracle">Oracle</mat-option>
+		</mat-select>
+	</mat-form-field>
+	<mat-form-field appearance="outline">
+		<mat-label>Usuario</mat-label>
+		<input formControlName="usuario" matInput />
+	</mat-form-field>
+	<mat-form-field appearance="outline">
+		<mat-label>Password</mat-label>
+		<input formControlName="password" matInput type="password" />
+	</mat-form-field>
+</form>
+
+<div mat-dialog-actions [align]="'end'">
+	<button mat-raised-button color="basic" (click)="crearTablasSincronizacion()">Crear Tablas de Sincronizacion</button>
+	<button mat-raised-button color="warn" (click)="grabar()">Actualizar y Grabar</button>
+</div>

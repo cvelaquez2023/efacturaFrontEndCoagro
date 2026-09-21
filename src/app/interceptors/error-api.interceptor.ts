@@ -1,9 +1,11 @@
 import { IResponse } from './../shared/api-models-base-interface';
 import { Injectable } from '@angular/core';
 import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpErrorResponse } from '@angular/common/http';
-import { catchError, finalize, Observable, throwError } from 'rxjs';
+import { catchError, finalize, Observable, throwError, timeout } from 'rxjs';
 import { SnotifyPosition, SnotifyService } from 'ng-snotify';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
+
+const REQUEST_TIMEOUT_MS = 20000;
 
 @Injectable()
 export class ErrorApiInterceptor implements HttpInterceptor {
@@ -13,15 +15,21 @@ export class ErrorApiInterceptor implements HttpInterceptor {
 		this._ngxService.start();
 
 		return next.handle(request).pipe(
+			timeout(REQUEST_TIMEOUT_MS),
 			finalize(() => {
 				this._ngxService.stop();
 			}),
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-			catchError((error) => this._errorHandler(error))
+			catchError((error: unknown) => this._errorHandler(error))
 		);
 	}
-	private _errorHandler(error: HttpErrorResponse): Observable<never> {
-		this.errorsHttpClient(error);
+	private _errorHandler(error: unknown): Observable<never> {
+		if (error instanceof HttpErrorResponse) {
+			this.errorsHttpClient(error);
+		} else {
+			this._snotifyService.error('No se pudo conectar con el servidor. Verifique su conexión o intente nuevamente.', {
+				position: SnotifyPosition.rightTop
+			});
+		}
 		return throwError(() => error);
 	}
 	private errorsHttpClient(httpErrorResponse: HttpErrorResponse): void {

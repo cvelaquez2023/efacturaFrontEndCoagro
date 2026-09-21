@@ -1,0 +1,39 @@
+<h1 mat-dialog-title color="warn">Editar Cliente</h1>
+<div mat-dialog-content>
+	<form [formGroup]="clienteForm">
+		<mat-form-field appearance="outline">
+			<mat-label>Código</mat-label>
+			<input formControlName="cliente" matInput placeholder="Código del cliente" maxlength="20" />
+			<mat-error *ngIf="clienteField.hasError('required')">El código es requerido</mat-error>
+			<mat-error *ngIf="clienteField.hasError('maxlength')">Máximo 20 caracteres</mat-error>
+		</mat-form-field>
+		<mat-form-field appearance="outline">
+			<mat-label>Nombre</mat-label>
+			<input formControlName="nombre" matInput placeholder="Nombre" maxlength="150" />
+			<mat-error *ngIf="nombreField.hasError('required')">El nombre es requerido</mat-error>
+			<mat-error *ngIf="nombreField.hasError('maxlength')">Máximo 150 caracteres</mat-error>
+		</mat-form-field>
+		<div fxLayout="row" fxLayoutGap="12px">
+			<mat-form-field appearance="outline">
+				<mat-label>Latitud</mat-label>
+				<input formControlName="latitud" matInput type="number" placeholder="Latitud GPS" />
+			</mat-form-field>
+			<mat-form-field appearance="outline">
+				<mat-label>Longitud</mat-label>
+				<input formControlName="longitud" matInput type="number" placeholder="Longitud GPS" />
+			</mat-form-field>
+			<mat-form-field appearance="outline">
+				<mat-label>Altitud</mat-label>
+				<input formControlName="altitud" matInput type="number" placeholder="Altitud GPS" />
+			</mat-form-field>
+		</div>
+		<mat-form-field appearance="outline">
+			<mat-label>Fecha Actualización de Ubicación</mat-label>
+			<input formControlName="fechaActualizacionUbicacion" matInput type="date" />
+		</mat-form-field>
+	</form>
+</div>
+<div mat-dialog-actions [align]="'end'">
+	<button mat-raised-button color="basic" mat-dialog-close>Cerrar</button>
+	<button mat-raised-button color="warn" (click)="clickSave()">Editar</button>
+</div>

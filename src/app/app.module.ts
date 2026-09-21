@@ -33,6 +33,8 @@ import { environment } from '../environments/environment';
 import { EffectsModule } from '@ngrx/effects';
 import { CurrencyMaskModule } from 'ng2-currency-mask';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
+import { MatPaginatorIntl } from '@angular/material/paginator';
+import { SpanishPaginatorIntl } from './shared/spanish-paginator-intl';
 
 @NgModule({
 	declarations: [AppComponent],
@@ -70,7 +72,8 @@ import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 		{ provide: 'SnotifyToastConfig', useValue: ToastDefaults },
 		SnotifyService,
 		{ provide: HTTP_INTERCEPTORS, useClass: ErrorApiInterceptor, multi: true },
-		{ provide: LocationStrategy, useClass: HashLocationStrategy }
+		{ provide: LocationStrategy, useClass: HashLocationStrategy },
+		{ provide: MatPaginatorIntl, useClass: SpanishPaginatorIntl }
 	],
 	bootstrap: [AppComponent]
 })

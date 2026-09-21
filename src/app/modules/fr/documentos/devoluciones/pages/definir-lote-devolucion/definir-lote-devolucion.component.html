@@ -1,0 +1,27 @@
+<h1 mat-dialog-title color="warn">Definir Lote - Devolucion {{ ediData.codigo }}</h1>
+<div mat-dialog-content>
+	<p><strong>Ruta:</strong> {{ ediData.ruta }} &nbsp; <strong>Cliente:</strong> {{ ediData.cliente }} &nbsp; <strong>Bodega:</strong> {{ ediData.bodega }}</p>
+	<table class="full-with">
+		<tr>
+			<th>Articulo</th>
+			<th>Descripcion</th>
+			<th>Cantidad</th>
+		</tr>
+		<tr *ngFor="let linea of lineas">
+			<td>{{ linea.articulo }}</td>
+			<td>{{ linea.descripcion }}</td>
+			<td>{{ linea.cantidad }}</td>
+		</tr>
+	</table>
+	<form [formGroup]="loteForm">
+		<mat-form-field appearance="outline" class="full-with">
+			<mat-label>Lote</mat-label>
+			<input formControlName="lote" matInput placeholder="Lote del articulo a devolver" maxlength="20" />
+			<mat-error *ngIf="loteField.hasError('required')">El lote es requerido</mat-error>
+		</mat-form-field>
+	</form>
+</div>
+<div mat-dialog-actions [align]="'end'">
+	<button mat-raised-button color="basic" mat-dialog-close>Cerrar</button>
+	<button mat-raised-button color="warn" (click)="clickSave()">Guardar</button>
+</div>

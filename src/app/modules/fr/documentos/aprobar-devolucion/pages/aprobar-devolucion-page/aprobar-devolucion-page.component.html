@@ -1,0 +1,60 @@
+<h2>Aprobar Devolucion</h2>
+
+<div class="search-div" fxLayout="row" fxLayoutAlign="end end">
+	<button mat-raised-button color="warn" (click)="aprobarSeleccionadas()"><mat-icon>check</mat-icon>Aprobar</button>
+</div>
+
+<form class="buscar">
+	<mat-form-field class="full-with" appearance="fill">
+		<input matInput (keyup)="applyFilter($event)" placeholder="Buscar Devolucion" #input />
+	</mat-form-field>
+</form>
+<div class="mat-elevation-z8">
+	<mat-table [dataSource]="listDevoluciones" matSort>
+		<ng-container matColumnDef="seleccionada">
+			<mat-header-cell *matHeaderCellDef></mat-header-cell>
+			<mat-cell *matCellDef="let element">
+				<mat-checkbox [(ngModel)]="element.seleccionada" [disabled]="element.estado !== 'Nuevo'"></mat-checkbox>
+			</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="codigo">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Devolucion</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.codigo }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="ruta">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Ruta</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.ruta }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="cliente">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Cliente</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.cliente }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="documentoReferencia">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Documento Referencia</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.documentoReferencia || '-' }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="estado">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Estado</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.estado }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="fecha">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Fecha</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.fecha | date: 'shortDate' }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="actions">
+			<mat-header-cell *matHeaderCellDef></mat-header-cell>
+			<mat-cell *matCellDef="let element">
+				<button mat-icon-button (click)="verDetalle(element)" matTooltip="Ver detalle">
+					<mat-icon>visibility</mat-icon>
+				</button>
+			</mat-cell>
+		</ng-container>
+
+		<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+		<mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+		<tr class="mat-row" *matNoDataRow>
+			<td class="mat-cell" colspan="8">No hay datos que coincidan con el filtro</td>
+		</tr>
+	</mat-table>
+	<mat-paginator [pageSizeOptions]="[10, 25, 75, 100]" showFirstLastButtons></mat-paginator>
+</div>

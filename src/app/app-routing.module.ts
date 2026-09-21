@@ -10,6 +10,7 @@ import { HomePageComponent } from './modules/home/pages/home-page/home-page.comp
 import { PATHS_CG_PAGES } from './config/path-page-cg';
 import { PATHS_DTE_PAGES } from './config/path-page.dte';
 import { PATHS_PROVEE_PAGES } from './config/path-page-prove';
+import { PATHS_FR_PAGES } from './config/path-page-fr';
 
 const routes: Routes = [
 	{
@@ -40,6 +41,10 @@ const routes: Routes = [
 			{
 				path: PATHS_PROVEE_PAGES.moduloprovee.onLyPath,
 				loadChildren: () => import('./modules/dtes/proveedor/proveedor.module').then((m) => m.ProveedorModule)
+			},
+			{
+				path: PATHS_FR_PAGES.moduloFR.onLyPath,
+				loadChildren: () => import('./modules/fr/fr.module').then((m) => m.FrModule)
 			}
 		]
 	},

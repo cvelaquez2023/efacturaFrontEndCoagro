@@ -1,0 +1,72 @@
+<h2>Cargar Artículos</h2>
+<p class="subtitulo">Seleccione los artículos ya existentes en el ERP que desea habilitar en el módulo de rutas.</p>
+
+<div class="row">
+	<div class="col-12 col-md-70">
+		<mat-form-field class="full-with" appearance="fill">
+			<mat-label>Buscar artículo</mat-label>
+			<input matInput (keyup)="onBuscar($event)" placeholder="Código o descripción del artículo" />
+		</mat-form-field>
+	</div>
+	<div class="col-12 col-md-30 seleccionados-wrapper">
+		<span class="seleccionados-info">{{ selectedArticulos.size }} seleccionado(s)</span>
+	</div>
+</div>
+
+<div *ngIf="cargando" class="spinner-wrapper">
+	<mat-progress-spinner mode="indeterminate" diameter="36"></mat-progress-spinner>
+</div>
+
+<div *ngIf="!cargando" class="mat-elevation-z8 grid-wrapper">
+	<mat-table [dataSource]="articulosErp">
+		<ng-container matColumnDef="seleccionado">
+			<mat-header-cell *matHeaderCellDef class="check-cell"></mat-header-cell>
+			<mat-cell *matCellDef="let element" class="check-cell">
+				<mat-checkbox [checked]="isSelected(element.ARTICULO)" (change)="toggleArticulo(element, $event.checked)"></mat-checkbox>
+			</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="codigo">
+			<mat-header-cell *matHeaderCellDef>Código</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.ARTICULO }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="descripcion">
+			<mat-header-cell *matHeaderCellDef>Descripción</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.DESCRIPCION }}</mat-cell>
+		</ng-container>
+
+		<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+		<mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+		<tr class="mat-row" *matNoDataRow>
+			<td class="mat-cell sin-datos" [attr.colspan]="displayedColumns.length">No hay artículos que coincidan con la búsqueda</td>
+		</tr>
+	</mat-table>
+	<mat-paginator
+		[length]="total"
+		[pageIndex]="page - 1"
+		[pageSize]="limit"
+		[pageSizeOptions]="[20, 50, 100]"
+		showFirstLastButtons
+		(page)="onPageChange($event)"
+	></mat-paginator>
+</div>
+
+<div class="acciones-wrapper">
+	<mat-form-field appearance="outline" class="bodega-select">
+		<mat-label>Bodega</mat-label>
+		<mat-select [value]="bodegaSeleccionada" (selectionChange)="bodegaSeleccionada = $event.value">
+			<mat-option value="">Sin bodega</mat-option>
+			<mat-option *ngFor="let bodega of bodegas" [value]="bodega.BODEGA">{{ bodega.BODEGA }} - {{ bodega.NOMBRE }}</mat-option>
+		</mat-select>
+	</mat-form-field>
+	<mat-form-field appearance="outline" class="grupo-select">
+		<mat-label>Grupo de Artículo</mat-label>
+		<mat-select [value]="grupoSeleccionado" (selectionChange)="grupoSeleccionado = $event.value">
+			<mat-option value="">Sin grupo</mat-option>
+			<mat-option *ngFor="let grupo of grupos" [value]="grupo.GRUPO_ARTICULO">{{ grupo.GRUPO_ARTICULO }} - {{ grupo.DESCRIPCION }}</mat-option>
+		</mat-select>
+	</mat-form-field>
+	<button mat-raised-button color="warn" [disabled]="selectedArticulos.size === 0 || procesando" (click)="cargarSeleccionados()">
+		<mat-icon>cloud_upload</mat-icon>
+		Cargar ({{ selectedArticulos.size }})
+	</button>
+</div>

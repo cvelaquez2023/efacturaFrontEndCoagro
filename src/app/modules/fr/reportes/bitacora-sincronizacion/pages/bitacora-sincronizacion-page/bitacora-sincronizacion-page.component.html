@@ -1,0 +1,38 @@
+<h2>Bitacora de Sincronizacion</h2>
+
+<form [formGroup]="filtroForm" class="filtro-reporte" fxLayout="row wrap" fxLayoutGap="16px" fxLayoutAlign="start center">
+	<mat-form-field appearance="outline">
+		<mat-label>Compania</mat-label>
+		<input formControlName="compania" matInput />
+	</mat-form-field>
+	<mat-form-field appearance="outline">
+		<mat-label>Fecha</mat-label>
+		<input formControlName="fecha" matInput type="date" />
+	</mat-form-field>
+	<button mat-raised-button color="warn" (click)="generar()"><mat-icon>print</mat-icon>Generar</button>
+</form>
+
+<div class="mat-elevation-z8">
+	<mat-table [dataSource]="resultados" matSort>
+		<ng-container matColumnDef="rutero">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Rutero</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.rutero }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="horaInicio">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Hora Inicio</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.horaInicio | date: 'shortTime' }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="horaFin">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Hora Fin</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.horaFin | date: 'shortTime' }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="estado">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Estado</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.estado }}</mat-cell>
+		</ng-container>
+
+		<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+		<mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+	</mat-table>
+	<mat-paginator [pageSizeOptions]="[10, 25, 75, 100]" showFirstLastButtons></mat-paginator>
+</div>

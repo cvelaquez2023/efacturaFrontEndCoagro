@@ -40,4 +40,7 @@ export class SidebarComponent implements OnInit {
 	Usuarioclick(): void {
 		void this._router.navigateByUrl('/usuarios');
 	}
+	FRclick(): void {
+		void this._router.navigateByUrl('/fr');
+	}
 }

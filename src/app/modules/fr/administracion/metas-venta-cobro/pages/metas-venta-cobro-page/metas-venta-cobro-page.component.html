@@ -1,0 +1,44 @@
+<h2>Metas de Venta y Cobro</h2>
+
+<div class="mat-elevation-z8">
+	<mat-table [dataSource]="listMetas" matSort>
+		<ng-container matColumnDef="agente">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Agente</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.agente }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="ruta">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Ruta</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.ruta }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="mes">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Mes</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.mes }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="metaVenta">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Meta de Venta</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.metaVenta | currency: 'USD' }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="avanceVenta">
+			<mat-header-cell *matHeaderCellDef>Avance Venta</mat-header-cell>
+			<mat-cell *matCellDef="let element">
+				<mat-progress-bar mode="determinate" [value]="porcentaje(element.ventaActual, element.metaVenta)"></mat-progress-bar>
+				<span>{{ element.ventaActual | currency: 'USD' }} ({{ porcentaje(element.ventaActual, element.metaVenta) }}%)</span>
+			</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="metaCobro">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>Meta de Cobro</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.metaCobro | currency: 'USD' }}</mat-cell>
+		</ng-container>
+		<ng-container matColumnDef="avanceCobro">
+			<mat-header-cell *matHeaderCellDef>Avance Cobro</mat-header-cell>
+			<mat-cell *matCellDef="let element">
+				<mat-progress-bar mode="determinate" [value]="porcentaje(element.cobroActual, element.metaCobro)"></mat-progress-bar>
+				<span>{{ element.cobroActual | currency: 'USD' }} ({{ porcentaje(element.cobroActual, element.metaCobro) }}%)</span>
+			</mat-cell>
+		</ng-container>
+
+		<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+		<mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+	</mat-table>
+	<mat-paginator [pageSizeOptions]="[10, 25, 75, 100]" showFirstLastButtons></mat-paginator>
+</div>
