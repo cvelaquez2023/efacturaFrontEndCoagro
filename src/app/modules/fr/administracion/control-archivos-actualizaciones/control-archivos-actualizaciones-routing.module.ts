@@ -1,18 +1,18 @@
-import { ControlArchivosActualizacionesPageComponent } from './pages/control-archivos-actualizaciones-page/control-archivos-actualizaciones-page.component';
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { AuthGuard } from '@app/guards/auth.guard';
+import { ControlArchivosActualizacionesPageComponent } from "./pages/control-archivos-actualizaciones-page/control-archivos-actualizaciones-page.component";
+import { NgModule } from "@angular/core";
+import { RouterModule, Routes } from "@angular/router";
+import { AuthGuard } from "@app/guards/auth.guard";
 
 const routes: Routes = [
-	{
-		path: '',
-		component: ControlArchivosActualizacionesPageComponent,
-		canActivate: [AuthGuard]
-	}
+  {
+    path: "",
+    component: ControlArchivosActualizacionesPageComponent,
+    canActivate: [AuthGuard],
+  },
 ];
 
 @NgModule({
-	imports: [RouterModule.forChild(routes)],
-	exports: [RouterModule]
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule],
 })
 export class ControlArchivosActualizacionesRoutingModule {}

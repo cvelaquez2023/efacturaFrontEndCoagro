@@ -1,24 +1,24 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { FacturacionRutasPageComponent } from './facturacion-rutas-page.component';
+import { FacturacionRutasPageComponent } from "./facturacion-rutas-page.component";
 
-describe('FacturacionRutasPageComponent', () => {
-	let component: FacturacionRutasPageComponent;
-	let fixture: ComponentFixture<FacturacionRutasPageComponent>;
+describe("FacturacionRutasPageComponent", () => {
+  let component: FacturacionRutasPageComponent;
+  let fixture: ComponentFixture<FacturacionRutasPageComponent>;
 
-	beforeEach(async () => {
-		await TestBed.configureTestingModule({
-			declarations: [FacturacionRutasPageComponent]
-		}).compileComponents();
-	});
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [FacturacionRutasPageComponent],
+    }).compileComponents();
+  });
 
-	beforeEach(() => {
-		fixture = TestBed.createComponent(FacturacionRutasPageComponent);
-		component = fixture.componentInstance;
-		fixture.detectChanges();
-	});
+  beforeEach(() => {
+    fixture = TestBed.createComponent(FacturacionRutasPageComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-	it('should create', () => {
-		expect(component).toBeTruthy();
-	});
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

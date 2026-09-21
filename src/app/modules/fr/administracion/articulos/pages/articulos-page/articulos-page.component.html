@@ -1,42 +1,60 @@
 <h2>Articulos</h2>
 
 <form class="buscar">
-	<mat-form-field class="full-with" appearance="fill">
-		<input matInput (keyup)="applyFilter($event)" placeholder="Buscar Articulo" #input />
-	</mat-form-field>
+  <mat-form-field class="full-with" appearance="fill">
+    <input
+      matInput
+      (keyup)="applyFilter($event)"
+      placeholder="Buscar Articulo"
+      #input
+    />
+  </mat-form-field>
 </form>
 <div class="mat-elevation-z8">
-	<mat-table [dataSource]="listArticulos" matSort>
-		<ng-container matColumnDef="codigo">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Código</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.ARTICULO }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="descripcion">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Descripción</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.DESCRIPCION }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="bodega">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Bodega</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.BODEGA }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="grupoArticulo">
-			<mat-header-cell *matHeaderCellDef>Grupo de Artículo</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ grupoPorArticulo.get(element.ARTICULO) ?? '-' }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="actions">
-			<mat-header-cell *matHeaderCellDef></mat-header-cell>
-			<mat-cell *matCellDef="let element">
-				<button mat-icon-button (click)="clickEdit(element)">
-					<mat-icon>edit</mat-icon>
-				</button>
-			</mat-cell>
-		</ng-container>
+  <mat-table [dataSource]="listArticulos" matSort>
+    <ng-container matColumnDef="codigo">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Código</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{ element.ARTICULO }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="descripcion">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Descripción</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{ element.DESCRIPCION }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="bodega">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Bodega</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{ element.BODEGA }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="grupoArticulo">
+      <mat-header-cell *matHeaderCellDef>Grupo de Artículo</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{
+        grupoPorArticulo.get(element.ARTICULO) ?? "-"
+      }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="actions">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <button mat-icon-button (click)="clickEdit(element)">
+          <mat-icon>edit</mat-icon>
+        </button>
+      </mat-cell>
+    </ng-container>
 
-		<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-		<mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
-		<tr class="mat-row" *matNoDataRow>
-			<td class="mat-cell" [attr.colspan]="displayedColumns.length">No hay datos que coincidan con el filtro "{{ input.value }}"</td>
-		</tr>
-	</mat-table>
-	<mat-paginator [pageSizeOptions]="[10, 25, 75, 100]" showFirstLastButtons></mat-paginator>
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+    <tr class="mat-row" *matNoDataRow>
+      <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+        No hay datos que coincidan con el filtro "{{ input.value }}"
+      </td>
+    </tr>
+  </mat-table>
+  <mat-paginator
+    [pageSizeOptions]="[10, 25, 75, 100]"
+    showFirstLastButtons
+  ></mat-paginator>
 </div>

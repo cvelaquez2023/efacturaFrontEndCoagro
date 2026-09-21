@@ -1,64 +1,116 @@
 <form class="buscar">
-	<mat-form-field class="full-with" appearance="fill">
-		<input matInput (keyup)="applyFilter($event)" placeholder="Buscar Documentos Usuario" #input />
-	</mat-form-field>
+  <mat-form-field class="full-with" appearance="fill">
+    <input
+      matInput
+      (keyup)="applyFilter($event)"
+      placeholder="Buscar Documentos Usuario"
+      #input
+    />
+  </mat-form-field>
 </form>
 <div class="mat-elevation-z8">
-	<mat-table [dataSource]="listUsers" matSort>
-		<ng-container matColumnDef="fechaEmision">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Fecha Emision</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.nombre }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="tipoDte">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Tipo DTE</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.correo | lowercase }}</mat-cell>
-		</ng-container>
+  <mat-table [dataSource]="listUsers" matSort>
+    <ng-container matColumnDef="fechaEmision">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Fecha Emision</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{ element.nombre }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="tipoDte">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Tipo DTE</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{
+        element.correo | lowercase
+      }}</mat-cell>
+    </ng-container>
 
-		<ng-container matColumnDef="codGeneracion">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Código Generación</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.correo | lowercase }}</mat-cell>
-		</ng-container>
+    <ng-container matColumnDef="codGeneracion">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Código Generación</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{
+        element.correo | lowercase
+      }}</mat-cell>
+    </ng-container>
 
-		<ng-container matColumnDef="numControl">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Número Control</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.correo | lowercase }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="selloRecibido">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Sello Recibido</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.correo | lowercase }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="estado">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Estado</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.correo | lowercase }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="nombreReceptor">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Nombre Receptor</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.correo | lowercase }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="docReceptor">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Documento Receptor</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.correo | lowercase }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="montoTotal">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Monto Total</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.correo | lowercase }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="actions">
-			<mat-header-cell *matHeaderCellDef></mat-header-cell>
-			<mat-cell *matCellDef="let element">
-				<button mat-icon-button color="warn" (click)="clickPrivilegios(element.id)"><mat-icon>key</mat-icon></button>
-				<button mat-icon-button (click)="clickEdit(element)">
-					<mat-icon>edit</mat-icon>
-				</button>
-				<button mat-icon-button color="warn" (click)="clickDelete(element.id)"><mat-icon>delete</mat-icon></button>
-			</mat-cell>
-		</ng-container>
+    <ng-container matColumnDef="numControl">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Número Control</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{
+        element.correo | lowercase
+      }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="selloRecibido">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Sello Recibido</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{
+        element.correo | lowercase
+      }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="estado">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Estado</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{
+        element.correo | lowercase
+      }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="nombreReceptor">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Nombre Receptor</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{
+        element.correo | lowercase
+      }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="docReceptor">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Documento Receptor</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{
+        element.correo | lowercase
+      }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="montoTotal">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Monto Total</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{
+        element.correo | lowercase
+      }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="actions">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <button
+          mat-icon-button
+          color="warn"
+          (click)="clickPrivilegios(element.id)"
+        >
+          <mat-icon>key</mat-icon>
+        </button>
+        <button mat-icon-button (click)="clickEdit(element)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="clickDelete(element.id)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </mat-cell>
+    </ng-container>
 
-		<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-		<mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
-		<tr class="mat-row" *matNoDataRow>
-			<td class="mat-cell" colspan="4">No data matching the filter "{{ input.value }}"</td>
-		</tr>
-	</mat-table>
-	<mat-paginator [pageSizeOptions]="[10, 25, 75, 100]" showFirstLastButtons></mat-paginator>
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+    <tr class="mat-row" *matNoDataRow>
+      <td class="mat-cell" colspan="4">
+        No data matching the filter "{{ input.value }}"
+      </td>
+    </tr>
+  </mat-table>
+  <mat-paginator
+    [pageSizeOptions]="[10, 25, 75, 100]"
+    showFirstLastButtons
+  ></mat-paginator>
 </div>

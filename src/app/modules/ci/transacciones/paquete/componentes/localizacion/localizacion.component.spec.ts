@@ -1,24 +1,24 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { LocalizacionComponent } from './localizacion.component';
+import { LocalizacionComponent } from "./localizacion.component";
 
-describe('LocalizacionComponent', () => {
-	let component: LocalizacionComponent;
-	let fixture: ComponentFixture<LocalizacionComponent>;
+describe("LocalizacionComponent", () => {
+  let component: LocalizacionComponent;
+  let fixture: ComponentFixture<LocalizacionComponent>;
 
-	beforeEach(async () => {
-		await TestBed.configureTestingModule({
-			declarations: [LocalizacionComponent]
-		}).compileComponents();
-	});
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [LocalizacionComponent],
+    }).compileComponents();
+  });
 
-	beforeEach(() => {
-		fixture = TestBed.createComponent(LocalizacionComponent);
-		component = fixture.componentInstance;
-		fixture.detectChanges();
-	});
+  beforeEach(() => {
+    fixture = TestBed.createComponent(LocalizacionComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-	it('should create', () => {
-		expect(component).toBeTruthy();
-	});
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

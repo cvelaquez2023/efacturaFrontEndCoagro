@@ -1,16 +1,16 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed } from "@angular/core/testing";
 
-import { SujetoexcluidoProveedorService } from './sujetoexcluido-proveedor.service';
+import { SujetoexcluidoProveedorService } from "./sujetoexcluido-proveedor.service";
 
-describe('SujetoexcluidoProveedorService', () => {
-	let service: SujetoexcluidoProveedorService;
+describe("SujetoexcluidoProveedorService", () => {
+  let service: SujetoexcluidoProveedorService;
 
-	beforeEach(() => {
-		TestBed.configureTestingModule({});
-		service = TestBed.inject(SujetoexcluidoProveedorService);
-	});
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(SujetoexcluidoProveedorService);
+  });
 
-	it('should be created', () => {
-		expect(service).toBeTruthy();
-	});
+  it("should be created", () => {
+    expect(service).toBeTruthy();
+  });
 });

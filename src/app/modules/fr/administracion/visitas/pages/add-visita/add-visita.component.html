@@ -1,66 +1,107 @@
-<h1 mat-dialog-title color="warn">{{ actionBtn === 'Guardar' ? 'Adicionar' : 'Editar' }} Visita</h1>
+<h1 mat-dialog-title color="warn">
+  {{ actionBtn === "Guardar" ? "Adicionar" : "Editar" }} Visita
+</h1>
 <div mat-dialog-content>
-	<form [formGroup]="visitaForm">
-		<h3>Registro de Visita (Manual FRm, pág. 210-211)</h3>
-		<mat-form-field appearance="outline">
-			<mat-label>Cliente</mat-label>
-			<input formControlName="cliente" matInput placeholder="Cliente" maxlength="20" />
-			<mat-error *ngIf="clienteField.hasError('required')">El cliente es requerido</mat-error>
-			<mat-error *ngIf="clienteField.hasError('maxlength')">Máximo 20 caracteres</mat-error>
-		</mat-form-field>
-		<mat-form-field appearance="outline">
-			<mat-label>Fecha / Hora Inicio</mat-label>
-			<input formControlName="inicio" matInput type="datetime-local" />
-			<mat-error *ngIf="inicioField.hasError('required')">La fecha/hora de inicio es requerida</mat-error>
-		</mat-form-field>
-		<mat-form-field appearance="outline">
-			<mat-label>Fecha / Hora Fin</mat-label>
-			<input formControlName="fin" matInput type="datetime-local" />
-			<mat-error *ngIf="finField.hasError('required')">La fecha/hora de fin es requerida</mat-error>
-		</mat-form-field>
-		<mat-form-field appearance="outline">
-			<mat-label>Tipo de Visita</mat-label>
-			<mat-select formControlName="tipo">
-				<mat-option value="">-- Sin especificar --</mat-option>
-				<mat-option *ngFor="let tipo of tiposVisita" [value]="tipo.value">
-					{{ tipo.label }}
-				</mat-option>
-			</mat-select>
-		</mat-form-field>
-		<mat-form-field appearance="outline">
-			<mat-label>Estado (Razón de Efectividad)</mat-label>
-			<mat-select formControlName="razon">
-				<mat-option *ngFor="let estado of estadosVisita" [value]="estado.EFECT_VISITA">
-					{{ estado.EFECT_VISITA }} - {{ estado.DESCRIPCION }}
-				</mat-option>
-			</mat-select>
-			<mat-error *ngIf="razonField.hasError('required')">El estado es requerido</mat-error>
-		</mat-form-field>
+  <form [formGroup]="visitaForm">
+    <h3>Registro de Visita (Manual FRm, pág. 210-211)</h3>
+    <mat-form-field appearance="outline">
+      <mat-label>Cliente</mat-label>
+      <input
+        formControlName="cliente"
+        matInput
+        placeholder="Cliente"
+        maxlength="20"
+      />
+      <mat-error *ngIf="clienteField.hasError('required')"
+        >El cliente es requerido</mat-error
+      >
+      <mat-error *ngIf="clienteField.hasError('maxlength')"
+        >Máximo 20 caracteres</mat-error
+      >
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Fecha / Hora Inicio</mat-label>
+      <input formControlName="inicio" matInput type="datetime-local" />
+      <mat-error *ngIf="inicioField.hasError('required')"
+        >La fecha/hora de inicio es requerida</mat-error
+      >
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Fecha / Hora Fin</mat-label>
+      <input formControlName="fin" matInput type="datetime-local" />
+      <mat-error *ngIf="finField.hasError('required')"
+        >La fecha/hora de fin es requerida</mat-error
+      >
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Tipo de Visita</mat-label>
+      <mat-select formControlName="tipo">
+        <mat-option value="">-- Sin especificar --</mat-option>
+        <mat-option *ngFor="let tipo of tiposVisita" [value]="tipo.value">
+          {{ tipo.label }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Estado (Razón de Efectividad)</mat-label>
+      <mat-select formControlName="razon">
+        <mat-option
+          *ngFor="let estado of estadosVisita"
+          [value]="estado.EFECT_VISITA"
+        >
+          {{ estado.EFECT_VISITA }} - {{ estado.DESCRIPCION }}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="razonField.hasError('required')"
+        >El estado es requerido</mat-error
+      >
+    </mat-form-field>
 
-		<h3>Datos administrativos adicionales</h3>
-		<p class="hint">No forman parte del flujo documentado en el manual FRm, pero existen en la tabla real.</p>
-		<mat-form-field appearance="outline">
-			<mat-label>Ruta</mat-label>
-			<input formControlName="ruta" matInput placeholder="Ruta" maxlength="4" />
-			<mat-error *ngIf="rutaField.hasError('required')">La ruta es requerida</mat-error>
-			<mat-error *ngIf="rutaField.hasError('maxlength')">Máximo 4 caracteres</mat-error>
-		</mat-form-field>
-		<mat-form-field appearance="outline">
-			<mat-label>Fecha Plan</mat-label>
-			<input formControlName="fechaPlan" matInput type="date" />
-			<mat-error *ngIf="fechaPlanField.hasError('required')">La fecha plan es requerida</mat-error>
-		</mat-form-field>
-		<mat-form-field appearance="outline">
-			<mat-label>Documento Pro</mat-label>
-			<input formControlName="docPro" matInput placeholder="Documento Pro" maxlength="1" />
-		</mat-form-field>
-		<mat-form-field appearance="outline" class="full-with">
-			<mat-label>Notas</mat-label>
-			<textarea formControlName="notas" matInput placeholder="Notas" maxlength="512"></textarea>
-		</mat-form-field>
-	</form>
+    <h3>Datos administrativos adicionales</h3>
+    <p class="hint">
+      No forman parte del flujo documentado en el manual FRm, pero existen en la
+      tabla real.
+    </p>
+    <mat-form-field appearance="outline">
+      <mat-label>Ruta</mat-label>
+      <input formControlName="ruta" matInput placeholder="Ruta" maxlength="4" />
+      <mat-error *ngIf="rutaField.hasError('required')"
+        >La ruta es requerida</mat-error
+      >
+      <mat-error *ngIf="rutaField.hasError('maxlength')"
+        >Máximo 4 caracteres</mat-error
+      >
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Fecha Plan</mat-label>
+      <input formControlName="fechaPlan" matInput type="date" />
+      <mat-error *ngIf="fechaPlanField.hasError('required')"
+        >La fecha plan es requerida</mat-error
+      >
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Documento Pro</mat-label>
+      <input
+        formControlName="docPro"
+        matInput
+        placeholder="Documento Pro"
+        maxlength="1"
+      />
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="full-with">
+      <mat-label>Notas</mat-label>
+      <textarea
+        formControlName="notas"
+        matInput
+        placeholder="Notas"
+        maxlength="512"
+      ></textarea>
+    </mat-form-field>
+  </form>
 </div>
 <div mat-dialog-actions [align]="'end'">
-	<button mat-raised-button color="basic" mat-dialog-close>Cerrar</button>
-	<button mat-raised-button color="warn" (click)="clickSave()">{{ actionBtn }}</button>
+  <button mat-raised-button color="basic" mat-dialog-close>Cerrar</button>
+  <button mat-raised-button color="warn" (click)="clickSave()">
+    {{ actionBtn }}
+  </button>
 </div>

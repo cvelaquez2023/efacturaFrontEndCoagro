@@ -1,73 +1,104 @@
 <h2>Visitas por Dia</h2>
 
-<form [formGroup]="filtroForm" class="filtro-reporte" fxLayout="row wrap" fxLayoutGap="16px" fxLayoutAlign="start center">
-	<mat-form-field appearance="outline">
-		<mat-label>Fecha</mat-label>
-		<input formControlName="fecha" matInput type="date" />
-	</mat-form-field>
-	<mat-form-field appearance="outline">
-		<mat-label>Ruta</mat-label>
-		<input formControlName="ruta" matInput placeholder="Codigo de ruta" />
-	</mat-form-field>
-	<mat-form-field appearance="outline">
-		<mat-label>Agente</mat-label>
-		<input formControlName="agente" matInput placeholder="Codigo de agente" />
-	</mat-form-field>
-	<button mat-raised-button color="warn" (click)="generar()"><mat-icon>print</mat-icon>Generar</button>
+<form
+  [formGroup]="filtroForm"
+  class="filtro-reporte"
+  fxLayout="row wrap"
+  fxLayoutGap="16px"
+  fxLayoutAlign="start center"
+>
+  <mat-form-field appearance="outline">
+    <mat-label>Fecha</mat-label>
+    <input formControlName="fecha" matInput type="date" />
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Ruta</mat-label>
+    <input formControlName="ruta" matInput placeholder="Codigo de ruta" />
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Agente</mat-label>
+    <input formControlName="agente" matInput placeholder="Codigo de agente" />
+  </mat-form-field>
+  <button mat-raised-button color="warn" (click)="generar()">
+    <mat-icon>print</mat-icon>Generar
+  </button>
 </form>
 
 <div class="mat-elevation-z8">
-	<mat-table [dataSource]="resultados" matSort>
-		<ng-container matColumnDef="cliente">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Cliente</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.cliente }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="tipoDocumento">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Tipo Documento</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.tipoDocumento }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="horaInicio">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Hora Inicio</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.horaInicio | date: 'shortTime' }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="horaFin">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Hora Fin</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.horaFin | date: 'shortTime' }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="duracionMin">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Duracion (min)</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.duracionMin }}</mat-cell>
-		</ng-container>
+  <mat-table [dataSource]="resultados" matSort>
+    <ng-container matColumnDef="cliente">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Cliente</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{ element.cliente }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="tipoDocumento">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Tipo Documento</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{ element.tipoDocumento }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="horaInicio">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Hora Inicio</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{
+        element.horaInicio | date: "shortTime"
+      }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="horaFin">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Hora Fin</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{
+        element.horaFin | date: "shortTime"
+      }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="duracionMin">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Duracion (min)</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{ element.duracionMin }}</mat-cell>
+    </ng-container>
 
-		<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-		<mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
-	</mat-table>
-	<mat-paginator [pageSizeOptions]="[10, 25, 75, 100]" showFirstLastButtons></mat-paginator>
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+  </mat-table>
+  <mat-paginator
+    [pageSizeOptions]="[10, 25, 75, 100]"
+    showFirstLastButtons
+  ></mat-paginator>
 </div>
 
 <div class="resumen-visitas-dia" fxLayout="row wrap" fxLayoutGap="24px">
-	<mat-card>
-		<mat-card-title>Clientes sin visita</mat-card-title>
-		<mat-card-content>
-			<mat-chip-list>
-				<mat-chip *ngFor="let cliente of clientesSinVisita">{{ cliente }}</mat-chip>
-			</mat-chip-list>
-		</mat-card-content>
-	</mat-card>
-	<mat-card>
-		<mat-card-title>Visitados fuera de ruta</mat-card-title>
-		<mat-card-content>
-			<mat-chip-list>
-				<mat-chip *ngFor="let cliente of clientesFueraRuta">{{ cliente }}</mat-chip>
-			</mat-chip-list>
-		</mat-card-content>
-	</mat-card>
-	<mat-card>
-		<mat-card-title>Visitados sin venta</mat-card-title>
-		<mat-card-content>
-			<mat-chip-list>
-				<mat-chip *ngFor="let cliente of clientesSinVenta">{{ cliente }}</mat-chip>
-			</mat-chip-list>
-		</mat-card-content>
-	</mat-card>
+  <mat-card>
+    <mat-card-title>Clientes sin visita</mat-card-title>
+    <mat-card-content>
+      <mat-chip-list>
+        <mat-chip *ngFor="let cliente of clientesSinVisita">{{
+          cliente
+        }}</mat-chip>
+      </mat-chip-list>
+    </mat-card-content>
+  </mat-card>
+  <mat-card>
+    <mat-card-title>Visitados fuera de ruta</mat-card-title>
+    <mat-card-content>
+      <mat-chip-list>
+        <mat-chip *ngFor="let cliente of clientesFueraRuta">{{
+          cliente
+        }}</mat-chip>
+      </mat-chip-list>
+    </mat-card-content>
+  </mat-card>
+  <mat-card>
+    <mat-card-title>Visitados sin venta</mat-card-title>
+    <mat-card-content>
+      <mat-chip-list>
+        <mat-chip *ngFor="let cliente of clientesSinVenta">{{
+          cliente
+        }}</mat-chip>
+      </mat-chip-list>
+    </mat-card-content>
+  </mat-card>
 </div>

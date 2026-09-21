@@ -1,51 +1,88 @@
 <h2>Asignacion de Rutas</h2>
 
-<div class="asig-search-div" fxLayout="row" fxLayoutAlign="space-between center">
-	<form class="buscar">
-		<mat-form-field class="full-with" appearance="fill">
-			<mat-icon matPrefix>search</mat-icon>
-			<input matInput (keyup)="applyFilter($event)" placeholder="Buscar Ruta" #input />
-		</mat-form-field>
-	</form>
-	<button mat-raised-button color="warn" (click)="openDialog()">
-		<mat-icon>add</mat-icon>Crear
-	</button>
+<div
+  class="asig-search-div"
+  fxLayout="row"
+  fxLayoutAlign="space-between center"
+>
+  <form class="buscar">
+    <mat-form-field class="full-with" appearance="fill">
+      <mat-icon matPrefix>search</mat-icon>
+      <input
+        matInput
+        (keyup)="applyFilter($event)"
+        placeholder="Buscar Ruta"
+        #input
+      />
+    </mat-form-field>
+  </form>
+  <button mat-raised-button color="warn" (click)="openDialog()">
+    <mat-icon>add</mat-icon>Crear
+  </button>
 </div>
 
 <div class="asig-table-wrap mat-elevation-z8">
-	<mat-table [dataSource]="listAsignaciones" matSort class="asig-table">
-		<ng-container matColumnDef="ruta">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Ruta</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.ruta }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="descripcion">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Descripción</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.descripcion }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="activa">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Activa</mat-header-cell>
-			<mat-cell *matCellDef="let element">
-				<mat-icon [color]="element.activa ? 'primary' : 'warn'">{{ element.activa ? 'check_circle' : 'cancel' }}</mat-icon>
-				{{ element.activa ? 'Ruta Activa' : 'Ruta Inactiva' }}
-			</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="actions">
-			<mat-header-cell *matHeaderCellDef></mat-header-cell>
-			<mat-cell *matCellDef="let element" class="actions-cell">
-				<button mat-icon-button color="primary" (click)="clickMantenimiento(element)" matTooltip="Mantenimiento (agente, handheld, clientes, activa)">
-					<mat-icon>edit</mat-icon>
-				</button>
-				<button mat-icon-button color="warn" (click)="clickEliminar(element)" matTooltip="Eliminar">
-					<mat-icon>delete</mat-icon>
-				</button>
-			</mat-cell>
-		</ng-container>
+  <mat-table [dataSource]="listAsignaciones" matSort class="asig-table">
+    <ng-container matColumnDef="ruta">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Ruta</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.ruta }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="descripcion">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Descripción</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{ element.descripcion }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="activa">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Activa</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">
+        <mat-icon [color]="element.activa ? 'primary' : 'warn'">{{
+          element.activa ? "check_circle" : "cancel"
+        }}</mat-icon>
+        {{ element.activa ? "Ruta Activa" : "Ruta Inactiva" }}
+      </mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="actions">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let element" class="actions-cell">
+        <button
+          mat-icon-button
+          color="primary"
+          (click)="clickMantenimiento(element)"
+          matTooltip="Mantenimiento (agente, handheld, clientes, activa)"
+        >
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          color="warn"
+          (click)="clickEliminar(element)"
+          matTooltip="Eliminar"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+      </mat-cell>
+    </ng-container>
 
-		<mat-header-row *matHeaderRowDef="displayedColumns" class="asig-header-row"></mat-header-row>
-		<mat-row *matRowDef="let row; columns: displayedColumns" (dblclick)="clickMantenimiento(row)" class="asig-row"></mat-row>
-		<tr class="mat-row" *matNoDataRow>
-			<td class="mat-cell" colspan="4">No hay datos que coincidan con el filtro</td>
-		</tr>
-	</mat-table>
-	<mat-paginator [pageSizeOptions]="[10, 25, 75, 100]" showFirstLastButtons></mat-paginator>
+    <mat-header-row
+      *matHeaderRowDef="displayedColumns"
+      class="asig-header-row"
+    ></mat-header-row>
+    <mat-row
+      *matRowDef="let row; columns: displayedColumns"
+      (dblclick)="clickMantenimiento(row)"
+      class="asig-row"
+    ></mat-row>
+    <tr class="mat-row" *matNoDataRow>
+      <td class="mat-cell" colspan="4">
+        No hay datos que coincidan con el filtro
+      </td>
+    </tr>
+  </mat-table>
+  <mat-paginator
+    [pageSizeOptions]="[10, 25, 75, 100]"
+    showFirstLastButtons
+  ></mat-paginator>
 </div>

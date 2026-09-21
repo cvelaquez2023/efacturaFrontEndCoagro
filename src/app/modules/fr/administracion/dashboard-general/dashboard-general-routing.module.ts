@@ -1,18 +1,18 @@
-import { DashboardGeneralPageComponent } from './pages/dashboard-general-page/dashboard-general-page.component';
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { AuthGuard } from '@app/guards/auth.guard';
+import { DashboardGeneralPageComponent } from "./pages/dashboard-general-page/dashboard-general-page.component";
+import { NgModule } from "@angular/core";
+import { RouterModule, Routes } from "@angular/router";
+import { AuthGuard } from "@app/guards/auth.guard";
 
 const routes: Routes = [
-	{
-		path: '',
-		component: DashboardGeneralPageComponent,
-		canActivate: [AuthGuard]
-	}
+  {
+    path: "",
+    component: DashboardGeneralPageComponent,
+    canActivate: [AuthGuard],
+  },
 ];
 
 @NgModule({
-	imports: [RouterModule.forChild(routes)],
-	exports: [RouterModule]
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule],
 })
 export class DashboardGeneralRoutingModule {}

@@ -1,47 +1,90 @@
-<h1 mat-dialog-title color="warn">{{ actionBtn === 'Guardar' ? 'Adicionar' : 'Editar' }} Hand Held</h1>
+<h1 mat-dialog-title color="warn">
+  {{ actionBtn === "Guardar" ? "Adicionar" : "Editar" }} Hand Held
+</h1>
 <div mat-dialog-content>
-	<form [formGroup]="handheldForm">
-		<mat-form-field appearance="outline">
-			<mat-label>Código</mat-label>
-			<input formControlName="handheld" matInput placeholder="Código" maxlength="4" style="text-transform: uppercase" />
-			<mat-error *ngIf="handheldField.hasError('required')">El código es requerido</mat-error>
-			<mat-error *ngIf="handheldField.hasError('maxlength')">Máximo 4 caracteres</mat-error>
-		</mat-form-field>
-		<mat-form-field appearance="outline">
-			<mat-label>Descripción</mat-label>
-			<input formControlName="descripcion" matInput placeholder="Descripción" maxlength="40" />
-			<mat-error *ngIf="descripcionField.hasError('required')">La descripción es requerida</mat-error>
-			<mat-error *ngIf="descripcionField.hasError('maxlength')">Máximo 40 caracteres</mat-error>
-		</mat-form-field>
-		<mat-form-field appearance="outline">
-			<mat-label>Modelo</mat-label>
-			<input formControlName="modelo" matInput placeholder="Modelo" maxlength="15" />
-			<mat-error *ngIf="modeloField.hasError('maxlength')">Máximo 15 caracteres</mat-error>
-		</mat-form-field>
-		<mat-form-field appearance="outline">
-			<mat-label>Serie</mat-label>
-			<input formControlName="serie" matInput placeholder="Número de serie" maxlength="15" />
-			<mat-error *ngIf="serieField.hasError('maxlength')">Máximo 15 caracteres</mat-error>
-		</mat-form-field>
-		<mat-form-field appearance="outline">
-			<mat-label>Estado</mat-label>
-			<mat-select formControlName="estado">
-				<mat-option value="A">Activo</mat-option>
-				<mat-option value="I">Inactivo</mat-option>
-			</mat-select>
-		</mat-form-field>
-		<mat-expansion-panel style="margin: 8px 0">
-			<mat-expansion-panel-header>
-				<mat-panel-title>Firma digital (opcional)</mat-panel-title>
-			</mat-expansion-panel-header>
-			<mat-form-field appearance="outline" style="width: 100%">
-				<mat-label>Firma</mat-label>
-				<textarea formControlName="firma" matInput placeholder="Firma capturada por el dispositivo" maxlength="2048" rows="3"></textarea>
-			</mat-form-field>
-		</mat-expansion-panel>
-	</form>
+  <form [formGroup]="handheldForm">
+    <mat-form-field appearance="outline">
+      <mat-label>Código</mat-label>
+      <input
+        formControlName="handheld"
+        matInput
+        placeholder="Código"
+        maxlength="4"
+        style="text-transform: uppercase"
+      />
+      <mat-error *ngIf="handheldField.hasError('required')"
+        >El código es requerido</mat-error
+      >
+      <mat-error *ngIf="handheldField.hasError('maxlength')"
+        >Máximo 4 caracteres</mat-error
+      >
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Descripción</mat-label>
+      <input
+        formControlName="descripcion"
+        matInput
+        placeholder="Descripción"
+        maxlength="40"
+      />
+      <mat-error *ngIf="descripcionField.hasError('required')"
+        >La descripción es requerida</mat-error
+      >
+      <mat-error *ngIf="descripcionField.hasError('maxlength')"
+        >Máximo 40 caracteres</mat-error
+      >
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Modelo</mat-label>
+      <input
+        formControlName="modelo"
+        matInput
+        placeholder="Modelo"
+        maxlength="15"
+      />
+      <mat-error *ngIf="modeloField.hasError('maxlength')"
+        >Máximo 15 caracteres</mat-error
+      >
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Serie</mat-label>
+      <input
+        formControlName="serie"
+        matInput
+        placeholder="Número de serie"
+        maxlength="15"
+      />
+      <mat-error *ngIf="serieField.hasError('maxlength')"
+        >Máximo 15 caracteres</mat-error
+      >
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Estado</mat-label>
+      <mat-select formControlName="estado">
+        <mat-option value="A">Activo</mat-option>
+        <mat-option value="I">Inactivo</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-expansion-panel style="margin: 8px 0">
+      <mat-expansion-panel-header>
+        <mat-panel-title>Firma digital (opcional)</mat-panel-title>
+      </mat-expansion-panel-header>
+      <mat-form-field appearance="outline" style="width: 100%">
+        <mat-label>Firma</mat-label>
+        <textarea
+          formControlName="firma"
+          matInput
+          placeholder="Firma capturada por el dispositivo"
+          maxlength="2048"
+          rows="3"
+        ></textarea>
+      </mat-form-field>
+    </mat-expansion-panel>
+  </form>
 </div>
 <div mat-dialog-actions [align]="'end'">
-	<button mat-raised-button color="basic" mat-dialog-close>Cerrar</button>
-	<button mat-raised-button color="warn" (click)="clickSave()">{{ actionBtn }}</button>
+  <button mat-raised-button color="basic" mat-dialog-close>Cerrar</button>
+  <button mat-raised-button color="warn" (click)="clickSave()">
+    {{ actionBtn }}
+  </button>
 </div>

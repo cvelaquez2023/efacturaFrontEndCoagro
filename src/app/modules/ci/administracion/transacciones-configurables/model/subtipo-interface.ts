@@ -1,4 +1,4 @@
 export interface SubtipoInterface {
-	codigo?: string;
-	nombre?: string;
+  codigo?: string;
+  nombre?: string;
 }

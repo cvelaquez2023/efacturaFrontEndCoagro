@@ -1,12 +1,12 @@
-import { Component } from '@angular/core';
+import { Component } from "@angular/core";
 
 @Component({
-	selector: 'app-listar',
-	templateUrl: './listar.component.html',
-	styleUrls: ['./listar.component.scss']
+  selector: "app-listar",
+  templateUrl: "./listar.component.html",
+  styleUrls: ["./listar.component.scss"],
 })
 export class ListarComponent {
-	constructor() {
-		console.log('aq');
-	}
+  constructor() {
+    console.log("aq");
+  }
 }

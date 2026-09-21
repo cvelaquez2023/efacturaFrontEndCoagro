@@ -1,43 +1,70 @@
 <app-header></app-header>
 
 <div class="wrapper">
-	<div class="body">
-		<img class="logo" src="../../../../../../assets/logos/efactura.png" alt="imgagen" />
-		<h1>Login</h1>
-		<form class="formulario" [formGroup]="formGroup">
-			<mat-form-field class="example-full-width" appearance="outline">
-				<mat-label>Correo</mat-label>
-				<input type="text" matInput placeholder="Correo" required formControlName="email" />
-				<mat-error *ngIf="formGroup.get('email')!.hasError('required')">El Correo es requerido</mat-error>
-				<mat-error *ngIf="formGroup.get('email')!.hasError('email')">El Correo no es valido</mat-error>
-			</mat-form-field>
-			<mat-form-field class="example-full-width" appearance="outline">
-				<mat-label>Contraseña</mat-label>
-				<input matInput [type]="hide ? 'password' : 'text'" placeholder="Contraseña" formControlName="password" />
-				<button
-					mat-icon-button
-					matSuffix
-					(click)="hide = !hide"
-					[attr.aria-label]="'Hide password'"
-					[attr.aria-preseed]="hide"
-				>
-					<mat-icon>{{ hide ? 'visibility_off' : 'visibility' }}</mat-icon>
-				</button>
-				<mat-error *ngIf="formGroup.get('password')!.hasError('required')">La contraseña es requerida</mat-error>
-			</mat-form-field>
-			<mat-form-field appearance="outline">
-				<mat-label>Selecione Empresa</mat-label>
-				<mat-select formControlName="empresa">
-					<mat-option value="1">COAGRO</mat-option>
-					<mat-option value="2">LOS MOMOS</mat-option>
-					<mat-option value="3">HOUDELOT HERMANO</mat-option>
-					<mat-option value="4">CINCO H</mat-option>
-				</mat-select>
-			</mat-form-field>
-			<button mat-raised-button color="primary" type="button" [disabled]="formGroup.invalid" (click)="clickLogin()">
-				Iniciar Sesión
-			</button>
-			<p>No tienes cuenta? <a href="">Registrar</a></p>
-		</form>
-	</div>
+  <div class="body">
+    <img
+      class="logo"
+      src="../../../../../../assets/logos/efactura.png"
+      alt="imgagen"
+    />
+    <h1>Login</h1>
+    <form class="formulario" [formGroup]="formGroup">
+      <mat-form-field class="example-full-width" appearance="outline">
+        <mat-label>Correo</mat-label>
+        <input
+          type="text"
+          matInput
+          placeholder="Correo"
+          required
+          formControlName="email"
+        />
+        <mat-error *ngIf="formGroup.get('email')!.hasError('required')"
+          >El Correo es requerido</mat-error
+        >
+        <mat-error *ngIf="formGroup.get('email')!.hasError('email')"
+          >El Correo no es valido</mat-error
+        >
+      </mat-form-field>
+      <mat-form-field class="example-full-width" appearance="outline">
+        <mat-label>Contraseña</mat-label>
+        <input
+          matInput
+          [type]="hide ? 'password' : 'text'"
+          placeholder="Contraseña"
+          formControlName="password"
+        />
+        <button
+          mat-icon-button
+          matSuffix
+          (click)="hide = !hide"
+          [attr.aria-label]="'Hide password'"
+          [attr.aria-preseed]="hide"
+        >
+          <mat-icon>{{ hide ? "visibility_off" : "visibility" }}</mat-icon>
+        </button>
+        <mat-error *ngIf="formGroup.get('password')!.hasError('required')"
+          >La contraseña es requerida</mat-error
+        >
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Selecione Empresa</mat-label>
+        <mat-select formControlName="empresa">
+          <mat-option value="1">COAGRO</mat-option>
+          <mat-option value="2">LOS MOMOS</mat-option>
+          <mat-option value="3">HOUDELOT HERMANO</mat-option>
+          <mat-option value="4">CINCO H</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <button
+        mat-raised-button
+        color="primary"
+        type="button"
+        [disabled]="formGroup.invalid"
+        (click)="clickLogin()"
+      >
+        Iniciar Sesión
+      </button>
+      <p>No tienes cuenta? <a href="">Registrar</a></p>
+    </form>
+  </div>
 </div>

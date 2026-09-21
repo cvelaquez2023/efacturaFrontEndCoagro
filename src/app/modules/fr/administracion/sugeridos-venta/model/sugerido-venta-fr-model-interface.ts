@@ -1,4 +1,4 @@
 export interface ISugeridoVentaFr {
-	sugerido: string;
-	descripcion: string;
+  sugerido: string;
+  descripcion: string;
 }

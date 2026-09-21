@@ -1,55 +1,67 @@
 <h2>Agentes</h2>
-<p class="subtitulo">Consulte los vendedores activos del ERP. No se crean ni editan agentes desde aquí.</p>
+<p class="subtitulo">
+  Consulte los vendedores activos del ERP. No se crean ni editan agentes desde
+  aquí.
+</p>
 
 <form class="buscar">
-	<mat-form-field class="full-with" appearance="fill">
-		<input matInput (keyup)="onBuscar($event)" placeholder="Buscar por código o nombre" />
-	</mat-form-field>
+  <mat-form-field class="full-with" appearance="fill">
+    <input
+      matInput
+      (keyup)="onBuscar($event)"
+      placeholder="Buscar por código o nombre"
+    />
+  </mat-form-field>
 </form>
 
 <div *ngIf="cargando" class="spinner-wrapper">
-	<mat-progress-spinner mode="indeterminate" diameter="36"></mat-progress-spinner>
+  <mat-progress-spinner
+    mode="indeterminate"
+    diameter="36"
+  ></mat-progress-spinner>
 </div>
 
 <div *ngIf="!cargando" class="mat-elevation-z8 grid-wrapper">
-	<mat-table [dataSource]="vendedores">
-		<ng-container matColumnDef="codigo">
-			<mat-header-cell *matHeaderCellDef>Código</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.VENDEDOR }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="nombre">
-			<mat-header-cell *matHeaderCellDef>Nombre</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.NOMBRE }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="empleado">
-			<mat-header-cell *matHeaderCellDef>Empleado</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.EMPLEADO }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="telefono">
-			<mat-header-cell *matHeaderCellDef>Teléfono</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.telefono }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="correo">
-			<mat-header-cell *matHeaderCellDef>Correo</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ correo(element) }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="comision">
-			<mat-header-cell *matHeaderCellDef>Comisión</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.COMISION }}</mat-cell>
-		</ng-container>
+  <mat-table [dataSource]="vendedores">
+    <ng-container matColumnDef="codigo">
+      <mat-header-cell *matHeaderCellDef>Código</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.VENDEDOR }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="nombre">
+      <mat-header-cell *matHeaderCellDef>Nombre</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.NOMBRE }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="empleado">
+      <mat-header-cell *matHeaderCellDef>Empleado</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.EMPLEADO }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="telefono">
+      <mat-header-cell *matHeaderCellDef>Teléfono</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.telefono }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="correo">
+      <mat-header-cell *matHeaderCellDef>Correo</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ correo(element) }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="comision">
+      <mat-header-cell *matHeaderCellDef>Comisión</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.COMISION }}</mat-cell>
+    </ng-container>
 
-		<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-		<mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
-		<tr class="mat-row" *matNoDataRow>
-			<td class="mat-cell sin-datos" [attr.colspan]="displayedColumns.length">No hay vendedores que coincidan con la búsqueda</td>
-		</tr>
-	</mat-table>
-	<mat-paginator
-		[length]="total"
-		[pageIndex]="page - 1"
-		[pageSize]="limit"
-		[pageSizeOptions]="[20, 50, 100]"
-		showFirstLastButtons
-		(page)="onPageChange($event)"
-	></mat-paginator>
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+    <tr class="mat-row" *matNoDataRow>
+      <td class="mat-cell sin-datos" [attr.colspan]="displayedColumns.length">
+        No hay vendedores que coincidan con la búsqueda
+      </td>
+    </tr>
+  </mat-table>
+  <mat-paginator
+    [length]="total"
+    [pageIndex]="page - 1"
+    [pageSize]="limit"
+    [pageSizeOptions]="[20, 50, 100]"
+    showFirstLastButtons
+    (page)="onPageChange($event)"
+  ></mat-paginator>
 </div>

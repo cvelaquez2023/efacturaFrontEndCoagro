@@ -1,53 +1,81 @@
 <h2>Hand Helds</h2>
 
 <div class="search-div" fxLayout="row" fxLayoutAlign="end end">
-	<button mat-raised-button color="warn" (click)="openDialog()"><mat-icon>add</mat-icon>Crear</button>
+  <button mat-raised-button color="warn" (click)="openDialog()">
+    <mat-icon>add</mat-icon>Crear
+  </button>
 </div>
 
 <form class="buscar">
-	<mat-form-field class="full-with" appearance="fill">
-		<input matInput (keyup)="applyFilter($event)" placeholder="Buscar Hand Held" #input />
-	</mat-form-field>
+  <mat-form-field class="full-with" appearance="fill">
+    <input
+      matInput
+      (keyup)="applyFilter($event)"
+      placeholder="Buscar Hand Held"
+      #input
+    />
+  </mat-form-field>
 </form>
 <div class="mat-elevation-z8">
-	<mat-table [dataSource]="listHandhelds" matSort>
-		<ng-container matColumnDef="codigo">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Código</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.HANDHELD }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="descripcion">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Descripción</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.DESCRIPCION }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="modelo">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Modelo</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.MODELO }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="serie">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Serie</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.SERIE }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="estado">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Estado</mat-header-cell>
-			<mat-cell *matCellDef="let element">
-				<mat-icon [color]="element.ESTADO === 'A' ? 'primary' : 'warn'">{{ element.ESTADO === 'A' ? 'check_circle' : 'cancel' }}</mat-icon>
-			</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="actions">
-			<mat-header-cell *matHeaderCellDef></mat-header-cell>
-			<mat-cell *matCellDef="let element">
-				<button mat-icon-button (click)="clickEdit(element)">
-					<mat-icon>edit</mat-icon>
-				</button>
-				<button mat-icon-button color="warn" (click)="clickDelete(element.HANDHELD)"><mat-icon>delete</mat-icon></button>
-			</mat-cell>
-		</ng-container>
+  <mat-table [dataSource]="listHandhelds" matSort>
+    <ng-container matColumnDef="codigo">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Código</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{ element.HANDHELD }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="descripcion">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Descripción</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{ element.DESCRIPCION }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="modelo">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Modelo</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{ element.MODELO }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="serie">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Serie</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.SERIE }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="estado">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Estado</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">
+        <mat-icon [color]="element.ESTADO === 'A' ? 'primary' : 'warn'">{{
+          element.ESTADO === "A" ? "check_circle" : "cancel"
+        }}</mat-icon>
+      </mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="actions">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <button mat-icon-button (click)="clickEdit(element)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          color="warn"
+          (click)="clickDelete(element.HANDHELD)"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+      </mat-cell>
+    </ng-container>
 
-		<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-		<mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
-		<tr class="mat-row" *matNoDataRow>
-			<td class="mat-cell" colspan="6">No hay datos que coincidan con el filtro "{{ input.value }}"</td>
-		</tr>
-	</mat-table>
-	<mat-paginator [pageSizeOptions]="[10, 25, 75, 100]" showFirstLastButtons></mat-paginator>
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+    <tr class="mat-row" *matNoDataRow>
+      <td class="mat-cell" colspan="6">
+        No hay datos que coincidan con el filtro "{{ input.value }}"
+      </td>
+    </tr>
+  </mat-table>
+  <mat-paginator
+    [pageSizeOptions]="[10, 25, 75, 100]"
+    showFirstLastButtons
+  ></mat-paginator>
 </div>

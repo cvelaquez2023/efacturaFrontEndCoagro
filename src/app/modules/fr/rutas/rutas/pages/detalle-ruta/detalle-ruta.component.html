@@ -1,237 +1,429 @@
 <h1 mat-dialog-title color="warn">
-	<mat-icon class="dr-title-icon">alt_route</mat-icon>
-	Detalle de Ruta {{ ruta.RUTA }} · {{ ruta.DESCRIPCION }}
+  <mat-icon class="dr-title-icon">alt_route</mat-icon>
+  Detalle de Ruta {{ ruta.RUTA }} · {{ ruta.DESCRIPCION }}
 </h1>
 
 <div mat-dialog-content class="dr-content">
-	<!-- Ruta Asignada / Asignación de Agente / Actividad de la Ruta -->
-	<div fxLayout="row" fxLayout.lt-md="column" fxLayoutGap="16px" class="dr-header">
-		<mat-card fxFlex="30" class="dr-box">
-			<div class="dr-box-title"><mat-icon>alt_route</mat-icon> Ruta Asignada</div>
-			<div class="dr-field-row">
-				<span class="dr-label">Ruta:</span>
-				<span class="dr-value">{{ ruta.RUTA }}</span>
-				<span class="dr-desc">{{ ruta.DESCRIPCION }}</span>
-			</div>
-			<button mat-stroked-button color="primary" class="dr-f1-full full-with" (click)="abrirPickerGrupoArticulo()" matTooltip="Buscar Grupo de Artículo (F1)">
-				<mat-icon>inventory_2</mat-icon>
-				Grupo Artículo: <strong>{{ cabecera.grupoArticulo || 'Seleccionar…' }}</strong>
-			</button>
-			<div class="dr-field-row">
-				<span class="dr-label">Compañía(s):</span>
-				<span class="dr-value">{{ companiasTexto }}</span>
-			</div>
-		</mat-card>
+  <!-- Ruta Asignada / Asignación de Agente / Actividad de la Ruta -->
+  <div
+    fxLayout="row"
+    fxLayout.lt-md="column"
+    fxLayoutGap="16px"
+    class="dr-header"
+  >
+    <mat-card fxFlex="30" class="dr-box">
+      <div class="dr-box-title">
+        <mat-icon>alt_route</mat-icon> Ruta Asignada
+      </div>
+      <div class="dr-field-row">
+        <span class="dr-label">Ruta:</span>
+        <span class="dr-value">{{ ruta.RUTA }}</span>
+        <span class="dr-desc">{{ ruta.DESCRIPCION }}</span>
+      </div>
+      <button
+        mat-stroked-button
+        color="primary"
+        class="dr-f1-full full-with"
+        (click)="abrirPickerGrupoArticulo()"
+        matTooltip="Buscar Grupo de Artículo (F1)"
+      >
+        <mat-icon>inventory_2</mat-icon>
+        Grupo Artículo:
+        <strong>{{ cabecera.grupoArticulo || "Seleccionar…" }}</strong>
+      </button>
+      <div class="dr-field-row">
+        <span class="dr-label">Compañía(s):</span>
+        <span class="dr-value">{{ companiasTexto }}</span>
+      </div>
+    </mat-card>
 
-		<mat-card fxFlex="35" class="dr-box">
-			<div class="dr-box-title"><mat-icon>person</mat-icon> Asignación de Agente</div>
-			<button mat-stroked-button class="dr-f1-full full-with" (click)="abrirPickerHandheld()" matTooltip="Buscar HandHeld (F1)">
-				<mat-icon>tablet_android</mat-icon>
-				Handheld: <strong>{{ cabecera.handheld || 'Seleccionar…' }}</strong>
-			</button>
-			<button mat-stroked-button class="dr-f1-full full-with" (click)="abrirPickerAgente()" matTooltip="Buscar Agente (F1)">
-				<mat-icon>badge</mat-icon>
-				Agente: <strong>{{ cabecera.agente || 'Seleccionar…' }}</strong>
-			</button>
-			<button mat-stroked-button class="dr-f1-full full-with" (click)="abrirPickerBodega()" matTooltip="Buscar Camión/Bodega (F1)">
-				<mat-icon>local_shipping</mat-icon>
-				Camión/Bodega: <strong>{{ cabecera.bodega || 'Seleccionar…' }}</strong>
-			</button>
-		</mat-card>
+    <mat-card fxFlex="35" class="dr-box">
+      <div class="dr-box-title">
+        <mat-icon>person</mat-icon> Asignación de Agente
+      </div>
+      <button
+        mat-stroked-button
+        class="dr-f1-full full-with"
+        (click)="abrirPickerHandheld()"
+        matTooltip="Buscar HandHeld (F1)"
+      >
+        <mat-icon>tablet_android</mat-icon>
+        Handheld: <strong>{{ cabecera.handheld || "Seleccionar…" }}</strong>
+      </button>
+      <button
+        mat-stroked-button
+        class="dr-f1-full full-with"
+        (click)="abrirPickerAgente()"
+        matTooltip="Buscar Agente (F1)"
+      >
+        <mat-icon>badge</mat-icon>
+        Agente: <strong>{{ cabecera.agente || "Seleccionar…" }}</strong>
+      </button>
+      <button
+        mat-stroked-button
+        class="dr-f1-full full-with"
+        (click)="abrirPickerBodega()"
+        matTooltip="Buscar Camión/Bodega (F1)"
+      >
+        <mat-icon>local_shipping</mat-icon>
+        Camión/Bodega: <strong>{{ cabecera.bodega || "Seleccionar…" }}</strong>
+      </button>
+    </mat-card>
 
-		<mat-card fxFlex="20" class="dr-box">
-			<div class="dr-box-title">Actividad de la Ruta</div>
-			<mat-radio-group [(ngModel)]="activa">
-				<mat-radio-button value="S" color="primary">Activa</mat-radio-button>
-				<mat-radio-button value="N" color="warn">Inactiva</mat-radio-button>
-			</mat-radio-group>
-		</mat-card>
-	</div>
+    <mat-card fxFlex="20" class="dr-box">
+      <div class="dr-box-title">Actividad de la Ruta</div>
+      <mat-radio-group [(ngModel)]="activa">
+        <mat-radio-button value="S" color="primary">Activa</mat-radio-button>
+        <mat-radio-button value="N" color="warn">Inactiva</mat-radio-button>
+      </mat-radio-group>
+    </mat-card>
+  </div>
 
-	<mat-divider class="dr-divider"></mat-divider>
+  <mat-divider class="dr-divider"></mat-divider>
 
-	<!-- Consecutivos por compañía -->
-	<div class="dr-section-head">
-		<h3 class="dr-section-title">Consecutivos por Compañía</h3>
-		<div class="dr-section-actions">
-			<button mat-icon-button color="primary" (click)="nuevaCompania()" matTooltip="Agregar compañía (F1)">
-				<mat-icon>add_business</mat-icon>
-			</button>
-			<button mat-icon-button color="warn" [disabled]="!filaSeleccionada" (click)="eliminarCompaniaSeleccionada()" matTooltip="Eliminar compañía seleccionada">
-				<mat-icon>delete</mat-icon>
-			</button>
-		</div>
-	</div>
+  <!-- Consecutivos por compañía -->
+  <div class="dr-section-head">
+    <h3 class="dr-section-title">Consecutivos por Compañía</h3>
+    <div class="dr-section-actions">
+      <button
+        mat-icon-button
+        color="primary"
+        (click)="nuevaCompania()"
+        matTooltip="Agregar compañía (F1)"
+      >
+        <mat-icon>add_business</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        color="warn"
+        [disabled]="!filaSeleccionada"
+        (click)="eliminarCompaniaSeleccionada()"
+        matTooltip="Eliminar compañía seleccionada"
+      >
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+  </div>
 
-	<div class="dr-table-wrap mat-elevation-z2">
-		<table mat-table [dataSource]="filas" class="dr-table">
-			<ng-container matColumnDef="compania">
-				<th mat-header-cell *matHeaderCellDef>Compañía</th>
-				<td mat-cell *matCellDef="let fila" [matTooltip]="fila.companiaNombre">{{ fila.compania }}</td>
-			</ng-container>
-			<ng-container matColumnDef="devolucion">
-				<th mat-header-cell *matHeaderCellDef>Devolución</th>
-				<td mat-cell *matCellDef="let fila"><input matInput [(ngModel)]="fila.devolucion" maxlength="10" placeholder="Consecutivo" /></td>
-			</ng-container>
-			<ng-container matColumnDef="pedido">
-				<th mat-header-cell *matHeaderCellDef>Pedido</th>
-				<td mat-cell *matCellDef="let fila"><input matInput [(ngModel)]="fila.pedido" maxlength="12" placeholder="Consecutivo" /></td>
-			</ng-container>
-			<ng-container matColumnDef="pedidoConDescuento">
-				<th mat-header-cell *matHeaderCellDef>Pedido Con Descuento</th>
-				<td mat-cell *matCellDef="let fila"><input matInput [(ngModel)]="fila.pedidoConDescuento" maxlength="12" placeholder="Consecutivo" /></td>
-			</ng-container>
-			<ng-container matColumnDef="factura">
-				<th mat-header-cell *matHeaderCellDef>Factura</th>
-				<td mat-cell *matCellDef="let fila"><input matInput [(ngModel)]="fila.factura" maxlength="12" placeholder="Consecutivo" /></td>
-			</ng-container>
-			<ng-container matColumnDef="inventario">
-				<th mat-header-cell *matHeaderCellDef>Inventario</th>
-				<td mat-cell *matCellDef="let fila"><input matInput [(ngModel)]="fila.inventario" maxlength="12" placeholder="Consecutivo" /></td>
-			</ng-container>
-			<ng-container matColumnDef="reciboCobro">
-				<th mat-header-cell *matHeaderCellDef>Recibo Cobro</th>
-				<td mat-cell *matCellDef="let fila"><input matInput [(ngModel)]="fila.reciboCobro" maxlength="10" placeholder="Consecutivo" /></td>
-			</ng-container>
-			<ng-container matColumnDef="notaCredito">
-				<th mat-header-cell *matHeaderCellDef>Nota Crédito</th>
-				<td mat-cell *matCellDef="let fila"><input matInput [(ngModel)]="fila.notaCredito" maxlength="12" placeholder="Consecutivo" /></td>
-			</ng-container>
-			<ng-container matColumnDef="ncfConsumidorFinal">
-				<th mat-header-cell *matHeaderCellDef>NCF Consumidor Final</th>
-				<td mat-cell *matCellDef="let fila">
-					<ng-container *ngIf="mostrarNcf(fila); else sinDato">
-						<span class="dr-f1-value">{{ fila.ncfConsumidorFinal || '(sin asignar)' }}</span>
-						<button mat-icon-button class="dr-f1-btn" (click)="abrirPickerNcf(fila, 'ncfConsumidorFinal')" matTooltip="Buscar NCF (F1)">
-							<mat-icon>search</mat-icon>
-						</button>
-					</ng-container>
-				</td>
-			</ng-container>
-			<ng-container matColumnDef="ncfCreditoFiscal">
-				<th mat-header-cell *matHeaderCellDef>NCF Crédito Fiscal</th>
-				<td mat-cell *matCellDef="let fila">
-					<ng-container *ngIf="mostrarNcf(fila); else sinDato">
-						<span class="dr-f1-value">{{ fila.ncfCreditoFiscal || '(sin asignar)' }}</span>
-						<button mat-icon-button class="dr-f1-btn" (click)="abrirPickerNcf(fila, 'ncfCreditoFiscal')" matTooltip="Buscar NCF (F1)">
-							<mat-icon>search</mat-icon>
-						</button>
-					</ng-container>
-				</td>
-			</ng-container>
-			<ng-container matColumnDef="resolucionFactura">
-				<th mat-header-cell *matHeaderCellDef>Resolución Factura</th>
-				<td mat-cell *matCellDef="let fila">
-					<ng-container *ngIf="mostrarResolucion(fila); else sinDato">
-						<span class="dr-f1-value">{{ fila.resolucionFactura || '(sin asignar)' }}</span>
-						<button mat-icon-button class="dr-f1-btn" (click)="abrirPickerResolucion(fila, 'resolucionFactura')" matTooltip="Buscar Resolución (F1)">
-							<mat-icon>search</mat-icon>
-						</button>
-					</ng-container>
-				</td>
-			</ng-container>
-			<ng-container matColumnDef="resolucionDevolucion">
-				<th mat-header-cell *matHeaderCellDef>Resolución Devolución</th>
-				<td mat-cell *matCellDef="let fila">
-					<ng-container *ngIf="mostrarResolucion(fila); else sinDato">
-						<span class="dr-f1-value">{{ fila.resolucionDevolucion || '(sin asignar)' }}</span>
-						<button mat-icon-button class="dr-f1-btn" (click)="abrirPickerResolucion(fila, 'resolucionDevolucion')" matTooltip="Buscar Resolución (F1)">
-							<mat-icon>search</mat-icon>
-						</button>
-					</ng-container>
-				</td>
-			</ng-container>
+  <div class="dr-table-wrap mat-elevation-z2">
+    <table mat-table [dataSource]="filas" class="dr-table">
+      <ng-container matColumnDef="compania">
+        <th mat-header-cell *matHeaderCellDef>Compañía</th>
+        <td mat-cell *matCellDef="let fila" [matTooltip]="fila.companiaNombre">
+          {{ fila.compania }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="devolucion">
+        <th mat-header-cell *matHeaderCellDef>Devolución</th>
+        <td mat-cell *matCellDef="let fila">
+          <input
+            matInput
+            [(ngModel)]="fila.devolucion"
+            maxlength="10"
+            placeholder="Consecutivo"
+          />
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="pedido">
+        <th mat-header-cell *matHeaderCellDef>Pedido</th>
+        <td mat-cell *matCellDef="let fila">
+          <input
+            matInput
+            [(ngModel)]="fila.pedido"
+            maxlength="12"
+            placeholder="Consecutivo"
+          />
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="pedidoConDescuento">
+        <th mat-header-cell *matHeaderCellDef>Pedido Con Descuento</th>
+        <td mat-cell *matCellDef="let fila">
+          <input
+            matInput
+            [(ngModel)]="fila.pedidoConDescuento"
+            maxlength="12"
+            placeholder="Consecutivo"
+          />
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="factura">
+        <th mat-header-cell *matHeaderCellDef>Factura</th>
+        <td mat-cell *matCellDef="let fila">
+          <input
+            matInput
+            [(ngModel)]="fila.factura"
+            maxlength="12"
+            placeholder="Consecutivo"
+          />
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="inventario">
+        <th mat-header-cell *matHeaderCellDef>Inventario</th>
+        <td mat-cell *matCellDef="let fila">
+          <input
+            matInput
+            [(ngModel)]="fila.inventario"
+            maxlength="12"
+            placeholder="Consecutivo"
+          />
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="reciboCobro">
+        <th mat-header-cell *matHeaderCellDef>Recibo Cobro</th>
+        <td mat-cell *matCellDef="let fila">
+          <input
+            matInput
+            [(ngModel)]="fila.reciboCobro"
+            maxlength="10"
+            placeholder="Consecutivo"
+          />
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="notaCredito">
+        <th mat-header-cell *matHeaderCellDef>Nota Crédito</th>
+        <td mat-cell *matCellDef="let fila">
+          <input
+            matInput
+            [(ngModel)]="fila.notaCredito"
+            maxlength="12"
+            placeholder="Consecutivo"
+          />
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="ncfConsumidorFinal">
+        <th mat-header-cell *matHeaderCellDef>NCF Consumidor Final</th>
+        <td mat-cell *matCellDef="let fila">
+          <ng-container *ngIf="mostrarNcf(fila); else sinDato">
+            <span class="dr-f1-value">{{
+              fila.ncfConsumidorFinal || "(sin asignar)"
+            }}</span>
+            <button
+              mat-icon-button
+              class="dr-f1-btn"
+              (click)="abrirPickerNcf(fila, 'ncfConsumidorFinal')"
+              matTooltip="Buscar NCF (F1)"
+            >
+              <mat-icon>search</mat-icon>
+            </button>
+          </ng-container>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="ncfCreditoFiscal">
+        <th mat-header-cell *matHeaderCellDef>NCF Crédito Fiscal</th>
+        <td mat-cell *matCellDef="let fila">
+          <ng-container *ngIf="mostrarNcf(fila); else sinDato">
+            <span class="dr-f1-value">{{
+              fila.ncfCreditoFiscal || "(sin asignar)"
+            }}</span>
+            <button
+              mat-icon-button
+              class="dr-f1-btn"
+              (click)="abrirPickerNcf(fila, 'ncfCreditoFiscal')"
+              matTooltip="Buscar NCF (F1)"
+            >
+              <mat-icon>search</mat-icon>
+            </button>
+          </ng-container>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="resolucionFactura">
+        <th mat-header-cell *matHeaderCellDef>Resolución Factura</th>
+        <td mat-cell *matCellDef="let fila">
+          <ng-container *ngIf="mostrarResolucion(fila); else sinDato">
+            <span class="dr-f1-value">{{
+              fila.resolucionFactura || "(sin asignar)"
+            }}</span>
+            <button
+              mat-icon-button
+              class="dr-f1-btn"
+              (click)="abrirPickerResolucion(fila, 'resolucionFactura')"
+              matTooltip="Buscar Resolución (F1)"
+            >
+              <mat-icon>search</mat-icon>
+            </button>
+          </ng-container>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="resolucionDevolucion">
+        <th mat-header-cell *matHeaderCellDef>Resolución Devolución</th>
+        <td mat-cell *matCellDef="let fila">
+          <ng-container *ngIf="mostrarResolucion(fila); else sinDato">
+            <span class="dr-f1-value">{{
+              fila.resolucionDevolucion || "(sin asignar)"
+            }}</span>
+            <button
+              mat-icon-button
+              class="dr-f1-btn"
+              (click)="abrirPickerResolucion(fila, 'resolucionDevolucion')"
+              matTooltip="Buscar Resolución (F1)"
+            >
+              <mat-icon>search</mat-icon>
+            </button>
+          </ng-container>
+        </td>
+      </ng-container>
 
-			<tr
-				mat-header-row
-				*matHeaderRowDef="['compania','devolucion','pedido','pedidoConDescuento','factura','inventario','reciboCobro','notaCredito','ncfConsumidorFinal','ncfCreditoFiscal','resolucionFactura','resolucionDevolucion']"
-			></tr>
-			<tr
-				mat-row
-				*matRowDef="let fila; columns: ['compania','devolucion','pedido','pedidoConDescuento','factura','inventario','reciboCobro','notaCredito','ncfConsumidorFinal','ncfCreditoFiscal','resolucionFactura','resolucionDevolucion']"
-				(click)="seleccionarFilaConsecutivo(fila)"
-				[class.dr-row-selected]="fila === filaSeleccionada"
-			></tr>
-		</table>
-		<p *ngIf="filas.length === 0" class="dr-empty">
-			Esta ruta no tiene compañías con consecutivos definidos. Use el botón <mat-icon inline>add_business</mat-icon> para agregar una.
-		</p>
-	</div>
-	<p class="dr-nota">
-		<mat-icon inline color="warn">info</mat-icon>
-		Las columnas NCF (Rep. Dominicana) y Resolución (Guatemala) se seleccionan de una lista existente, no se digitan libremente.
-	</p>
-	<ng-template #sinDato><span class="dr-na">—</span></ng-template>
+      <tr
+        mat-header-row
+        *matHeaderRowDef="[
+          'compania',
+          'devolucion',
+          'pedido',
+          'pedidoConDescuento',
+          'factura',
+          'inventario',
+          'reciboCobro',
+          'notaCredito',
+          'ncfConsumidorFinal',
+          'ncfCreditoFiscal',
+          'resolucionFactura',
+          'resolucionDevolucion'
+        ]"
+      ></tr>
+      <tr
+        mat-row
+        *matRowDef="
+          let fila;
+          columns: [
+            'compania',
+            'devolucion',
+            'pedido',
+            'pedidoConDescuento',
+            'factura',
+            'inventario',
+            'reciboCobro',
+            'notaCredito',
+            'ncfConsumidorFinal',
+            'ncfCreditoFiscal',
+            'resolucionFactura',
+            'resolucionDevolucion'
+          ]
+        "
+        (click)="seleccionarFilaConsecutivo(fila)"
+        [class.dr-row-selected]="fila === filaSeleccionada"
+      ></tr>
+    </table>
+    <p *ngIf="filas.length === 0" class="dr-empty">
+      Esta ruta no tiene compañías con consecutivos definidos. Use el botón
+      <mat-icon inline>add_business</mat-icon> para agregar una.
+    </p>
+  </div>
+  <p class="dr-nota">
+    <mat-icon inline color="warn">info</mat-icon>
+    Las columnas NCF (Rep. Dominicana) y Resolución (Guatemala) se seleccionan
+    de una lista existente, no se digitan libremente.
+  </p>
+  <ng-template #sinDato><span class="dr-na">—</span></ng-template>
 
-	<mat-divider class="dr-divider"></mat-divider>
+  <mat-divider class="dr-divider"></mat-divider>
 
-	<!-- Clientes de la ruta -->
-	<h3 class="dr-section-title">Clientes de la Ruta</h3>
-	<form class="buscar">
-		<mat-form-field class="full-with" appearance="fill">
-			<input matInput (keyup)="applyFilterClientes($event)" placeholder="Buscar Cliente (contiene)" #inputClientes />
-		</mat-form-field>
-	</form>
-	<div class="mat-elevation-z2">
-		<div *ngIf="cargandoClientes" class="dr-cargando"><mat-progress-spinner diameter="32" mode="indeterminate"></mat-progress-spinner></div>
-		<mat-table [dataSource]="filasClientes" matSort *ngIf="!cargandoClientes">
-			<ng-container matColumnDef="cliente">
-				<mat-header-cell *matHeaderCellDef mat-sort-header>Cliente</mat-header-cell>
-				<mat-cell *matCellDef="let fila">{{ fila.cliente }}</mat-cell>
-			</ng-container>
-			<ng-container matColumnDef="nombre">
-				<mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</mat-header-cell>
-				<mat-cell *matCellDef="let fila">{{ fila.nombre }}</mat-cell>
-			</ng-container>
-			<ng-container matColumnDef="asignacion">
-				<mat-header-cell *matHeaderCellDef>Asignación</mat-header-cell>
-				<mat-cell *matCellDef="let fila">
-					<button
-						mat-button
-						class="dr-chip-btn"
-						[matMenuTriggerFor]="menuAsignarDia"
-						[matMenuTriggerData]="{ fila: fila }"
-						matTooltip="Asignar a un día de visita"
-					>
-						<span class="dr-chip" [ngClass]="'dr-chip--' + estadoAsignacion(fila)">
-							<mat-icon>{{ estadoIcono[estadoAsignacion(fila)] }}</mat-icon>
-							{{ chipTexto(fila) }}
-						</span>
-						<mat-icon class="dr-chip-caret">arrow_drop_down</mat-icon>
-					</button>
-				</mat-cell>
-			</ng-container>
+  <!-- Clientes de la ruta -->
+  <h3 class="dr-section-title">Clientes de la Ruta</h3>
+  <form class="buscar">
+    <mat-form-field class="full-with" appearance="fill">
+      <input
+        matInput
+        (keyup)="applyFilterClientes($event)"
+        placeholder="Buscar Cliente (contiene)"
+        #inputClientes
+      />
+    </mat-form-field>
+  </form>
+  <div class="mat-elevation-z2">
+    <div *ngIf="cargandoClientes" class="dr-cargando">
+      <mat-progress-spinner
+        diameter="32"
+        mode="indeterminate"
+      ></mat-progress-spinner>
+    </div>
+    <mat-table [dataSource]="filasClientes" matSort *ngIf="!cargandoClientes">
+      <ng-container matColumnDef="cliente">
+        <mat-header-cell *matHeaderCellDef mat-sort-header
+          >Cliente</mat-header-cell
+        >
+        <mat-cell *matCellDef="let fila">{{ fila.cliente }}</mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="nombre">
+        <mat-header-cell *matHeaderCellDef mat-sort-header
+          >Nombre</mat-header-cell
+        >
+        <mat-cell *matCellDef="let fila">{{ fila.nombre }}</mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="asignacion">
+        <mat-header-cell *matHeaderCellDef>Asignación</mat-header-cell>
+        <mat-cell *matCellDef="let fila">
+          <button
+            mat-button
+            class="dr-chip-btn"
+            [matMenuTriggerFor]="menuAsignarDia"
+            [matMenuTriggerData]="{ fila: fila }"
+            matTooltip="Asignar a un día de visita"
+          >
+            <span
+              class="dr-chip"
+              [ngClass]="'dr-chip--' + estadoAsignacion(fila)"
+            >
+              <mat-icon>{{ estadoIcono[estadoAsignacion(fila)] }}</mat-icon>
+              {{ chipTexto(fila) }}
+            </span>
+            <mat-icon class="dr-chip-caret">arrow_drop_down</mat-icon>
+          </button>
+        </mat-cell>
+      </ng-container>
 
-			<mat-header-row *matHeaderRowDef="displayedColumnsClientes"></mat-header-row>
-			<mat-row *matRowDef="let row; columns: displayedColumnsClientes"></mat-row>
-			<tr class="mat-row" *matNoDataRow>
-				<td class="mat-cell" colspan="3">No hay clientes que coincidan con el filtro "{{ inputClientes.value }}"</td>
-			</tr>
-		</mat-table>
-		<mat-paginator [pageSizeOptions]="[10, 25, 75, 100]" showFirstLastButtons></mat-paginator>
-	</div>
+      <mat-header-row
+        *matHeaderRowDef="displayedColumnsClientes"
+      ></mat-header-row>
+      <mat-row
+        *matRowDef="let row; columns: displayedColumnsClientes"
+      ></mat-row>
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell" colspan="3">
+          No hay clientes que coincidan con el filtro "{{
+            inputClientes.value
+          }}"
+        </td>
+      </tr>
+    </mat-table>
+    <mat-paginator
+      [pageSizeOptions]="[10, 25, 75, 100]"
+      showFirstLastButtons
+    ></mat-paginator>
+  </div>
 
-	<mat-menu #menuAsignarDia="matMenu">
-		<ng-template matMenuContent let-fila="fila">
-			<button mat-menu-item *ngFor="let dia of dias" (click)="cambiarDia(fila, dia)">
-				<mat-icon>event</mat-icon>
-				<span>{{ dia }}</span>
-			</button>
-			<button mat-menu-item [disabled]="!fila.dia" (click)="cambiarDia(fila, '')">
-				<mat-icon color="warn">close</mat-icon>
-				<span>Quitar de la ruta</span>
-			</button>
-		</ng-template>
-	</mat-menu>
+  <mat-menu #menuAsignarDia="matMenu">
+    <ng-template matMenuContent let-fila="fila">
+      <button
+        mat-menu-item
+        *ngFor="let dia of dias"
+        (click)="cambiarDia(fila, dia)"
+      >
+        <mat-icon>event</mat-icon>
+        <span>{{ dia }}</span>
+      </button>
+      <button
+        mat-menu-item
+        [disabled]="!fila.dia"
+        (click)="cambiarDia(fila, '')"
+      >
+        <mat-icon color="warn">close</mat-icon>
+        <span>Quitar de la ruta</span>
+      </button>
+    </ng-template>
+  </mat-menu>
 
-	<p class="dr-nota">
-		<mat-icon inline color="warn">info</mat-icon>
-		Grupo Artículo y HandHeld se buscan del catálogo real. Los consecutivos, NCF, Resolución, Agente, Camión/Bodega y la asignación de clientes por día aún
-		no tienen respaldo de backend: se conservan solo durante esta sesión al presionar Guardar. El estado Activa/Inactiva sí se guarda de forma real.
-	</p>
+  <p class="dr-nota">
+    <mat-icon inline color="warn">info</mat-icon>
+    Grupo Artículo y HandHeld se buscan del catálogo real. Los consecutivos,
+    NCF, Resolución, Agente, Camión/Bodega y la asignación de clientes por día
+    aún no tienen respaldo de backend: se conservan solo durante esta sesión al
+    presionar Guardar. El estado Activa/Inactiva sí se guarda de forma real.
+  </p>
 </div>
 
 <div mat-dialog-actions [align]="'end'">
-	<button mat-raised-button color="basic" mat-dialog-close>Cerrar</button>
-	<button mat-raised-button color="warn" (click)="guardar()"><mat-icon>save</mat-icon> Guardar</button>
+  <button mat-raised-button color="basic" mat-dialog-close>Cerrar</button>
+  <button mat-raised-button color="warn" (click)="guardar()">
+    <mat-icon>save</mat-icon> Guardar
+  </button>
 </div>

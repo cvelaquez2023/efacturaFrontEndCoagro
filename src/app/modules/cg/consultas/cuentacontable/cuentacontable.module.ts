@@ -1,10 +1,10 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { NgModule } from "@angular/core";
+import { CommonModule } from "@angular/common";
 
-import { CuentacontableRoutingModule } from './cuentacontable-routing.module';
+import { CuentacontableRoutingModule } from "./cuentacontable-routing.module";
 
 @NgModule({
-	declarations: [],
-	imports: [CommonModule, CuentacontableRoutingModule]
+  declarations: [],
+  imports: [CommonModule, CuentacontableRoutingModule],
 })
 export class CuentacontableModule {}

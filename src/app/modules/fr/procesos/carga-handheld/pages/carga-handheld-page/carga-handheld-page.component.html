@@ -1,73 +1,103 @@
 <h2>Carga de Datos a HandHeld</h2>
 
 <mat-tab-group mat-align-tabs="center">
-	<mat-tab label="Proceso">
-		<form [formGroup]="procesoForm" fxLayout="row wrap" fxLayoutGap="16px" fxLayoutAlign="start center">
-			<mat-form-field appearance="outline">
-				<mat-label>Fecha de Visita</mat-label>
-				<input formControlName="fechaVisita" matInput type="date" />
-			</mat-form-field>
-			<mat-checkbox formControlName="cargaParcial">Carga Parcial</mat-checkbox>
-			<mat-form-field appearance="outline" *ngIf="procesoForm.get('cargaParcial')?.value">
-				<mat-label>Ruta</mat-label>
-				<input formControlName="ruta" matInput placeholder="Codigo de ruta" />
-			</mat-form-field>
-			<div *ngIf="procesoForm.get('cargaParcial')?.value" fxLayout="row wrap" fxLayoutGap="8px">
-				<mat-checkbox formControlName="actualizarExistencias">Actualizar Existencias</mat-checkbox>
-				<mat-checkbox formControlName="actualizarPendientesCobro">Actualizar Pendientes de Cobro</mat-checkbox>
-				<mat-checkbox formControlName="cargaClientesNuevos">Carga de Clientes Nuevos</mat-checkbox>
-			</div>
-			<button mat-raised-button color="warn" (click)="ejecutarCarga()"><mat-icon>cloud_upload</mat-icon>Cargar</button>
-		</form>
-		<p *ngIf="procesoFinalizado" class="mensaje-exito">Proceso finalizado correctamente. Bitacora disponible en el tab Bitacoras.</p>
-	</mat-tab>
+  <mat-tab label="Proceso">
+    <form
+      [formGroup]="procesoForm"
+      fxLayout="row wrap"
+      fxLayoutGap="16px"
+      fxLayoutAlign="start center"
+    >
+      <mat-form-field appearance="outline">
+        <mat-label>Fecha de Visita</mat-label>
+        <input formControlName="fechaVisita" matInput type="date" />
+      </mat-form-field>
+      <mat-checkbox formControlName="cargaParcial">Carga Parcial</mat-checkbox>
+      <mat-form-field
+        appearance="outline"
+        *ngIf="procesoForm.get('cargaParcial')?.value"
+      >
+        <mat-label>Ruta</mat-label>
+        <input formControlName="ruta" matInput placeholder="Codigo de ruta" />
+      </mat-form-field>
+      <div
+        *ngIf="procesoForm.get('cargaParcial')?.value"
+        fxLayout="row wrap"
+        fxLayoutGap="8px"
+      >
+        <mat-checkbox formControlName="actualizarExistencias"
+          >Actualizar Existencias</mat-checkbox
+        >
+        <mat-checkbox formControlName="actualizarPendientesCobro"
+          >Actualizar Pendientes de Cobro</mat-checkbox
+        >
+        <mat-checkbox formControlName="cargaClientesNuevos"
+          >Carga de Clientes Nuevos</mat-checkbox
+        >
+      </div>
+      <button mat-raised-button color="warn" (click)="ejecutarCarga()">
+        <mat-icon>cloud_upload</mat-icon>Cargar
+      </button>
+    </form>
+    <p *ngIf="procesoFinalizado" class="mensaje-exito">
+      Proceso finalizado correctamente. Bitacora disponible en el tab Bitacoras.
+    </p>
+  </mat-tab>
 
-	<mat-tab label="Configuracion">
-		<div class="mat-elevation-z8">
-			<mat-table [dataSource]="tareas">
-				<ng-container matColumnDef="nombre">
-					<mat-header-cell *matHeaderCellDef>Nombre</mat-header-cell>
-					<mat-cell *matCellDef="let element">{{ element.nombre }}</mat-cell>
-				</ng-container>
-				<ng-container matColumnDef="tipoCarga">
-					<mat-header-cell *matHeaderCellDef>Tipo de Carga</mat-header-cell>
-					<mat-cell *matCellDef="let element">{{ element.tipoCarga }}</mat-cell>
-				</ng-container>
-				<ng-container matColumnDef="ultimaEjecucion">
-					<mat-header-cell *matHeaderCellDef>Ultima Ejecucion</mat-header-cell>
-					<mat-cell *matCellDef="let element">{{ element.ultimaEjecucion | date: 'short' }}</mat-cell>
-				</ng-container>
-				<ng-container matColumnDef="proximaEjecucion">
-					<mat-header-cell *matHeaderCellDef>Proxima Ejecucion</mat-header-cell>
-					<mat-cell *matCellDef="let element">{{ element.proximaEjecucion | date: 'short' }}</mat-cell>
-				</ng-container>
-				<mat-header-row *matHeaderRowDef="tareasColumns"></mat-header-row>
-				<mat-row *matRowDef="let row; columns: tareasColumns"></mat-row>
-			</mat-table>
-		</div>
-		<div class="search-div" fxLayout="row" fxLayoutAlign="end end">
-			<button mat-raised-button color="warn"><mat-icon>add</mat-icon>Crear Tarea</button>
-		</div>
-	</mat-tab>
+  <mat-tab label="Configuracion">
+    <div class="mat-elevation-z8">
+      <mat-table [dataSource]="tareas">
+        <ng-container matColumnDef="nombre">
+          <mat-header-cell *matHeaderCellDef>Nombre</mat-header-cell>
+          <mat-cell *matCellDef="let element">{{ element.nombre }}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="tipoCarga">
+          <mat-header-cell *matHeaderCellDef>Tipo de Carga</mat-header-cell>
+          <mat-cell *matCellDef="let element">{{ element.tipoCarga }}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="ultimaEjecucion">
+          <mat-header-cell *matHeaderCellDef>Ultima Ejecucion</mat-header-cell>
+          <mat-cell *matCellDef="let element">{{
+            element.ultimaEjecucion | date: "short"
+          }}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="proximaEjecucion">
+          <mat-header-cell *matHeaderCellDef>Proxima Ejecucion</mat-header-cell>
+          <mat-cell *matCellDef="let element">{{
+            element.proximaEjecucion | date: "short"
+          }}</mat-cell>
+        </ng-container>
+        <mat-header-row *matHeaderRowDef="tareasColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: tareasColumns"></mat-row>
+      </mat-table>
+    </div>
+    <div class="search-div" fxLayout="row" fxLayoutAlign="end end">
+      <button mat-raised-button color="warn">
+        <mat-icon>add</mat-icon>Crear Tarea
+      </button>
+    </div>
+  </mat-tab>
 
-	<mat-tab label="Bitacoras">
-		<div class="mat-elevation-z8">
-			<mat-table [dataSource]="bitacora">
-				<ng-container matColumnDef="fecha">
-					<mat-header-cell *matHeaderCellDef>Fecha</mat-header-cell>
-					<mat-cell *matCellDef="let element">{{ element.fecha | date: 'short' }}</mat-cell>
-				</ng-container>
-				<ng-container matColumnDef="estado">
-					<mat-header-cell *matHeaderCellDef>Estado</mat-header-cell>
-					<mat-cell *matCellDef="let element">{{ element.estado }}</mat-cell>
-				</ng-container>
-				<ng-container matColumnDef="archivo">
-					<mat-header-cell *matHeaderCellDef>Archivo</mat-header-cell>
-					<mat-cell *matCellDef="let element">{{ element.archivo }}</mat-cell>
-				</ng-container>
-				<mat-header-row *matHeaderRowDef="bitacoraColumns"></mat-header-row>
-				<mat-row *matRowDef="let row; columns: bitacoraColumns"></mat-row>
-			</mat-table>
-		</div>
-	</mat-tab>
+  <mat-tab label="Bitacoras">
+    <div class="mat-elevation-z8">
+      <mat-table [dataSource]="bitacora">
+        <ng-container matColumnDef="fecha">
+          <mat-header-cell *matHeaderCellDef>Fecha</mat-header-cell>
+          <mat-cell *matCellDef="let element">{{
+            element.fecha | date: "short"
+          }}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="estado">
+          <mat-header-cell *matHeaderCellDef>Estado</mat-header-cell>
+          <mat-cell *matCellDef="let element">{{ element.estado }}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="archivo">
+          <mat-header-cell *matHeaderCellDef>Archivo</mat-header-cell>
+          <mat-cell *matCellDef="let element">{{ element.archivo }}</mat-cell>
+        </ng-container>
+        <mat-header-row *matHeaderRowDef="bitacoraColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: bitacoraColumns"></mat-row>
+      </mat-table>
+    </div>
+  </mat-tab>
 </mat-tab-group>

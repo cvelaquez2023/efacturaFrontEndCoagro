@@ -1,24 +1,24 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { AsignacionSugeridosVentaPageComponent } from './asignacion-sugeridos-venta-page.component';
+import { AsignacionSugeridosVentaPageComponent } from "./asignacion-sugeridos-venta-page.component";
 
-describe('AsignacionSugeridosVentaPageComponent', () => {
-	let component: AsignacionSugeridosVentaPageComponent;
-	let fixture: ComponentFixture<AsignacionSugeridosVentaPageComponent>;
+describe("AsignacionSugeridosVentaPageComponent", () => {
+  let component: AsignacionSugeridosVentaPageComponent;
+  let fixture: ComponentFixture<AsignacionSugeridosVentaPageComponent>;
 
-	beforeEach(async () => {
-		await TestBed.configureTestingModule({
-			declarations: [AsignacionSugeridosVentaPageComponent]
-		}).compileComponents();
-	});
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [AsignacionSugeridosVentaPageComponent],
+    }).compileComponents();
+  });
 
-	beforeEach(() => {
-		fixture = TestBed.createComponent(AsignacionSugeridosVentaPageComponent);
-		component = fixture.componentInstance;
-		fixture.detectChanges();
-	});
+  beforeEach(() => {
+    fixture = TestBed.createComponent(AsignacionSugeridosVentaPageComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-	it('should create', () => {
-		expect(component).toBeTruthy();
-	});
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

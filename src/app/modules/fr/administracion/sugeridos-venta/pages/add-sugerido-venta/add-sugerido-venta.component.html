@@ -1,19 +1,37 @@
-<h1 mat-dialog-title color="warn">{{ actionBtn === 'Guardar' ? 'Adicionar' : 'Editar' }} Sugerido de Venta</h1>
+<h1 mat-dialog-title color="warn">
+  {{ actionBtn === "Guardar" ? "Adicionar" : "Editar" }} Sugerido de Venta
+</h1>
 <div mat-dialog-content>
-	<form [formGroup]="sugeridoForm">
-		<mat-form-field appearance="outline">
-			<mat-label>Sugerido</mat-label>
-			<input formControlName="sugerido" matInput placeholder="Codigo" maxlength="10" />
-			<mat-error *ngIf="sugeridoField.hasError('required')">El sugerido es requerido</mat-error>
-		</mat-form-field>
-		<mat-form-field appearance="outline">
-			<mat-label>Descripcion</mat-label>
-			<input formControlName="descripcion" matInput placeholder="Descripcion" maxlength="40" />
-			<mat-error *ngIf="descripcionField.hasError('required')">La descripcion es requerida</mat-error>
-		</mat-form-field>
-	</form>
+  <form [formGroup]="sugeridoForm">
+    <mat-form-field appearance="outline">
+      <mat-label>Sugerido</mat-label>
+      <input
+        formControlName="sugerido"
+        matInput
+        placeholder="Codigo"
+        maxlength="10"
+      />
+      <mat-error *ngIf="sugeridoField.hasError('required')"
+        >El sugerido es requerido</mat-error
+      >
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Descripcion</mat-label>
+      <input
+        formControlName="descripcion"
+        matInput
+        placeholder="Descripcion"
+        maxlength="40"
+      />
+      <mat-error *ngIf="descripcionField.hasError('required')"
+        >La descripcion es requerida</mat-error
+      >
+    </mat-form-field>
+  </form>
 </div>
 <div mat-dialog-actions [align]="'end'">
-	<button mat-raised-button color="basic" mat-dialog-close>Cerrar</button>
-	<button mat-raised-button color="warn" (click)="clickSave()">{{ actionBtn }}</button>
+  <button mat-raised-button color="basic" mat-dialog-close>Cerrar</button>
+  <button mat-raised-button color="warn" (click)="clickSave()">
+    {{ actionBtn }}
+  </button>
 </div>

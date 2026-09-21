@@ -68,10 +68,6 @@
     "karma-jasmine-html-reporter": "~1.7.0",
     "prettier": "^2.6.2",
     "typescript": "~4.6.2"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run lint-format && git add ."
-    }
   }
+  
 }

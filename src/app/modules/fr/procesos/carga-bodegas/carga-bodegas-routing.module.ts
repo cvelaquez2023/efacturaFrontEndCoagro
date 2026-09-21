@@ -1,18 +1,18 @@
-import { CargaBodegasPageComponent } from './pages/carga-bodegas-page/carga-bodegas-page.component';
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { AuthGuard } from '@app/guards/auth.guard';
+import { CargaBodegasPageComponent } from "./pages/carga-bodegas-page/carga-bodegas-page.component";
+import { NgModule } from "@angular/core";
+import { RouterModule, Routes } from "@angular/router";
+import { AuthGuard } from "@app/guards/auth.guard";
 
 const routes: Routes = [
-	{
-		path: '',
-		component: CargaBodegasPageComponent,
-		canActivate: [AuthGuard]
-	}
+  {
+    path: "",
+    component: CargaBodegasPageComponent,
+    canActivate: [AuthGuard],
+  },
 ];
 
 @NgModule({
-	imports: [RouterModule.forChild(routes)],
-	exports: [RouterModule]
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule],
 })
 export class CargaBodegasRoutingModule {}

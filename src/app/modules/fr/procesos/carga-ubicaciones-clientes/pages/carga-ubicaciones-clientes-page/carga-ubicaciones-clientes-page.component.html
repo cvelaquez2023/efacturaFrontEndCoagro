@@ -1,16 +1,28 @@
 <h2>Carga Ubicaciones de Clientes</h2>
-<p>Traslada las coordenadas GPS capturadas en el dispositivo movil hacia el catalogo de clientes.</p>
+<p>
+  Traslada las coordenadas GPS capturadas en el dispositivo movil hacia el
+  catalogo de clientes.
+</p>
 
-<form [formGroup]="procesoForm" fxLayout="row wrap" fxLayoutGap="16px" fxLayoutAlign="start center">
-	<mat-form-field appearance="outline">
-		<mat-label>Compania</mat-label>
-		<input formControlName="compania" matInput />
-	</mat-form-field>
-	<mat-form-field appearance="outline">
-		<mat-label>Ruta (opcional)</mat-label>
-		<input formControlName="ruta" matInput placeholder="Codigo de ruta" />
-	</mat-form-field>
-	<button mat-raised-button color="warn" (click)="procesar()"><mat-icon>my_location</mat-icon>Procesar</button>
+<form
+  [formGroup]="procesoForm"
+  fxLayout="row wrap"
+  fxLayoutGap="16px"
+  fxLayoutAlign="start center"
+>
+  <mat-form-field appearance="outline">
+    <mat-label>Compania</mat-label>
+    <input formControlName="compania" matInput />
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Ruta (opcional)</mat-label>
+    <input formControlName="ruta" matInput placeholder="Codigo de ruta" />
+  </mat-form-field>
+  <button mat-raised-button color="warn" (click)="procesar()">
+    <mat-icon>my_location</mat-icon>Procesar
+  </button>
 </form>
 
-<p *ngIf="procesoFinalizado" class="mensaje-exito">Se actualizaron las coordenadas de {{ clientesActualizados }} clientes.</p>
+<p *ngIf="procesoFinalizado" class="mensaje-exito">
+  Se actualizaron las coordenadas de {{ clientesActualizados }} clientes.
+</p>

@@ -1,47 +1,78 @@
 <h2>Cierre de Jornada</h2>
 
-<form [formGroup]="filtroForm" fxLayout="row wrap" fxLayoutGap="16px" fxLayoutAlign="start center">
-	<mat-form-field appearance="outline">
-		<mat-label>Fecha</mat-label>
-		<input formControlName="fecha" matInput type="date" />
-	</mat-form-field>
+<form
+  [formGroup]="filtroForm"
+  fxLayout="row wrap"
+  fxLayoutGap="16px"
+  fxLayoutAlign="start center"
+>
+  <mat-form-field appearance="outline">
+    <mat-label>Fecha</mat-label>
+    <input formControlName="fecha" matInput type="date" />
+  </mat-form-field>
 </form>
 
 <div class="mat-elevation-z8">
-	<mat-table [dataSource]="listJornadas" matSort>
-		<ng-container matColumnDef="ruta">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Ruta</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.ruta }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="agente">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Agente</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.agente }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="visitasRealizadas">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Visitas</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.visitasRealizadas }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="totalVendido">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Total Vendido</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.totalVendido | currency: 'USD' }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="totalCobrado">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Total Cobrado</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.totalCobrado | currency: 'USD' }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="estado">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Estado</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.estado }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="actions">
-			<mat-header-cell *matHeaderCellDef></mat-header-cell>
-			<mat-cell *matCellDef="let element">
-				<button mat-raised-button color="warn" [disabled]="element.estado === 'Cerrada'" (click)="cerrarJornada(element)">Cerrar</button>
-			</mat-cell>
-		</ng-container>
+  <mat-table [dataSource]="listJornadas" matSort>
+    <ng-container matColumnDef="ruta">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Ruta</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.ruta }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="agente">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Agente</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{ element.agente }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="visitasRealizadas">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Visitas</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{
+        element.visitasRealizadas
+      }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="totalVendido">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Total Vendido</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{
+        element.totalVendido | currency: "USD"
+      }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="totalCobrado">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Total Cobrado</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{
+        element.totalCobrado | currency: "USD"
+      }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="estado">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Estado</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{ element.estado }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="actions">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <button
+          mat-raised-button
+          color="warn"
+          [disabled]="element.estado === 'Cerrada'"
+          (click)="cerrarJornada(element)"
+        >
+          Cerrar
+        </button>
+      </mat-cell>
+    </ng-container>
 
-		<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-		<mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
-	</mat-table>
-	<mat-paginator [pageSizeOptions]="[10, 25, 75, 100]" showFirstLastButtons></mat-paginator>
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+  </mat-table>
+  <mat-paginator
+    [pageSizeOptions]="[10, 25, 75, 100]"
+    showFirstLastButtons
+  ></mat-paginator>
 </div>

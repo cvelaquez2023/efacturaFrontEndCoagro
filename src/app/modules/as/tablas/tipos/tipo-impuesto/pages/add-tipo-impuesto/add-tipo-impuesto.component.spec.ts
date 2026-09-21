@@ -1,24 +1,24 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { AddTipoImpuestoComponent } from './add-tipo-impuesto.component';
+import { AddTipoImpuestoComponent } from "./add-tipo-impuesto.component";
 
-describe('AddTipoImpuestoComponent', () => {
-	let component: AddTipoImpuestoComponent;
-	let fixture: ComponentFixture<AddTipoImpuestoComponent>;
+describe("AddTipoImpuestoComponent", () => {
+  let component: AddTipoImpuestoComponent;
+  let fixture: ComponentFixture<AddTipoImpuestoComponent>;
 
-	beforeEach(async () => {
-		await TestBed.configureTestingModule({
-			declarations: [AddTipoImpuestoComponent]
-		}).compileComponents();
-	});
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [AddTipoImpuestoComponent],
+    }).compileComponents();
+  });
 
-	beforeEach(() => {
-		fixture = TestBed.createComponent(AddTipoImpuestoComponent);
-		component = fixture.componentInstance;
-		fixture.detectChanges();
-	});
+  beforeEach(() => {
+    fixture = TestBed.createComponent(AddTipoImpuestoComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-	it('should create', () => {
-		expect(component).toBeTruthy();
-	});
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

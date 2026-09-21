@@ -1,8 +1,8 @@
 export interface ICreateRazonVisitaModel {
-	efectVisita: string;
-	descripcion: string;
+  efectVisita: string;
+  descripcion: string;
 }
 export interface IResponseRazonVisita {
-	EFECT_VISITA: string;
-	DESCRIPCION: string;
+  EFECT_VISITA: string;
+  DESCRIPCION: string;
 }

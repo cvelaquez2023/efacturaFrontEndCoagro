@@ -1,34 +1,42 @@
 <h2>Configuracion de HH</h2>
-<p>Copia de forma masiva la configuracion de un dispositivo movil hacia uno o mas Pocket PC.</p>
+<p>
+  Copia de forma masiva la configuracion de un dispositivo movil hacia uno o mas
+  Pocket PC.
+</p>
 
 <mat-form-field appearance="outline">
-	<mat-label>HandHeld Origen</mat-label>
-	<mat-select [(ngModel)]="origen">
-		<mat-option value="HH01">HH01 - Pocket Ruta 1</mat-option>
-		<mat-option value="HH02">HH02 - Pocket Ruta 2</mat-option>
-		<mat-option value="HH03">HH03 - Pocket Ruta 3</mat-option>
-	</mat-select>
+  <mat-label>HandHeld Origen</mat-label>
+  <mat-select [(ngModel)]="origen">
+    <mat-option value="HH01">HH01 - Pocket Ruta 1</mat-option>
+    <mat-option value="HH02">HH02 - Pocket Ruta 2</mat-option>
+    <mat-option value="HH03">HH03 - Pocket Ruta 3</mat-option>
+  </mat-select>
 </mat-form-field>
 
 <div fxLayout="row" fxLayoutGap="24px">
-	<div fxFlex="45">
-		<h3>Disponibles</h3>
-		<mat-selection-list>
-			<mat-list-option *ngFor="let item of disponibles" (click)="agregar(item)">
-				{{ item.codigo }} - {{ item.descripcion }}
-			</mat-list-option>
-		</mat-selection-list>
-	</div>
-	<div fxFlex="45">
-		<h3>Destino</h3>
-		<mat-selection-list>
-			<mat-list-option *ngFor="let item of seleccionados" (click)="quitar(item)">
-				{{ item.codigo }} - {{ item.descripcion }}
-			</mat-list-option>
-		</mat-selection-list>
-	</div>
+  <div fxFlex="45">
+    <h3>Disponibles</h3>
+    <mat-selection-list>
+      <mat-list-option *ngFor="let item of disponibles" (click)="agregar(item)">
+        {{ item.codigo }} - {{ item.descripcion }}
+      </mat-list-option>
+    </mat-selection-list>
+  </div>
+  <div fxFlex="45">
+    <h3>Destino</h3>
+    <mat-selection-list>
+      <mat-list-option
+        *ngFor="let item of seleccionados"
+        (click)="quitar(item)"
+      >
+        {{ item.codigo }} - {{ item.descripcion }}
+      </mat-list-option>
+    </mat-selection-list>
+  </div>
 </div>
 
 <div mat-dialog-actions [align]="'end'">
-	<button mat-raised-button color="warn" (click)="procesar()"><mat-icon>content_copy</mat-icon>Procesar</button>
+  <button mat-raised-button color="warn" (click)="procesar()">
+    <mat-icon>content_copy</mat-icon>Procesar
+  </button>
 </div>

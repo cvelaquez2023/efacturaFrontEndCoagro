@@ -1,46 +1,77 @@
 <h2>Documentos No Cargados</h2>
 
-<form [formGroup]="filtroForm" class="filtro-reporte" fxLayout="row wrap" fxLayoutGap="16px" fxLayoutAlign="start center">
-	<mat-form-field appearance="outline">
-		<mat-label>Compania</mat-label>
-		<input formControlName="compania" matInput placeholder="Compania de SoftlandERP" />
-	</mat-form-field>
-	<button mat-raised-button color="warn" (click)="generar()"><mat-icon>print</mat-icon>Generar</button>
+<form
+  [formGroup]="filtroForm"
+  class="filtro-reporte"
+  fxLayout="row wrap"
+  fxLayoutGap="16px"
+  fxLayoutAlign="start center"
+>
+  <mat-form-field appearance="outline">
+    <mat-label>Compania</mat-label>
+    <input
+      formControlName="compania"
+      matInput
+      placeholder="Compania de SoftlandERP"
+    />
+  </mat-form-field>
+  <button mat-raised-button color="warn" (click)="generar()">
+    <mat-icon>print</mat-icon>Generar
+  </button>
 </form>
 
 <div class="mat-elevation-z8">
-	<mat-table [dataSource]="resultados" matSort>
-		<ng-container matColumnDef="tipoDocumento">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Tipo Documento</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.tipoDocumento }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="ruta">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Ruta</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.ruta }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="rutero">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Rutero</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.rutero }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="consecutivo">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Consecutivo</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.consecutivo }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="cliente">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Cliente</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.cliente }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="fechaDocumento">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Fecha Documento</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.fechaDocumento | date: 'shortDate' }}</mat-cell>
-		</ng-container>
-		<ng-container matColumnDef="fechaSincronizacion">
-			<mat-header-cell *matHeaderCellDef mat-sort-header>Fecha Sincronizacion</mat-header-cell>
-			<mat-cell *matCellDef="let element">{{ element.fechaSincronizacion | date: 'shortDate' }}</mat-cell>
-		</ng-container>
+  <mat-table [dataSource]="resultados" matSort>
+    <ng-container matColumnDef="tipoDocumento">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Tipo Documento</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{ element.tipoDocumento }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="ruta">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Ruta</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.ruta }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="rutero">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Rutero</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{ element.rutero }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="consecutivo">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Consecutivo</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{ element.consecutivo }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="cliente">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Cliente</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{ element.cliente }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="fechaDocumento">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Fecha Documento</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{
+        element.fechaDocumento | date: "shortDate"
+      }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="fechaSincronizacion">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Fecha Sincronizacion</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{
+        element.fechaSincronizacion | date: "shortDate"
+      }}</mat-cell>
+    </ng-container>
 
-		<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-		<mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
-	</mat-table>
-	<mat-paginator [pageSizeOptions]="[10, 25, 75, 100]" showFirstLastButtons></mat-paginator>
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+  </mat-table>
+  <mat-paginator
+    [pageSizeOptions]="[10, 25, 75, 100]"
+    showFirstLastButtons
+  ></mat-paginator>
 </div>
