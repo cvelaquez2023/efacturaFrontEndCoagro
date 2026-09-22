@@ -85,6 +85,17 @@ export class AgenteAsocRtApiService {
     );
   }
 
+  /** Inversa de resolverCodigoAgente(): dado un CODIGO de ruteo ya guardado (p. ej. en
+   *  RUTA_ASIGNADA_RT.AGENTE), devuelve el código de vendedor real de esa asociación. Para
+   *  asociaciones creadas por este flujo, CODIGO === el código del vendedor, así que no cambia
+   *  nada; pero para asociaciones viejas donde difieren (p. ej. AG01 para el vendedor VBV) esto
+   *  permite mostrar siempre el código de vendedor en el formulario, no el CODIGO interno. */
+  resolverVendedorDesdeCodigo(codigo: string): Observable<string> {
+    return this._getTodasLasAsociaciones().pipe(
+      map((asociaciones) => asociaciones.find((a) => a.CODIGO === codigo)?.AGENTE ?? codigo)
+    );
+  }
+
   private _crearAsociacion(vendedor: string): Observable<IResponse<string>> {
     return this._httpClient
       .post<IResponse<unknown>>(URL_AGENTE_RT, { vendedor })
