@@ -1,0 +1,109 @@
+@use '../../../../../../shared/styles/colors.scss';
+
+.parametros-container {
+	padding: 8px 16px 24px;
+}
+
+.aviso-creacion {
+	background-color: #fdecea;
+	border-left: 4px solid #b71c1c;
+	color: #b71c1c;
+	padding: 10px 14px;
+	border-radius: 4px;
+	margin-bottom: 16px;
+	font-size: 0.9rem;
+}
+
+.spinner-wrapper {
+	display: flex;
+	justify-content: center;
+	padding: 40px 0;
+}
+
+.parametros-tabs {
+	::ng-deep .mat-tab-label {
+		font-weight: 500;
+	}
+}
+
+.tab-content {
+	padding: 20px 8px;
+}
+
+.checkbox-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+	gap: 12px 24px;
+	padding-bottom: 20px;
+	margin-bottom: 20px;
+	border-bottom: 1px solid #e0e0e0;
+}
+
+.checkbox-item {
+	color: colors.$text-color;
+
+	::ng-deep .mat-checkbox-frame {
+		border-color: colors.$primary-color;
+	}
+
+	::ng-deep .mat-checkbox-checked .mat-checkbox-background {
+		background-color: colors.$primary-color;
+	}
+}
+
+// Grilla estilo Bootstrap (12 columnas), misma lógica usada en los diálogos de
+// Grupo de Artículo/Agente/Bodega: columnas angostas para valores cortos (códigos,
+// números) y anchas para valores largos (nombres, direcciones, textos libres).
+$gutter: 12px;
+
+.fields-section {
+	.row {
+		display: flex;
+		flex-wrap: wrap;
+		margin-left: -$gutter;
+		margin-right: -$gutter;
+		row-gap: 4px;
+	}
+
+	[class^='col-'],
+	[class*=' col-'] {
+		padding-left: $gutter;
+		padding-right: $gutter;
+		// Margen superior para que la etiqueta flotante no se corte al enfocar el campo
+		margin-top: 8px;
+		box-sizing: border-box;
+		min-width: 0;
+
+		mat-form-field {
+			width: 100%;
+		}
+	}
+
+	.col-12 {
+		flex: 0 0 100%;
+		max-width: 100%;
+	}
+
+	@media (min-width: 768px) {
+		.col-md-30 {
+			flex: 0 0 30%;
+			max-width: 30%;
+		}
+
+		.col-md-50 {
+			flex: 0 0 50%;
+			max-width: 50%;
+		}
+
+		.col-md-70 {
+			flex: 0 0 70%;
+			max-width: 70%;
+		}
+	}
+}
+
+.acciones {
+	margin-top: 8px;
+	padding-top: 16px;
+	border-top: 1px solid #e0e0e0;
+}

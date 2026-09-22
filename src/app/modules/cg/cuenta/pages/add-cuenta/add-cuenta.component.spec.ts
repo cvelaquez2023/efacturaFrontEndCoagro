@@ -1,24 +1,24 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { AddCuentaComponent } from './add-cuenta.component';
+import { AddCuentaComponent } from "./add-cuenta.component";
 
-describe('AddCuentaComponent', () => {
-	let component: AddCuentaComponent;
-	let fixture: ComponentFixture<AddCuentaComponent>;
+describe("AddCuentaComponent", () => {
+  let component: AddCuentaComponent;
+  let fixture: ComponentFixture<AddCuentaComponent>;
 
-	beforeEach(async () => {
-		await TestBed.configureTestingModule({
-			declarations: [AddCuentaComponent]
-		}).compileComponents();
-	});
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [AddCuentaComponent],
+    }).compileComponents();
+  });
 
-	beforeEach(() => {
-		fixture = TestBed.createComponent(AddCuentaComponent);
-		component = fixture.componentInstance;
-		fixture.detectChanges();
-	});
+  beforeEach(() => {
+    fixture = TestBed.createComponent(AddCuentaComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-	it('should create', () => {
-		expect(component).toBeTruthy();
-	});
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

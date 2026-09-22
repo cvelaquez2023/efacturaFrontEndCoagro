@@ -1,27 +1,29 @@
 /* tslint:disable:no-unused-variable */
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
-import { DebugElement } from '@angular/core';
+import { async, ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
+import { DebugElement } from "@angular/core";
 
-import { TransaccionesConfigurableConsecutivoPageComponent } from './transaccionesConfigurableConsecutivo-page.component';
+import { TransaccionesConfigurableConsecutivoPageComponent } from "./transaccionesConfigurableConsecutivo-page.component";
 
-describe('TransaccionesConfigurableConsecutivoPageComponent', () => {
-	let component: TransaccionesConfigurableConsecutivoPageComponent;
-	let fixture: ComponentFixture<TransaccionesConfigurableConsecutivoPageComponent>;
+describe("TransaccionesConfigurableConsecutivoPageComponent", () => {
+  let component: TransaccionesConfigurableConsecutivoPageComponent;
+  let fixture: ComponentFixture<TransaccionesConfigurableConsecutivoPageComponent>;
 
-	beforeEach(async(() => {
-		TestBed.configureTestingModule({
-			declarations: [TransaccionesConfigurableConsecutivoPageComponent]
-		}).compileComponents();
-	}));
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      declarations: [TransaccionesConfigurableConsecutivoPageComponent],
+    }).compileComponents();
+  }));
 
-	beforeEach(() => {
-		fixture = TestBed.createComponent(TransaccionesConfigurableConsecutivoPageComponent);
-		component = fixture.componentInstance;
-		fixture.detectChanges();
-	});
+  beforeEach(() => {
+    fixture = TestBed.createComponent(
+      TransaccionesConfigurableConsecutivoPageComponent
+    );
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-	it('should create', () => {
-		expect(component).toBeTruthy();
-	});
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

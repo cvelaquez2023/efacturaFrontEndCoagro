@@ -1,11 +1,11 @@
-import { UbicacionPageComponent } from './pages/ubicacion-page/ubicacion-page.component';
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import { UbicacionPageComponent } from "./pages/ubicacion-page/ubicacion-page.component";
+import { NgModule } from "@angular/core";
+import { RouterModule, Routes } from "@angular/router";
 
-const routes: Routes = [{ path: '', component: UbicacionPageComponent }];
+const routes: Routes = [{ path: "", component: UbicacionPageComponent }];
 
 @NgModule({
-	imports: [RouterModule.forChild(routes)],
-	exports: [RouterModule]
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule],
 })
 export class UbicacionRoutingModule {}

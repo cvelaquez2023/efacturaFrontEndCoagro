@@ -1,0 +1,33 @@
+<h1 mat-dialog-title color="warn">
+  Detalle de Devolucion {{ ediData.codigo }}
+</h1>
+<div mat-dialog-content>
+  <p><strong>Compania:</strong> {{ ediData.compania }}</p>
+  <p><strong>Ruta:</strong> {{ ediData.ruta }}</p>
+  <p><strong>Cliente:</strong> {{ ediData.cliente }}</p>
+  <p><strong>Bodega:</strong> {{ ediData.bodega }}</p>
+  <p>
+    <strong>Documento referencia:</strong>
+    {{ ediData.documentoReferencia || "Sin documento" }}
+  </p>
+  <p><strong>Estado:</strong> {{ ediData.estado }}</p>
+  <p><strong>Anulada:</strong> {{ ediData.anulada ? "Si" : "No" }}</p>
+  <p><strong>Fecha:</strong> {{ ediData.fecha | date: "medium" }}</p>
+  <table class="full-with">
+    <tr>
+      <th>Articulo</th>
+      <th>Descripcion</th>
+      <th>Cantidad</th>
+      <th>Lote</th>
+    </tr>
+    <tr *ngFor="let linea of lineas">
+      <td>{{ linea.articulo }}</td>
+      <td>{{ linea.descripcion }}</td>
+      <td>{{ linea.cantidad }}</td>
+      <td>{{ linea.lote }}</td>
+    </tr>
+  </table>
+</div>
+<div mat-dialog-actions [align]="'end'">
+  <button mat-raised-button color="warn" mat-dialog-close>Cerrar</button>
+</div>

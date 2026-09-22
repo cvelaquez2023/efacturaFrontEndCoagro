@@ -1,5 +1,5 @@
-import { IResquestConsultarArticulo } from '../model/articulo-api-model-interface';
+import { IResquestConsultarArticulo } from "../model/articulo-api-model-interface";
 export interface IArticuloCI_State {
-	loading: boolean;
-	articulo: ReadonlyArray<IResquestConsultarArticulo>;
+  loading: boolean;
+  articulo: ReadonlyArray<IResquestConsultarArticulo>;
 }

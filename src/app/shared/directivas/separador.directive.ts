@@ -1,6 +1,6 @@
-import { Directive } from '@angular/core';
+import { Directive } from "@angular/core";
 
 @Directive({
-	selector: '[appSeparador]'
+  selector: "[appSeparador]",
 })
 export class SeparadorDirective {}

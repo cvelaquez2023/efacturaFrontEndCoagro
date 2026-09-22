@@ -1,0 +1,57 @@
+<h2>Sugeridos de Venta</h2>
+
+<div class="search-div" fxLayout="row" fxLayoutAlign="end end">
+  <button mat-raised-button color="warn" (click)="openDialog()">
+    <mat-icon>add</mat-icon>Crear
+  </button>
+</div>
+
+<form class="buscar">
+  <mat-form-field class="full-with" appearance="fill">
+    <input
+      matInput
+      (keyup)="applyFilter($event)"
+      placeholder="Buscar Sugerido"
+      #input
+    />
+  </mat-form-field>
+</form>
+<div class="mat-elevation-z8">
+  <mat-table [dataSource]="listSugeridos" matSort>
+    <ng-container matColumnDef="sugerido">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Sugerido</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{ element.sugerido }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="descripcion">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Descripcion</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{ element.descripcion }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="actions">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <button mat-icon-button (click)="clickEdit(element)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="clickDelete(element)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+    <tr class="mat-row" *matNoDataRow>
+      <td class="mat-cell" colspan="3">
+        No hay datos que coincidan con el filtro
+      </td>
+    </tr>
+  </mat-table>
+  <mat-paginator
+    [pageSizeOptions]="[10, 25, 75, 100]"
+    showFirstLastButtons
+  ></mat-paginator>
+</div>

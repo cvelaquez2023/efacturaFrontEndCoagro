@@ -1,8 +1,8 @@
-import { CuentaTipoPipe } from './cuenta-tipo.pipe';
+import { CuentaTipoPipe } from "./cuenta-tipo.pipe";
 
-describe('CuentaTipoPipe', () => {
-	it('create an instance', () => {
-		const pipe = new CuentaTipoPipe();
-		expect(pipe).toBeTruthy();
-	});
+describe("CuentaTipoPipe", () => {
+  it("create an instance", () => {
+    const pipe = new CuentaTipoPipe();
+    expect(pipe).toBeTruthy();
+  });
 });

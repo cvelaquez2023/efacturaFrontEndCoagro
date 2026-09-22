@@ -1,0 +1,35 @@
+.mat-column-codigo {
+	flex: 0 0 12%;
+	font-weight: 500;
+}
+
+.mat-column-descripcion {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.mat-column-factorPrecio {
+	flex: 0 0 110px;
+	justify-content: center;
+}
+
+.mat-column-orden {
+	flex: 0 0 90px;
+	justify-content: center;
+}
+
+.mat-column-bodega {
+	flex: 0 0 100px;
+}
+
+.mat-column-localizacion {
+	flex: 0 0 120px;
+}
+
+.mat-column-actions {
+	flex: 0 0 80px;
+	justify-content: flex-end;
+}

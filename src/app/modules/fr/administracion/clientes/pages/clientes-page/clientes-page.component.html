@@ -1,0 +1,53 @@
+<h2>Clientes</h2>
+<p class="subtitulo">
+  Consulte los clientes cargados en el módulo de rutas. Use "Cargar Clientes"
+  para habilitar nuevos clientes del ERP.
+</p>
+
+<form class="buscar">
+  <mat-form-field class="full-with" appearance="fill">
+    <mat-icon matPrefix>search</mat-icon>
+    <input
+      matInput
+      (keyup)="applyFilter($event)"
+      placeholder="Buscar Cliente"
+      #input
+    />
+  </mat-form-field>
+</form>
+<div class="mat-elevation-z8">
+  <mat-table [dataSource]="listClientes" matSort>
+    <ng-container matColumnDef="codigo">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Código</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{ element.CLIENTE }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="nombre">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Nombre</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{ element.NOMBRE }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="actions">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <button mat-icon-button (click)="clickEdit(element)">
+          <mat-icon>edit</mat-icon>
+        </button>
+      </mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+    <tr class="mat-row" *matNoDataRow>
+      <td class="mat-cell" colspan="3">
+        No hay datos que coincidan con el filtro "{{ input.value }}"
+      </td>
+    </tr>
+  </mat-table>
+  <mat-paginator
+    [pageSizeOptions]="[10, 25, 75, 100]"
+    showFirstLastButtons
+  ></mat-paginator>
+</div>

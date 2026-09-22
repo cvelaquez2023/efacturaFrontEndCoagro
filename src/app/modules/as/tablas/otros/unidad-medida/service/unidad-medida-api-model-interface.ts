@@ -1,9 +1,9 @@
 export interface IResponseUnidadMedida {
-	codUnidadMedida: string;
-	descripcion: string;
-	id: number;
+  codUnidadMedida: string;
+  descripcion: string;
+  id: number;
 }
 export interface ICreateUnidadMedida {
-	codUnidadMedida: string;
-	descripcion: string;
+  codUnidadMedida: string;
+  descripcion: string;
 }

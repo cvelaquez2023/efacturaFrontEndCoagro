@@ -1,0 +1,100 @@
+// Grilla estilo Bootstrap (12 columnas) local a la página.
+// Se define aquí para no cargar Bootstrap completo y evitar choques con el tema de Material.
+
+$gutter: 12px;
+
+.subtitulo {
+	margin: -8px 0 16px;
+	color: rgba(0, 0, 0, 0.6);
+	font-size: 0.9rem;
+}
+
+.row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	margin-left: -$gutter;
+	margin-right: -$gutter;
+	row-gap: 4px;
+}
+
+[class^='col-'],
+[class*=' col-'] {
+	padding-left: $gutter;
+	padding-right: $gutter;
+	box-sizing: border-box;
+	min-width: 0;
+
+	mat-form-field {
+		width: 100%;
+	}
+}
+
+.col-12 {
+	flex: 0 0 100%;
+	max-width: 100%;
+}
+
+@media (min-width: 768px) {
+	.col-md-30 {
+		flex: 0 0 30%;
+		max-width: 30%;
+	}
+
+	.col-md-70 {
+		flex: 0 0 70%;
+		max-width: 70%;
+	}
+}
+
+.seleccionados-wrapper {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+
+	.seleccionados-info {
+		font-size: 0.85rem;
+		color: rgba(0, 0, 0, 0.6);
+	}
+}
+
+.spinner-wrapper {
+	display: flex;
+	justify-content: center;
+	padding: 24px 0;
+}
+
+.grid-wrapper {
+	.mat-table {
+		width: 100%;
+	}
+
+	.check-cell {
+		flex: 0 0 56px;
+		justify-content: center;
+	}
+
+	.sin-datos {
+		text-align: center;
+		padding: 16px;
+		color: rgba(0, 0, 0, 0.6);
+	}
+}
+
+.acciones-wrapper {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 16px;
+	margin-top: 16px;
+
+	button mat-icon {
+		margin-right: 4px;
+	}
+}
+
+.bodega-select,
+.grupo-select {
+	width: 260px;
+	margin-bottom: -1.25em;
+}

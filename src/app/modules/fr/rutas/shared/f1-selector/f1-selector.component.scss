@@ -1,0 +1,22 @@
+.full-with {
+	width: 100%;
+}
+.f1-title-icon {
+	vertical-align: middle;
+	margin-right: 4px;
+	color: #f44336;
+}
+.f1-table {
+	width: 100%;
+}
+.f1-row {
+	cursor: pointer;
+}
+.f1-row:hover {
+	background-color: rgba(0, 0, 0, 0.04);
+}
+.f1-empty {
+	text-align: center;
+	color: rgba(0, 0, 0, 0.54);
+	padding: 12px 0;
+}
