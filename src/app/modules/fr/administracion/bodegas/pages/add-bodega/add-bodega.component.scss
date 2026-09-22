@@ -1,0 +1,52 @@
+// Grilla estilo Bootstrap (12 columnas) local al diálogo.
+// Se define aquí para no cargar Bootstrap completo y evitar choques con el tema de Material.
+
+$gutter: 12px;
+
+.dialog-content {
+	// Espacio arriba para que la etiqueta flotante (ej. "Código") no se corte
+	// al enfocar el campo, ya que mat-dialog-content recorta el desbordamiento.
+	padding-top: 12px;
+	overflow-x: hidden;
+}
+
+.row {
+	display: flex;
+	flex-wrap: wrap;
+	margin-left: -$gutter;
+	margin-right: -$gutter;
+	// Separación vertical entre filas cuando las columnas se apilan
+	row-gap: 4px;
+}
+
+[class^='col-'],
+[class*=' col-'] {
+	padding-left: $gutter;
+	padding-right: $gutter;
+	// Margen superior para dar aire a la etiqueta flotante
+	margin-top: 8px;
+	box-sizing: border-box;
+	min-width: 0;
+
+	mat-form-field {
+		width: 100%;
+	}
+}
+
+.col-12 {
+	flex: 0 0 100%;
+	max-width: 100%;
+}
+
+// Breakpoint md de Bootstrap
+@media (min-width: 768px) {
+	.col-md-30 {
+		flex: 0 0 30%;
+		max-width: 30%;
+	}
+
+	.col-md-70 {
+		flex: 0 0 70%;
+		max-width: 70%;
+	}
+}

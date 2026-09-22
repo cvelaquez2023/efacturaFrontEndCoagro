@@ -1,24 +1,24 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { ParamModuloPageComponent } from './param-modulo-page.component';
+import { ParamModuloPageComponent } from "./param-modulo-page.component";
 
-describe('ParamModuloPageComponent', () => {
-	let component: ParamModuloPageComponent;
-	let fixture: ComponentFixture<ParamModuloPageComponent>;
+describe("ParamModuloPageComponent", () => {
+  let component: ParamModuloPageComponent;
+  let fixture: ComponentFixture<ParamModuloPageComponent>;
 
-	beforeEach(async () => {
-		await TestBed.configureTestingModule({
-			declarations: [ParamModuloPageComponent]
-		}).compileComponents();
-	});
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [ParamModuloPageComponent],
+    }).compileComponents();
+  });
 
-	beforeEach(() => {
-		fixture = TestBed.createComponent(ParamModuloPageComponent);
-		component = fixture.componentInstance;
-		fixture.detectChanges();
-	});
+  beforeEach(() => {
+    fixture = TestBed.createComponent(ParamModuloPageComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-	it('should create', () => {
-		expect(component).toBeTruthy();
-	});
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

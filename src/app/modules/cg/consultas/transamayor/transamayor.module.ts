@@ -1,10 +1,10 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { NgModule } from "@angular/core";
+import { CommonModule } from "@angular/common";
 
-import { TransamayorRoutingModule } from './transamayor-routing.module';
+import { TransamayorRoutingModule } from "./transamayor-routing.module";
 
 @NgModule({
-	declarations: [],
-	imports: [CommonModule, TransamayorRoutingModule]
+  declarations: [],
+  imports: [CommonModule, TransamayorRoutingModule],
 })
 export class TransamayorModule {}

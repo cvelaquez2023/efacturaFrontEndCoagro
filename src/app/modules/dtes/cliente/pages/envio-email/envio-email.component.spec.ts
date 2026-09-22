@@ -1,24 +1,24 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { EnvioEmailComponent } from './envio-email.component';
+import { EnvioEmailComponent } from "./envio-email.component";
 
-describe('EnvioEmailComponent', () => {
-	let component: EnvioEmailComponent;
-	let fixture: ComponentFixture<EnvioEmailComponent>;
+describe("EnvioEmailComponent", () => {
+  let component: EnvioEmailComponent;
+  let fixture: ComponentFixture<EnvioEmailComponent>;
 
-	beforeEach(async () => {
-		await TestBed.configureTestingModule({
-			declarations: [EnvioEmailComponent]
-		}).compileComponents();
-	});
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [EnvioEmailComponent],
+    }).compileComponents();
+  });
 
-	beforeEach(() => {
-		fixture = TestBed.createComponent(EnvioEmailComponent);
-		component = fixture.componentInstance;
-		fixture.detectChanges();
-	});
+  beforeEach(() => {
+    fixture = TestBed.createComponent(EnvioEmailComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-	it('should create', () => {
-		expect(component).toBeTruthy();
-	});
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

@@ -1,10 +1,10 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { NgModule } from "@angular/core";
+import { CommonModule } from "@angular/common";
 
-import { CierreanualRoutingModule } from './cierreanual-routing.module';
+import { CierreanualRoutingModule } from "./cierreanual-routing.module";
 
 @NgModule({
-	declarations: [],
-	imports: [CommonModule, CierreanualRoutingModule]
+  declarations: [],
+  imports: [CommonModule, CierreanualRoutingModule],
 })
 export class CierreanualModule {}

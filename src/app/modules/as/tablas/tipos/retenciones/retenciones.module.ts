@@ -1,10 +1,10 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { NgModule } from "@angular/core";
+import { CommonModule } from "@angular/common";
 
-import { RetencionesRoutingModule } from './retenciones-routing.module';
+import { RetencionesRoutingModule } from "./retenciones-routing.module";
 
 @NgModule({
-	declarations: [],
-	imports: [CommonModule, RetencionesRoutingModule]
+  declarations: [],
+  imports: [CommonModule, RetencionesRoutingModule],
 })
 export class RetencionesModule {}

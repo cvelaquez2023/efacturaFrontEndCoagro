@@ -1,5 +1,5 @@
 export interface IResponseTipoAnulacion {
-	codTipoAnulacion: string;
-	descripcion: string;
-	activo: boolean;
+  codTipoAnulacion: string;
+  descripcion: string;
+  activo: boolean;
 }

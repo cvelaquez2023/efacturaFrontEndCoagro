@@ -1,16 +1,16 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed } from "@angular/core/testing";
 
-import { GlobalesCIApiService } from './globales-ci-api.service';
+import { GlobalesCIApiService } from "./globales-ci-api.service";
 
-describe('GlobalesCIApiService', () => {
-	let service: GlobalesCIApiService;
+describe("GlobalesCIApiService", () => {
+  let service: GlobalesCIApiService;
 
-	beforeEach(() => {
-		TestBed.configureTestingModule({});
-		service = TestBed.inject(GlobalesCIApiService);
-	});
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(GlobalesCIApiService);
+  });
 
-	it('should be created', () => {
-		expect(service).toBeTruthy();
-	});
+  it("should be created", () => {
+    expect(service).toBeTruthy();
+  });
 });

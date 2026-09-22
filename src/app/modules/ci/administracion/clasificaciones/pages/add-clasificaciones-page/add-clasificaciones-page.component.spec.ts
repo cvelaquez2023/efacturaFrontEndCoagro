@@ -1,24 +1,24 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { AddClasificacionesPageComponent } from './add-clasificaciones-page.component';
+import { AddClasificacionesPageComponent } from "./add-clasificaciones-page.component";
 
-describe('AddClasificacionesPageComponent', () => {
-	let component: AddClasificacionesPageComponent;
-	let fixture: ComponentFixture<AddClasificacionesPageComponent>;
+describe("AddClasificacionesPageComponent", () => {
+  let component: AddClasificacionesPageComponent;
+  let fixture: ComponentFixture<AddClasificacionesPageComponent>;
 
-	beforeEach(async () => {
-		await TestBed.configureTestingModule({
-			declarations: [AddClasificacionesPageComponent]
-		}).compileComponents();
-	});
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [AddClasificacionesPageComponent],
+    }).compileComponents();
+  });
 
-	beforeEach(() => {
-		fixture = TestBed.createComponent(AddClasificacionesPageComponent);
-		component = fixture.componentInstance;
-		fixture.detectChanges();
-	});
+  beforeEach(() => {
+    fixture = TestBed.createComponent(AddClasificacionesPageComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-	it('should create', () => {
-		expect(component).toBeTruthy();
-	});
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

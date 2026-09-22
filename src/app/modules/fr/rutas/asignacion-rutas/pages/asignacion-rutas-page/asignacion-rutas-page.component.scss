@@ -1,0 +1,36 @@
+.asig-search-div {
+	margin-bottom: 12px;
+	gap: 12px;
+}
+
+.asig-table-wrap {
+	border-radius: 6px;
+	overflow: hidden;
+}
+
+.asig-table {
+	width: 100%;
+}
+
+.asig-header-row {
+	background: #fafafa;
+}
+
+.asig-table th.mat-header-cell {
+	font-weight: 600;
+	color: rgba(0, 0, 0, 0.7);
+}
+
+.asig-row {
+	cursor: pointer;
+}
+.asig-row:hover {
+	background-color: rgba(0, 0, 0, 0.04);
+}
+
+.actions-cell {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	justify-content: flex-end;
+}

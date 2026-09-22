@@ -1,16 +1,16 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed } from "@angular/core/testing";
 
-import { TipoImpuestoApiService } from './tipo-impuesto-api.service';
+import { TipoImpuestoApiService } from "./tipo-impuesto-api.service";
 
-describe('TipoImpuestoApiService', () => {
-	let service: TipoImpuestoApiService;
+describe("TipoImpuestoApiService", () => {
+  let service: TipoImpuestoApiService;
 
-	beforeEach(() => {
-		TestBed.configureTestingModule({});
-		service = TestBed.inject(TipoImpuestoApiService);
-	});
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(TipoImpuestoApiService);
+  });
 
-	it('should be created', () => {
-		expect(service).toBeTruthy();
-	});
+  it("should be created", () => {
+    expect(service).toBeTruthy();
+  });
 });

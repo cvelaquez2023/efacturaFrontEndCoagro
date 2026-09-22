@@ -1,27 +1,27 @@
 /* tslint:disable:no-unused-variable */
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
-import { DebugElement } from '@angular/core';
+import { async, ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
+import { DebugElement } from "@angular/core";
 
-import { DepartamentoPageComponent } from './departamento-page.component';
+import { DepartamentoPageComponent } from "./departamento-page.component";
 
-describe('DepartamentoPageComponent', () => {
-	let component: DepartamentoPageComponent;
-	let fixture: ComponentFixture<DepartamentoPageComponent>;
+describe("DepartamentoPageComponent", () => {
+  let component: DepartamentoPageComponent;
+  let fixture: ComponentFixture<DepartamentoPageComponent>;
 
-	beforeEach(async(() => {
-		TestBed.configureTestingModule({
-			declarations: [DepartamentoPageComponent]
-		}).compileComponents();
-	}));
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      declarations: [DepartamentoPageComponent],
+    }).compileComponents();
+  }));
 
-	beforeEach(() => {
-		fixture = TestBed.createComponent(DepartamentoPageComponent);
-		component = fixture.componentInstance;
-		fixture.detectChanges();
-	});
+  beforeEach(() => {
+    fixture = TestBed.createComponent(DepartamentoPageComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-	it('should create', () => {
-		expect(component).toBeTruthy();
-	});
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

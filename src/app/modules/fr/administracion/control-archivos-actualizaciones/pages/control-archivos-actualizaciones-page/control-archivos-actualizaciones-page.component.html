@@ -1,0 +1,64 @@
+<h2>Control de Archivos y Actualizaciones</h2>
+
+<div class="search-div" fxLayout="row" fxLayoutAlign="end end">
+  <button mat-raised-button color="warn" (click)="openDialog()">
+    <mat-icon>add</mat-icon>Nuevo
+  </button>
+</div>
+
+<div class="mat-elevation-z8">
+  <mat-table [dataSource]="listActualizaciones" matSort>
+    <ng-container matColumnDef="nombre">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Nombre</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{ element.nombre }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="tipo">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Tipo</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.tipo }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="fecha">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Fecha</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{
+        element.fecha | date: "shortDate"
+      }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="handhelds">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >HandHelds Asociados</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{ element.handhelds }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="publicada">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Publicada</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">
+        <mat-icon [color]="element.publicada ? 'primary' : 'warn'">{{
+          element.publicada ? "check_circle" : "schedule"
+        }}</mat-icon>
+      </mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="actions">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <button
+          mat-icon-button
+          [disabled]="element.publicada"
+          (click)="publicar(element)"
+          matTooltip="Publicar"
+        >
+          <mat-icon>publish</mat-icon>
+        </button>
+      </mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+  </mat-table>
+  <mat-paginator
+    [pageSizeOptions]="[10, 25, 75, 100]"
+    showFirstLastButtons
+  ></mat-paginator>
+</div>

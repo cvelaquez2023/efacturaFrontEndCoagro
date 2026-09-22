@@ -1,5 +1,5 @@
-import { ICondicionPagoConsulta } from './../models/condicionPago-api-model-interface';
+import { ICondicionPagoConsulta } from "./../models/condicionPago-api-model-interface";
 export interface ICondicionPagoState {
-	loading: boolean;
-	condicionPago: ReadonlyArray<ICondicionPagoConsulta>;
+  loading: boolean;
+  condicionPago: ReadonlyArray<ICondicionPagoConsulta>;
 }

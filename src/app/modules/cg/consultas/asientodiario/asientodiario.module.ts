@@ -1,10 +1,10 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { NgModule } from "@angular/core";
+import { CommonModule } from "@angular/common";
 
-import { AsientodiarioRoutingModule } from './asientodiario-routing.module';
+import { AsientodiarioRoutingModule } from "./asientodiario-routing.module";
 
 @NgModule({
-	declarations: [],
-	imports: [CommonModule, AsientodiarioRoutingModule]
+  declarations: [],
+  imports: [CommonModule, AsientodiarioRoutingModule],
 })
 export class AsientodiarioModule {}

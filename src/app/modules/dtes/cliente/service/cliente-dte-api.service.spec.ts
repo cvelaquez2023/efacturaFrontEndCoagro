@@ -1,16 +1,16 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed } from "@angular/core/testing";
 
-import { ClienteDteApiService } from './cliente-dte-api.service';
+import { ClienteDteApiService } from "./cliente-dte-api.service";
 
-describe('ClienteDteApiService', () => {
-	let service: ClienteDteApiService;
+describe("ClienteDteApiService", () => {
+  let service: ClienteDteApiService;
 
-	beforeEach(() => {
-		TestBed.configureTestingModule({});
-		service = TestBed.inject(ClienteDteApiService);
-	});
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(ClienteDteApiService);
+  });
 
-	it('should be created', () => {
-		expect(service).toBeTruthy();
-	});
+  it("should be created", () => {
+    expect(service).toBeTruthy();
+  });
 });

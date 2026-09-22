@@ -1,238 +1,362 @@
 <mat-dialog-content class="mat-typography">
-	<h1>Aplicar a Caja Chica Con Vales</h1>
-	<mat-tab-group>
-		<form class="formulario grey-100" [formGroup]="formAplicarCh">
-			<mat-tab label="General">
-				<div class="generales" fxLayout="row wrap" fxLayoutAlign="center none">
-					<div class="title_box">
-						<div id="content">
-							<div fxLayout="row wrap" fxLayoutAlign="center none" fxFlex="35">
-								<div id="content">
-									<mat-form-field appearance="outline">
-										<mat-label>Caja Chica</mat-label>
-										<mat-select formControlName="cajachica" (selectionChange)="updateSaldo($event.value)">
-											<mat-option *ngFor="let item of listCajaChica" [value]="item.CAJA_CHICA"
-												>{{ item.CAJA_CHICA }} -- {{ item.DESCRIPCION }}</mat-option
-											>
-										</mat-select>
-									</mat-form-field>
-								</div>
-							</div>
-							<div fxLayout="row wrap" fxLayoutAlign="center none" fxFlex="30">
-								<div id="content">
-									<mat-form-field appearance="outline">
-										<mat-label>Saldo Caja</mat-label>
-										<input currencyMask [(ngModel)]="saldo" matInput type="text" formControlName="saldo" readonly />
-									</mat-form-field>
-								</div>
-							</div>
-							<div fxLayout="row wrap" fxLayoutAlign="center none" fxFlex="30">
-								<div id="content" style="margin-left: 5px">
-									<mat-form-field appearance="outline">
-										<mat-label>Vale</mat-label>
-										<mat-select formControlName="vale" (selectionChange)="updateVale($event.value)">
-											<mat-option *ngFor="let item of listaVale" [value]="item.CONSECUTIVO">{{ item.VALE }}</mat-option>
-										</mat-select>
-									</mat-form-field>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="generales" fxLayout="row wrap" fxLayoutAlign="center none">
-					<div class="title_box">
-						<div id="content">
-							<div fxLayout="row wrap" fxLayoutAlign="center none" fxFlex="35">
-								<div id="content">
-									<mat-form-field appearance="outline">
-										<mat-label>Departamento</mat-label>
-										<mat-select formControlName="departamento">
-											<mat-option *ngFor="let item of listDepartamento" [value]="item.DEPARTAMENTO" disabled
-												>{{ item.DEPARTAMENTO }} -- {{ item.DESCRIPCION }}</mat-option
-											>
-										</mat-select>
-									</mat-form-field>
-									<mat-form-field appearance="outline">
-										<mat-label>Emision</mat-label>
-										<input matInput type="text" formControlName="emision" readonly />
-									</mat-form-field>
-								</div>
-							</div>
-							<div fxLayout="row wrap" fxLayoutAlign="center none" fxFlex="30">
-								<div id="content">
-									<mat-form-field appearance="outline">
-										<mat-label>Concepto</mat-label>
-										<mat-select formControlName="concepto">
-											<mat-option *ngFor="let item of listConcepto" [value]="item.CONCEPTO_VALE" disabled
-												>{{ item.CONCEPTO_VALE }} -- {{ item.DESCRIPCION }}</mat-option
-											>
-										</mat-select>
-									</mat-form-field>
-									<mat-form-field appearance="outline">
-										<mat-label>Monto Provisional</mat-label>
-										<input
-											currencyMask
-											[(ngModel)]="montop"
-											matInput
-											type="text"
-											formControlName="montoprovision"
-											readonly
-										/>
-									</mat-form-field>
-								</div>
-							</div>
-							<div fxLayout="row wrap" fxLayoutAlign="center none" fxFlex="30">
-								<div id="content" style="margin-left: 5px">
-									<mat-form-field appearance="outline">
-										<mat-label>Beneficiario</mat-label>
-										<mat-select formControlName="beneficionario">
-											<mat-option *ngFor="let item of listBeneficiario" [value]="item.EMPLEADO"
-												>{{ item.EMPLEADO }} -- {{ item.NOMBRE }}</mat-option
-											>
-										</mat-select>
-									</mat-form-field>
-									<mat-form-field appearance="outline">
-										<mat-label>Monto Definitivo</mat-label>
-										<input
-											currencyMask
-											[(ngModel)]="montol"
-											matInput
-											type="text"
-											formControlName="montoliquidacion"
-											readonly
-										/>
-									</mat-form-field>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</mat-tab>
-			<mat-tab label="Detalle">
-				<div class="generales" fxLayout="row wrap" fxLayoutAlign="center none">
-					<div id="content">
-						<div fxLayout="row wrap" fxLayoutAlign="center none" fxFlex="35">
-							<div class="title_box">
-								<div id="content">
-									<mat-form-field appearance="outline">
-										<mat-label>Fecha Documento</mat-label>
-										<input matInput type="text" formControlName="fechadoc" readonly />
-									</mat-form-field>
-									<mat-form-field appearance="outline">
-										<mat-label>Tipo Doc</mat-label>
-										<input matInput type="text" formControlName="tipoDoc" readonly />
-									</mat-form-field>
-									<mat-form-field appearance="outline">
-										<mat-label>Nit</mat-label>
-										<input matInput type="text" formControlName="nit" readonly />
-									</mat-form-field>
-									<mat-form-field appearance="outline">
-										<mat-label>Impuesto</mat-label>
-										<input matInput type="text" formControlName="impuesto" readonly />
-									</mat-form-field>
-									<mat-form-field appearance="outline">
-										<mat-label>Concepto de Linea</mat-label>
-										<mat-select formControlName="conceptod" (selectionChange)="selectionConcepto($event)">
-											<mat-option *ngFor="let item of listConcepto" [value]="item.CONCEPTO_VALE"
-												>{{ item.CONCEPTO_VALE }} -- {{ item.DESCRIPCION }}</mat-option
-											>
-										</mat-select>
-									</mat-form-field>
-								</div>
-							</div>
-						</div>
-						<div fxLayout="row wrap" fxLayoutAlign="center none" fxFlex="35">
-							<div class="title_box">
-								<div id="content">
-									<mat-form-field appearance="outline">
-										<mat-label>Numero Dte</mat-label>
-										<input matInput type="text" formControlName="numeroDte" readonly />
-									</mat-form-field>
-									<mat-form-field appearance="outline">
-										<mat-label>SubTipo</mat-label>
-										<mat-select formControlName="subtipoDoc">
-											<mat-option *ngFor="let item of listTipoDoc" [value]="item.SUBTIPO">{{
-												item.DESCRIPCION
-											}}</mat-option>
-										</mat-select>
-									</mat-form-field>
-									<mat-form-field appearance="outline">
-										<mat-label>Proveedor</mat-label>
-										<input matInput type="text" formControlName="proveedor" readonly />
-									</mat-form-field>
+  <h1>Aplicar a Caja Chica Con Vales</h1>
+  <mat-tab-group>
+    <form class="formulario grey-100" [formGroup]="formAplicarCh">
+      <mat-tab label="General">
+        <div class="generales" fxLayout="row wrap" fxLayoutAlign="center none">
+          <div class="title_box">
+            <div id="content">
+              <div fxLayout="row wrap" fxLayoutAlign="center none" fxFlex="35">
+                <div id="content">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Caja Chica</mat-label>
+                    <mat-select
+                      formControlName="cajachica"
+                      (selectionChange)="updateSaldo($event.value)"
+                    >
+                      <mat-option
+                        *ngFor="let item of listCajaChica"
+                        [value]="item.CAJA_CHICA"
+                        >{{ item.CAJA_CHICA }} --
+                        {{ item.DESCRIPCION }}</mat-option
+                      >
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div fxLayout="row wrap" fxLayoutAlign="center none" fxFlex="30">
+                <div id="content">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Saldo Caja</mat-label>
+                    <input
+                      currencyMask
+                      [(ngModel)]="saldo"
+                      matInput
+                      type="text"
+                      formControlName="saldo"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div>
+              </div>
+              <div fxLayout="row wrap" fxLayoutAlign="center none" fxFlex="30">
+                <div id="content" style="margin-left: 5px">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Vale</mat-label>
+                    <mat-select
+                      formControlName="vale"
+                      (selectionChange)="updateVale($event.value)"
+                    >
+                      <mat-option
+                        *ngFor="let item of listaVale"
+                        [value]="item.CONSECUTIVO"
+                        >{{ item.VALE }}</mat-option
+                      >
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="generales" fxLayout="row wrap" fxLayoutAlign="center none">
+          <div class="title_box">
+            <div id="content">
+              <div fxLayout="row wrap" fxLayoutAlign="center none" fxFlex="35">
+                <div id="content">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Departamento</mat-label>
+                    <mat-select formControlName="departamento">
+                      <mat-option
+                        *ngFor="let item of listDepartamento"
+                        [value]="item.DEPARTAMENTO"
+                        disabled
+                        >{{ item.DEPARTAMENTO }} --
+                        {{ item.DESCRIPCION }}</mat-option
+                      >
+                    </mat-select>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Emision</mat-label>
+                    <input
+                      matInput
+                      type="text"
+                      formControlName="emision"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div>
+              </div>
+              <div fxLayout="row wrap" fxLayoutAlign="center none" fxFlex="30">
+                <div id="content">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Concepto</mat-label>
+                    <mat-select formControlName="concepto">
+                      <mat-option
+                        *ngFor="let item of listConcepto"
+                        [value]="item.CONCEPTO_VALE"
+                        disabled
+                        >{{ item.CONCEPTO_VALE }} --
+                        {{ item.DESCRIPCION }}</mat-option
+                      >
+                    </mat-select>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Monto Provisional</mat-label>
+                    <input
+                      currencyMask
+                      [(ngModel)]="montop"
+                      matInput
+                      type="text"
+                      formControlName="montoprovision"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div>
+              </div>
+              <div fxLayout="row wrap" fxLayoutAlign="center none" fxFlex="30">
+                <div id="content" style="margin-left: 5px">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Beneficiario</mat-label>
+                    <mat-select formControlName="beneficionario">
+                      <mat-option
+                        *ngFor="let item of listBeneficiario"
+                        [value]="item.EMPLEADO"
+                        >{{ item.EMPLEADO }} -- {{ item.NOMBRE }}</mat-option
+                      >
+                    </mat-select>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Monto Definitivo</mat-label>
+                    <input
+                      currencyMask
+                      [(ngModel)]="montol"
+                      matInput
+                      type="text"
+                      formControlName="montoliquidacion"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+      <mat-tab label="Detalle">
+        <div class="generales" fxLayout="row wrap" fxLayoutAlign="center none">
+          <div id="content">
+            <div fxLayout="row wrap" fxLayoutAlign="center none" fxFlex="35">
+              <div class="title_box">
+                <div id="content">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Fecha Documento</mat-label>
+                    <input
+                      matInput
+                      type="text"
+                      formControlName="fechadoc"
+                      readonly
+                    />
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Tipo Doc</mat-label>
+                    <input
+                      matInput
+                      type="text"
+                      formControlName="tipoDoc"
+                      readonly
+                    />
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Nit</mat-label>
+                    <input
+                      matInput
+                      type="text"
+                      formControlName="nit"
+                      readonly
+                    />
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Impuesto</mat-label>
+                    <input
+                      matInput
+                      type="text"
+                      formControlName="impuesto"
+                      readonly
+                    />
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Concepto de Linea</mat-label>
+                    <mat-select
+                      formControlName="conceptod"
+                      (selectionChange)="selectionConcepto($event)"
+                    >
+                      <mat-option
+                        *ngFor="let item of listConcepto"
+                        [value]="item.CONCEPTO_VALE"
+                        >{{ item.CONCEPTO_VALE }} --
+                        {{ item.DESCRIPCION }}</mat-option
+                      >
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+            </div>
+            <div fxLayout="row wrap" fxLayoutAlign="center none" fxFlex="35">
+              <div class="title_box">
+                <div id="content">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Numero Dte</mat-label>
+                    <input
+                      matInput
+                      type="text"
+                      formControlName="numeroDte"
+                      readonly
+                    />
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>SubTipo</mat-label>
+                    <mat-select formControlName="subtipoDoc">
+                      <mat-option
+                        *ngFor="let item of listTipoDoc"
+                        [value]="item.SUBTIPO"
+                        >{{ item.DESCRIPCION }}</mat-option
+                      >
+                    </mat-select>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Proveedor</mat-label>
+                    <input
+                      matInput
+                      type="text"
+                      formControlName="proveedor"
+                      readonly
+                    />
+                  </mat-form-field>
 
-									<mat-form-field appearance="outline">
-										<mat-label>Cuenta Cuenta </mat-label>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Cuenta Cuenta </mat-label>
 
-										<mat-select formControlName="cuentaContable" (selectionChange)="selectionCuentaContable($event)">
-											<mat-form-field appearance="outline" class="lookup-search-input-filed">
-												<mat-label> <mat-icon>search</mat-icon>Buscar </mat-label>
-												<input (keyup)="onkey($event)" type="text" matInput />
-											</mat-form-field>
-											<mat-option *ngFor="let item of listCentroCuenta" [value]="item.CUENTA_CONTABLE"
-												>{{ item.CUENTA_CONTABLE }}-{{ item.DESCRIPCION }}</mat-option
-											>
-										</mat-select>
-									</mat-form-field>
-									<mat-form-field appearance="outline">
-										<mat-label>Centro Costo</mat-label>
-										<mat-select formControlName="centrocosto">
-											<mat-option *ngFor="let item of listCentroCosto" [value]="item.CENTRO_COSTO"
-												>{{ item.CENTRO_COSTO }}-{{ item.DESCRIPCION }}</mat-option
-											>
-										</mat-select>
-									</mat-form-field>
-								</div>
-							</div>
-						</div>
-						<div fxLayout="row wrap" fxLayoutAlign="center none" fxFlex="30">
-							<div class="title_box">
-								<div id="content">
-									<mat-form-field appearance="outline">
-										<mat-label>Sub Total</mat-label>
-										<input
-											currencyMask
-											[(ngModel)]="subtotal"
-											matInput
-											type="text"
-											formControlName="subtotal"
-											readonly
-										/>
-									</mat-form-field>
-									<mat-form-field appearance="outline">
-										<mat-label>Fovial</mat-label>
-										<input currencyMask [(ngModel)]="fovial" matInput type="text" formControlName="fovial" readonly />
-									</mat-form-field>
-									<mat-form-field appearance="outline">
-										<mat-label>Cotrans</mat-label>
-										<input currencyMask [(ngModel)]="cotrans" matInput type="text" formControlName="cotrans" readonly />
-									</mat-form-field>
-									<mat-form-field appearance="outline">
-										<mat-label>IVA</mat-label>
-										<input currencyMask [(ngModel)]="iva" matInput type="text" formControlName="iva" readonly />
-									</mat-form-field>
-									<mat-form-field appearance="outline">
-										<mat-label>Total</mat-label>
-										<input currencyMask [(ngModel)]="total" matInput type="text" formControlName="total" readonly />
-									</mat-form-field>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="descripcion">
-						<div fxLayout="row wrap" fxLayoutAlign="center none" fxFlex="100">
-							<mat-form-field appearance="outline">
-								<mat-label>Detalle</mat-label>
-								<input matInput type="text" formControlName="detalle" />
-							</mat-form-field>
-						</div>
-					</div>
-				</div>
-			</mat-tab>
-		</form>
-	</mat-tab-group>
-	<div mat-dialog-actions [align]="'end'">
-		<button mat-raised-button color="basic" (click)="cerrar()">Cerrar</button>
-		<button mat-raised-button color="warn" [disabled]="btnAplicar" (click)="clickSave()">Aplicar a CH</button>
-	</div>
+                    <mat-select
+                      formControlName="cuentaContable"
+                      (selectionChange)="selectionCuentaContable($event)"
+                    >
+                      <mat-form-field
+                        appearance="outline"
+                        class="lookup-search-input-filed"
+                      >
+                        <mat-label>
+                          <mat-icon>search</mat-icon>Buscar
+                        </mat-label>
+                        <input (keyup)="onkey($event)" type="text" matInput />
+                      </mat-form-field>
+                      <mat-option
+                        *ngFor="let item of listCentroCuenta"
+                        [value]="item.CUENTA_CONTABLE"
+                        >{{ item.CUENTA_CONTABLE }}-{{
+                          item.DESCRIPCION
+                        }}</mat-option
+                      >
+                    </mat-select>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Centro Costo</mat-label>
+                    <mat-select formControlName="centrocosto">
+                      <mat-option
+                        *ngFor="let item of listCentroCosto"
+                        [value]="item.CENTRO_COSTO"
+                        >{{ item.CENTRO_COSTO }}-{{
+                          item.DESCRIPCION
+                        }}</mat-option
+                      >
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+            </div>
+            <div fxLayout="row wrap" fxLayoutAlign="center none" fxFlex="30">
+              <div class="title_box">
+                <div id="content">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Sub Total</mat-label>
+                    <input
+                      currencyMask
+                      [(ngModel)]="subtotal"
+                      matInput
+                      type="text"
+                      formControlName="subtotal"
+                      readonly
+                    />
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Fovial</mat-label>
+                    <input
+                      currencyMask
+                      [(ngModel)]="fovial"
+                      matInput
+                      type="text"
+                      formControlName="fovial"
+                      readonly
+                    />
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Cotrans</mat-label>
+                    <input
+                      currencyMask
+                      [(ngModel)]="cotrans"
+                      matInput
+                      type="text"
+                      formControlName="cotrans"
+                      readonly
+                    />
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>IVA</mat-label>
+                    <input
+                      currencyMask
+                      [(ngModel)]="iva"
+                      matInput
+                      type="text"
+                      formControlName="iva"
+                      readonly
+                    />
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Total</mat-label>
+                    <input
+                      currencyMask
+                      [(ngModel)]="total"
+                      matInput
+                      type="text"
+                      formControlName="total"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="descripcion">
+            <div fxLayout="row wrap" fxLayoutAlign="center none" fxFlex="100">
+              <mat-form-field appearance="outline">
+                <mat-label>Detalle</mat-label>
+                <input matInput type="text" formControlName="detalle" />
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+    </form>
+  </mat-tab-group>
+  <div mat-dialog-actions [align]="'end'">
+    <button mat-raised-button color="basic" (click)="cerrar()">Cerrar</button>
+    <button
+      mat-raised-button
+      color="warn"
+      [disabled]="btnAplicar"
+      (click)="clickSave()"
+    >
+      Aplicar a CH
+    </button>
+  </div>
 </mat-dialog-content>

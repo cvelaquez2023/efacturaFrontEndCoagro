@@ -1,0 +1,119 @@
+.ar-title-icon {
+	vertical-align: middle;
+	margin-right: 6px;
+}
+
+// Grilla estilo Bootstrap (12 columnas) local al diálogo.
+// Se define aquí para no cargar Bootstrap completo y evitar choques con el tema de Material.
+$gutter: 12px;
+
+.dialog-content {
+	// Espacio arriba para que la etiqueta flotante (ej. "Ruta") no se corte
+	// al enfocar el campo, ya que mat-dialog-content recorta el desbordamiento.
+	padding-top: 12px;
+	overflow-x: hidden;
+}
+
+.row {
+	display: flex;
+	flex-wrap: wrap;
+	margin-left: -$gutter;
+	margin-right: -$gutter;
+	// Separación vertical entre filas cuando las columnas se apilan
+	row-gap: 4px;
+}
+
+[class^='col-'],
+[class*=' col-'] {
+	padding-left: $gutter;
+	padding-right: $gutter;
+	// Margen superior para dar aire a la etiqueta flotante
+	margin-top: 8px;
+	box-sizing: border-box;
+	min-width: 0;
+
+	mat-form-field {
+		width: 100%;
+	}
+}
+
+.col-12 {
+	flex: 0 0 100%;
+	max-width: 100%;
+}
+
+// Breakpoint md de Bootstrap
+@media (min-width: 768px) {
+	.col-md-25 {
+		flex: 0 0 25%;
+		max-width: 25%;
+	}
+
+	.col-md-50 {
+		flex: 0 0 50%;
+		max-width: 50%;
+	}
+}
+
+.ar-divider {
+	margin: 16px 0;
+}
+
+.ar-section-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.ar-section-title {
+	margin: 0;
+}
+
+.ar-table-wrap {
+	overflow-x: auto;
+	margin-bottom: 8px;
+}
+
+.ar-table {
+	width: 100%;
+
+	input {
+		width: 100%;
+		border: none;
+		background: transparent;
+		font: inherit;
+		padding: 8px 4px;
+
+		&:focus {
+			outline: none;
+			background: rgba(0, 0, 0, 0.04);
+		}
+	}
+}
+
+.ar-row-selected {
+	background: rgba(0, 0, 0, 0.04);
+}
+
+.ar-f1-value {
+	margin-right: 4px;
+}
+
+.ar-f1-btn {
+	width: 28px;
+	height: 28px;
+	line-height: 28px;
+
+	::ng-deep .mat-icon {
+		font-size: 18px;
+		width: 18px;
+		height: 18px;
+		line-height: 18px;
+	}
+}
+
+.ar-empty {
+	padding: 16px;
+	text-align: center;
+	color: rgba(0, 0, 0, 0.54);
+}

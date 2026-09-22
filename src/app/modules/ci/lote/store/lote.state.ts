@@ -1,5 +1,5 @@
-import { IResponseLote } from './../model/lote-interface';
+import { IResponseLote } from "./../model/lote-interface";
 export interface ILoteState {
-	loading: boolean;
-	lote: ReadonlyArray<IResponseLote>;
+  loading: boolean;
+  lote: ReadonlyArray<IResponseLote>;
 }

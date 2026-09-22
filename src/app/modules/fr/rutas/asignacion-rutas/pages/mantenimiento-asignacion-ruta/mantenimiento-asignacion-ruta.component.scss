@@ -1,0 +1,314 @@
+.mar-title-icon {
+	vertical-align: middle;
+	margin-right: 6px;
+}
+
+// Grilla estilo Bootstrap (12 columnas) local al diálogo.
+// Se define aquí para no cargar Bootstrap completo y evitar choques con el tema de Material.
+$gutter: 12px;
+
+.dialog-content {
+	padding-top: 12px;
+	overflow-x: hidden;
+	min-width: 60vw;
+	max-width: 90vw;
+}
+
+.row {
+	display: flex;
+	flex-wrap: wrap;
+	margin-left: -$gutter;
+	margin-right: -$gutter;
+	row-gap: 12px;
+}
+
+[class^='col-'],
+[class*=' col-'] {
+	padding-left: $gutter;
+	padding-right: $gutter;
+	margin-top: 8px;
+	box-sizing: border-box;
+	min-width: 0;
+}
+
+.col-12 {
+	flex: 0 0 100%;
+	max-width: 100%;
+}
+
+@media (min-width: 768px) {
+	.col-md-25 {
+		flex: 0 0 25%;
+		max-width: 25%;
+	}
+	.col-md-35 {
+		flex: 0 0 35%;
+		max-width: 35%;
+	}
+	.col-md-40 {
+		flex: 0 0 40%;
+		max-width: 40%;
+	}
+	.col-md-45 {
+		flex: 0 0 45%;
+		max-width: 45%;
+	}
+	.col-md-55 {
+		flex: 0 0 55%;
+		max-width: 55%;
+	}
+}
+
+.mar-box {
+	padding: 10px 14px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	height: 100%;
+	background: transparent;
+	box-shadow: none;
+	border: none;
+}
+
+.mar-box-title {
+	font-weight: 600;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	color: rgba(0, 0, 0, 0.7);
+	margin-bottom: 4px;
+}
+
+.mar-field-row {
+	display: flex;
+	align-items: baseline;
+	gap: 6px;
+	flex-wrap: wrap;
+}
+
+.mar-label {
+	color: rgba(0, 0, 0, 0.6);
+	font-size: 0.85rem;
+}
+
+.mar-value {
+	font-weight: 600;
+}
+
+.mar-desc {
+	color: rgba(0, 0, 0, 0.6);
+	font-style: italic;
+}
+
+.mar-f1-btn {
+	width: 100%;
+	justify-content: flex-start;
+	text-align: left;
+
+	mat-icon {
+		margin-right: 6px;
+	}
+}
+
+.mar-box mat-radio-group {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.mar-nota {
+	color: rgba(0, 0, 0, 0.6);
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-top: 4px;
+}
+
+.mar-divider {
+	margin: 20px 0 12px;
+}
+
+.mar-section-title {
+	margin: 0 0 4px;
+}
+
+.mar-buscar-cliente {
+	width: 100%;
+	max-width: 480px;
+	display: block;
+
+	mat-icon {
+		margin-right: 6px;
+		color: rgba(0, 0, 0, 0.5);
+	}
+}
+
+.mar-clientes-wrap {
+	max-height: 45vh;
+	overflow-y: auto;
+}
+
+.mar-cliente-row {
+	cursor: pointer;
+
+	&:hover {
+		background: rgba(0, 0, 0, 0.04);
+	}
+}
+
+.mar-cargando {
+	display: flex;
+	justify-content: center;
+	padding: 24px;
+}
+
+.mar-sin-datos {
+	text-align: center;
+	padding: 16px;
+	color: rgba(0, 0, 0, 0.54);
+}
+
+.mar-dias-selector {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-bottom: 8px;
+}
+
+.mar-dia-chip {
+	flex: 1 1 auto;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 4px;
+	padding: 6px 10px;
+	border: 1px solid rgba(0, 0, 0, 0.2);
+	border-radius: 16px;
+	background: transparent;
+	cursor: pointer;
+	font: inherit;
+	font-size: 0.85rem;
+
+	&:hover {
+		background: rgba(0, 0, 0, 0.04);
+	}
+
+	// Ya tiene al menos un cliente asignado: se marca aunque el día no esté seleccionado, para
+	// que de un vistazo se sepa qué días ya están ocupados.
+	&--ocupado {
+		border-color: #2e7d32;
+		color: #2e7d32;
+		font-weight: 600;
+	}
+
+	&--activo {
+		border-color: var(--mat-primary, #c00);
+		background: rgba(198, 40, 40, 0.08);
+		color: inherit;
+		font-weight: 600;
+	}
+}
+
+.mar-dia-chip-badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 16px;
+	height: 16px;
+	padding: 0 4px;
+	border-radius: 8px;
+	background: #2e7d32;
+	color: #fff;
+	font-size: 0.7rem;
+	font-weight: 600;
+}
+
+.mar-calendario {
+	max-height: 45vh;
+	overflow-y: auto;
+	border-radius: 4px;
+}
+
+.mar-dia-grupo {
+	border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+
+	&:last-child {
+		border-bottom: none;
+	}
+}
+
+.mar-dia-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 6px 12px;
+	background: #fafafa;
+	font-weight: 600;
+	color: rgba(0, 0, 0, 0.7);
+}
+
+.mar-dia-count {
+	font-weight: 400;
+	font-size: 0.8rem;
+	color: rgba(0, 0, 0, 0.54);
+}
+
+.mar-dia-cliente {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 4px 6px 4px 12px;
+
+	&:hover {
+		background: rgba(0, 0, 0, 0.04);
+	}
+}
+
+.mar-dia-cliente-info {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.mar-dia-cliente-acciones {
+	display: flex;
+	align-items: center;
+	flex: 0 0 auto;
+
+	.mat-icon-button {
+		width: 30px;
+		height: 30px;
+		line-height: 30px;
+
+		.mat-icon {
+			font-size: 18px;
+			width: 18px;
+			height: 18px;
+			line-height: 18px;
+		}
+	}
+}
+
+.mar-orden-badge {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 20px;
+	height: 20px;
+	padding: 0 4px;
+	border-radius: 10px;
+	background: rgba(0, 0, 0, 0.08);
+	color: rgba(0, 0, 0, 0.7);
+	font-size: 0.75rem;
+	font-weight: 600;
+}
+
+.mar-dia-vacio {
+	padding: 8px 12px;
+	color: rgba(0, 0, 0, 0.4);
+	font-style: italic;
+	font-size: 0.85rem;
+}

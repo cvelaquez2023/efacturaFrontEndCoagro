@@ -1,0 +1,285 @@
+<h1 mat-dialog-title color="warn">
+  <mat-icon class="mar-title-icon">alt_route</mat-icon>
+  {{ esNuevo ? "Crear" : "Editar" }} Asignación de Ruta{{
+    !esNuevo ? " — " + modelo.ruta : ""
+  }}
+</h1>
+<div mat-dialog-content class="dialog-content">
+  <div class="row">
+    <div class="col-12 col-md-35">
+      <div class="mar-box">
+        <div class="mar-box-title">
+          <mat-icon>alt_route</mat-icon> Ruta Asignada
+        </div>
+
+        <ng-container *ngIf="esNuevo; else rutaFija">
+          <button
+            mat-stroked-button
+            color="primary"
+            class="mar-f1-btn"
+            (click)="abrirPickerRuta()"
+            matTooltip="Buscar Ruta (F1)"
+          >
+            <mat-icon>search</mat-icon>
+            Ruta: <strong>{{ modelo.ruta || "Seleccionar…" }}</strong>
+          </button>
+          <div class="mar-field-row" *ngIf="modelo.ruta">
+            <span class="mar-desc">{{ modelo.descripcion }}</span>
+          </div>
+        </ng-container>
+        <ng-template #rutaFija>
+          <div class="mar-field-row">
+            <span class="mar-label">Ruta:</span>
+            <span class="mar-value">{{ modelo.ruta }}</span>
+            <span class="mar-desc">{{ modelo.descripcion }}</span>
+          </div>
+        </ng-template>
+
+        <button
+          mat-stroked-button
+          color="primary"
+          class="mar-f1-btn"
+          (click)="abrirPickerGrupoArticulo()"
+          matTooltip="Buscar Grupo de Artículo (F1)"
+        >
+          <mat-icon>inventory_2</mat-icon>
+          Grupo Artículo:
+          <strong>{{ modelo.grupoArticulo || "Seleccionar…" }}</strong>
+        </button>
+
+        <button
+          mat-stroked-button
+          class="mar-f1-btn"
+          (click)="abrirPickerCompania()"
+          matTooltip="Buscar Compañía (F1)"
+        >
+          <mat-icon>apartment</mat-icon>
+          Compañía(s): <strong>{{ modelo.compania || "Seleccionar…" }}</strong>
+        </button>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-40">
+      <div class="mar-box">
+        <div class="mar-box-title">
+          <mat-icon>person</mat-icon> Asignación de Agente
+        </div>
+        <button
+          mat-stroked-button
+          class="mar-f1-btn"
+          (click)="abrirPickerHandheld()"
+          matTooltip="Buscar HandHeld (F1)"
+        >
+          <mat-icon>tablet_android</mat-icon>
+          Handheld: <strong>{{ modelo.handheld || "Seleccionar…" }}</strong>
+        </button>
+        <button
+          mat-stroked-button
+          class="mar-f1-btn"
+          (click)="abrirPickerAgente()"
+          matTooltip="Buscar Agente (F1)"
+        >
+          <mat-icon>badge</mat-icon>
+          Agente: <strong>{{ modelo.agente || "Seleccionar…" }}</strong>
+        </button>
+        <button
+          mat-stroked-button
+          class="mar-f1-btn"
+          (click)="abrirPickerBodega()"
+          matTooltip="Buscar Camión/Bodega (F1)"
+        >
+          <mat-icon>local_shipping</mat-icon>
+          Camión/Bodega: <strong>{{ modelo.bodega || "Seleccionar…" }}</strong>
+        </button>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-25">
+      <div class="mar-box">
+        <div class="mar-box-title">Actividad de la Ruta</div>
+        <mat-radio-group [(ngModel)]="modelo.activa">
+          <mat-radio-button [value]="true" color="primary"
+            >Activa</mat-radio-button
+          >
+          <mat-radio-button [value]="false" color="warn"
+            >Inactiva</mat-radio-button
+          >
+        </mat-radio-group>
+      </div>
+    </div>
+  </div>
+
+  <p class="mar-nota" *ngIf="esNuevo">
+    <mat-icon inline color="warn">info</mat-icon>
+    La Ruta se elige del catálogo real (rutaRT). Compañía, Agente y
+    Camión/Bodega aún no tienen respaldo de backend.
+  </p>
+
+  <mat-divider class="mar-divider"></mat-divider>
+
+  <h3 class="mar-section-title">Clientes de la Ruta</h3>
+  <p class="mar-nota">
+    <mat-icon inline color="warn">info</mat-icon>
+    Elija un día en el calendario y luego haga doble clic sobre un cliente para
+    asignarlo. El número junto al cliente es su orden de entrega dentro de ese
+    día (según el orden en que se asignaron); las flechas solo se habilitan
+    cuando hay 2 o más clientes el mismo día, para cambiar la prioridad entre
+    ellos. Para corregir un cliente o moverlo de día, quítelo con la
+    <mat-icon inline>close</mat-icon> y vuelva a asignarlo con el día correcto.
+  </p>
+
+  <div class="row">
+    <div class="col-12 col-md-55">
+      <mat-form-field class="mar-buscar-cliente" appearance="fill">
+        <mat-icon matPrefix>search</mat-icon>
+        <input
+          matInput
+          (keyup)="applyFilterClientes($event)"
+          placeholder="Buscar cliente por código o nombre"
+        />
+      </mat-form-field>
+
+      <div *ngIf="cargandoClientes" class="mar-cargando">
+        <mat-progress-spinner
+          diameter="32"
+          mode="indeterminate"
+        ></mat-progress-spinner>
+      </div>
+      <div class="mar-clientes-wrap mat-elevation-z2" *ngIf="!cargandoClientes">
+        <mat-table [dataSource]="clientes" matSort>
+          <ng-container matColumnDef="cliente">
+            <mat-header-cell *matHeaderCellDef mat-sort-header
+              >Código</mat-header-cell
+            >
+            <mat-cell *matCellDef="let c">{{ c.CODIGO }}</mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="nombre">
+            <mat-header-cell *matHeaderCellDef mat-sort-header
+              >Nombre</mat-header-cell
+            >
+            <mat-cell *matCellDef="let c">{{ c.NOMBRE }}</mat-cell>
+          </ng-container>
+
+          <mat-header-row
+            *matHeaderRowDef="displayedColumnsClientes"
+          ></mat-header-row>
+          <mat-row
+            *matRowDef="let row; columns: displayedColumnsClientes"
+            (dblclick)="dobleClickCliente(row)"
+            class="mar-cliente-row"
+            matTooltip="Doble clic para asignar al día seleccionado"
+          ></mat-row>
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell mar-sin-datos" colspan="2">
+              No hay clientes asociados
+            </td>
+          </tr>
+        </mat-table>
+        <mat-paginator
+          [pageSizeOptions]="[10, 25, 75, 100]"
+          showFirstLastButtons
+        ></mat-paginator>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-45">
+      <div class="mar-dias-selector">
+        <button
+          type="button"
+          *ngFor="let dia of dias"
+          class="mar-dia-chip"
+          [class.mar-dia-chip--activo]="diaSeleccionado === dia"
+          [class.mar-dia-chip--ocupado]="clientesDelDia(dia).length > 0"
+          [matTooltip]="
+            clientesDelDia(dia).length > 0
+              ? clientesDelDia(dia).length + ' cliente(s) ya asignado(s)'
+              : 'Sin clientes asignados'
+          "
+          (click)="seleccionarDia(dia)"
+        >
+          {{ dia }}
+          <span
+            class="mar-dia-chip-badge"
+            *ngIf="clientesDelDia(dia).length > 0"
+            >{{ clientesDelDia(dia).length }}</span
+          >
+        </button>
+      </div>
+
+      <div *ngIf="cargandoAsignaciones" class="mar-cargando">
+        <mat-progress-spinner
+          diameter="32"
+          mode="indeterminate"
+        ></mat-progress-spinner>
+      </div>
+      <div
+        class="mar-calendario mat-elevation-z2"
+        *ngIf="!cargandoAsignaciones"
+      >
+        <div class="mar-dia-grupo" *ngFor="let dia of dias">
+          <div class="mar-dia-header">
+            <span>{{ dia }}</span>
+            <span class="mar-dia-count"
+              >{{ clientesDelDia(dia).length }} cliente(s)</span
+            >
+          </div>
+          <div
+            class="mar-dia-cliente"
+            *ngFor="
+              let asignado of clientesDelDia(dia);
+              let i = index;
+              let total = count
+            "
+          >
+            <span class="mar-orden-badge" matTooltip="Orden de entrega">{{
+              asignado.ORDEN
+            }}</span>
+            <span class="mar-dia-cliente-info"
+              >{{ asignado.CLIENTE }} —
+              {{ nombreCliente(asignado.CLIENTE) }}</span
+            >
+            <span class="mar-dia-cliente-acciones">
+              <button
+                mat-icon-button
+                [disabled]="i === 0"
+                (click)="moverOrden(dia, asignado, 'arriba')"
+                [matTooltip]="
+                  i === 0 ? 'Ya es el primero de este día' : 'Subir prioridad'
+                "
+              >
+                <mat-icon>arrow_upward</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                [disabled]="i === total - 1"
+                (click)="moverOrden(dia, asignado, 'abajo')"
+                [matTooltip]="
+                  i === total - 1
+                    ? 'Ya es el último de este día'
+                    : 'Bajar prioridad'
+                "
+              >
+                <mat-icon>arrow_downward</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                color="warn"
+                (click)="quitarAsignacion(asignado)"
+                matTooltip="Quitar del día"
+              >
+                <mat-icon>close</mat-icon>
+              </button>
+            </span>
+          </div>
+          <div class="mar-dia-vacio" *ngIf="clientesDelDia(dia).length === 0">
+            Sin clientes asignados
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div mat-dialog-actions [align]="'end'">
+  <button mat-raised-button color="basic" mat-dialog-close>Cerrar</button>
+  <button mat-raised-button color="warn" (click)="guardar()">Guardar</button>
+</div>

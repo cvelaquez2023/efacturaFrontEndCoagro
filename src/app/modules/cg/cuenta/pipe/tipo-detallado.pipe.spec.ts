@@ -1,8 +1,8 @@
-import { TipoDetalladoPipe } from './tipo-detallado.pipe';
+import { TipoDetalladoPipe } from "./tipo-detallado.pipe";
 
-describe('TipoDetalladoPipe', () => {
-	it('create an instance', () => {
-		const pipe = new TipoDetalladoPipe();
-		expect(pipe).toBeTruthy();
-	});
+describe("TipoDetalladoPipe", () => {
+  it("create an instance", () => {
+    const pipe = new TipoDetalladoPipe();
+    expect(pipe).toBeTruthy();
+  });
 });

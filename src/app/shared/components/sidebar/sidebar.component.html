@@ -1,38 +1,57 @@
 <mat-nav-list>
-	<div class="profile-card">
-		<div class="header">
-			<h2>{{ datoUsuario.fullName }}</h2>
-			<h5>{{ datoUsuario.email }}</h5>
-		</div>
-		<img src="https://material.angular.io/assets/img/examples/shiba2.jpg" alt="firulay" />
-	</div>
-	<mat-divider></mat-divider>
+  <div class="profile-card">
+    <div class="header">
+      <h2>{{ datoUsuario.fullName }}</h2>
+      <h5>{{ datoUsuario.email }}</h5>
+    </div>
+    <img
+      src="https://material.angular.io/assets/img/examples/shiba2.jpg"
+      alt="firulay"
+    />
+  </div>
+  <mat-divider></mat-divider>
 
-	<h2 matSubheader>Modulos</h2>
-	<mat-accordion>
-		<mat-expansion-panel (click)="Clienteclick()">
-			<mat-expansion-panel-header>
-				<mat-panel-title> <mat-icon>admin_panel_settings</mat-icon> <span>Clientes-DTEs</span> </mat-panel-title>
-			</mat-expansion-panel-header>
-			<app-tree-cliente></app-tree-cliente>
-		</mat-expansion-panel>
-		<mat-expansion-panel (click)="Proveedorclick()">
-			<mat-expansion-panel-header>
-				<mat-panel-title> <mat-icon>receipt</mat-icon> <span>Proveedores-DTEs</span> </mat-panel-title>
-			</mat-expansion-panel-header>
-			<app-tree-proveedor></app-tree-proveedor>
-		</mat-expansion-panel>
-		<mat-expansion-panel (click)="Contingenciaclick()">
-			<mat-expansion-panel-header>
-				<mat-panel-title> <mat-icon>store</mat-icon> <span>Contingencia</span> </mat-panel-title>
-			</mat-expansion-panel-header>
-			<app-tree-ci></app-tree-ci>
-		</mat-expansion-panel>
-		<mat-expansion-panel (click)="Usuarioclick()">
-			<mat-expansion-panel-header>
-				<mat-panel-title> <mat-icon>folder_shared</mat-icon> <span>Usuarios</span> </mat-panel-title>
-			</mat-expansion-panel-header>
-			<app-tree-usuario></app-tree-usuario>
-		</mat-expansion-panel>
-	</mat-accordion>
+  <h2 matSubheader>Modulos</h2>
+  <mat-accordion>
+    <mat-expansion-panel (click)="Clienteclick()">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>admin_panel_settings</mat-icon> <span>Clientes-DTEs</span>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <app-tree-cliente></app-tree-cliente>
+    </mat-expansion-panel>
+    <mat-expansion-panel (click)="Proveedorclick()">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>receipt</mat-icon> <span>Proveedores-DTEs</span>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <app-tree-proveedor></app-tree-proveedor>
+    </mat-expansion-panel>
+    <mat-expansion-panel (click)="Contingenciaclick()">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>store</mat-icon> <span>Contingencia</span>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <app-tree-ci></app-tree-ci>
+    </mat-expansion-panel>
+    <mat-expansion-panel (click)="Usuarioclick()">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>folder_shared</mat-icon> <span>Usuarios</span>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <app-tree-usuario></app-tree-usuario>
+    </mat-expansion-panel>
+    <mat-expansion-panel (click)="FRclick()">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>alt_route</mat-icon> <span>Facturación de Rutas</span>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <app-tree-fr></app-tree-fr>
+    </mat-expansion-panel>
+  </mat-accordion>
 </mat-nav-list>

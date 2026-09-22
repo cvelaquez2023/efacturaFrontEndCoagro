@@ -1,0 +1,71 @@
+<h2>Historico de Visitas</h2>
+
+<form
+  [formGroup]="filtroForm"
+  class="filtro-reporte"
+  fxLayout="row wrap"
+  fxLayoutGap="16px"
+  fxLayoutAlign="start center"
+>
+  <mat-form-field appearance="outline">
+    <mat-label>Compania</mat-label>
+    <input formControlName="compania" matInput />
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Agentes (opcional)</mat-label>
+    <input formControlName="agentes" matInput placeholder="Rango de agentes" />
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Fecha Desde</mat-label>
+    <input formControlName="fechaDesde" matInput type="date" />
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Fecha Hasta</mat-label>
+    <input formControlName="fechaHasta" matInput type="date" />
+  </mat-form-field>
+  <button mat-raised-button color="warn" (click)="generar()">
+    <mat-icon>print</mat-icon>Generar
+  </button>
+</form>
+
+<div class="mat-elevation-z8">
+  <mat-table [dataSource]="resultados" matSort>
+    <ng-container matColumnDef="agente">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Agente</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{ element.agente }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="cliente">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Cliente</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{ element.cliente }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="ruta">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Ruta</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.ruta }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="inicio">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Inicio</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{
+        element.inicio | date: "short"
+      }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="fin">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Fin</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{
+        element.fin | date: "short"
+      }}</mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+  </mat-table>
+  <mat-paginator
+    [pageSizeOptions]="[10, 25, 75, 100]"
+    showFirstLastButtons
+  ></mat-paginator>
+</div>

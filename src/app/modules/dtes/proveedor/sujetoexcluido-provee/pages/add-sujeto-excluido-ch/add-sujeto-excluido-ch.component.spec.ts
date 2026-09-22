@@ -1,24 +1,24 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { AddSujetoExcluidoCHComponent } from './add-sujeto-excluido-ch.component';
+import { AddSujetoExcluidoCHComponent } from "./add-sujeto-excluido-ch.component";
 
-describe('AddSujetoExcluidoCHComponent', () => {
-	let component: AddSujetoExcluidoCHComponent;
-	let fixture: ComponentFixture<AddSujetoExcluidoCHComponent>;
+describe("AddSujetoExcluidoCHComponent", () => {
+  let component: AddSujetoExcluidoCHComponent;
+  let fixture: ComponentFixture<AddSujetoExcluidoCHComponent>;
 
-	beforeEach(async () => {
-		await TestBed.configureTestingModule({
-			declarations: [AddSujetoExcluidoCHComponent]
-		}).compileComponents();
-	});
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [AddSujetoExcluidoCHComponent],
+    }).compileComponents();
+  });
 
-	beforeEach(() => {
-		fixture = TestBed.createComponent(AddSujetoExcluidoCHComponent);
-		component = fixture.componentInstance;
-		fixture.detectChanges();
-	});
+  beforeEach(() => {
+    fixture = TestBed.createComponent(AddSujetoExcluidoCHComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-	it('should create', () => {
-		expect(component).toBeTruthy();
-	});
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

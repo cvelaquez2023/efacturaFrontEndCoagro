@@ -1,12 +1,12 @@
-import { Component } from '@angular/core';
+import { Component } from "@angular/core";
 
 @Component({
-	selector: 'app-create',
-	templateUrl: './create.component.html',
-	styleUrls: ['./create.component.scss']
+  selector: "app-create",
+  templateUrl: "./create.component.html",
+  styleUrls: ["./create.component.scss"],
 })
 export class CreateComponent {
-	constructor() {
-		console.log('holasla');
-	}
+  constructor() {
+    console.log("holasla");
+  }
 }

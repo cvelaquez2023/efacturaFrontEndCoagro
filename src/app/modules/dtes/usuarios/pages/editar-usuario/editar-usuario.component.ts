@@ -1,12 +1,12 @@
-import { Component } from '@angular/core';
+import { Component } from "@angular/core";
 
 @Component({
-	selector: 'app-editar-usuario',
-	templateUrl: './editar-usuario.component.html',
-	styleUrls: ['./editar-usuario.component.scss']
+  selector: "app-editar-usuario",
+  templateUrl: "./editar-usuario.component.html",
+  styleUrls: ["./editar-usuario.component.scss"],
 })
 export class EditarUsuarioComponent {
-	constructor() {
-		console.log('aaa');
-	}
+  constructor() {
+    console.log("aaa");
+  }
 }

@@ -1,24 +1,24 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { ParametrosPageComponent } from './parametros-page.component';
+import { ParametrosPageComponent } from "./parametros-page.component";
 
-describe('ParametrosPageComponent', () => {
-	let component: ParametrosPageComponent;
-	let fixture: ComponentFixture<ParametrosPageComponent>;
+describe("ParametrosPageComponent", () => {
+  let component: ParametrosPageComponent;
+  let fixture: ComponentFixture<ParametrosPageComponent>;
 
-	beforeEach(async () => {
-		await TestBed.configureTestingModule({
-			declarations: [ParametrosPageComponent]
-		}).compileComponents();
-	});
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [ParametrosPageComponent],
+    }).compileComponents();
+  });
 
-	beforeEach(() => {
-		fixture = TestBed.createComponent(ParametrosPageComponent);
-		component = fixture.componentInstance;
-		fixture.detectChanges();
-	});
+  beforeEach(() => {
+    fixture = TestBed.createComponent(ParametrosPageComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-	it('should create', () => {
-		expect(component).toBeTruthy();
-	});
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

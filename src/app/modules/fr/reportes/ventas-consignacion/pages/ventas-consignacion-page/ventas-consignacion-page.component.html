@@ -1,0 +1,69 @@
+<h2>Ventas en Consignacion</h2>
+
+<form
+  [formGroup]="filtroForm"
+  class="filtro-reporte"
+  fxLayout="row wrap"
+  fxLayoutGap="16px"
+  fxLayoutAlign="start center"
+>
+  <mat-form-field appearance="outline">
+    <mat-label>Compania</mat-label>
+    <input formControlName="compania" matInput />
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Rutas (opcional)</mat-label>
+    <input formControlName="rutas" matInput placeholder="Rango de rutas" />
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Clientes (opcional)</mat-label>
+    <input
+      formControlName="clientes"
+      matInput
+      placeholder="Rango de clientes"
+    />
+  </mat-form-field>
+  <button mat-raised-button color="warn" (click)="generar()">
+    <mat-icon>print</mat-icon>Generar
+  </button>
+</form>
+
+<div class="mat-elevation-z8">
+  <mat-table [dataSource]="resultados" matSort>
+    <ng-container matColumnDef="cliente">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Cliente</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{ element.cliente }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="ruta">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Ruta</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.ruta }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="articulo">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Articulo</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{ element.articulo }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="cantidad">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Cantidad</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{ element.cantidad }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="monto">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Monto</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{
+        element.monto | currency: "USD"
+      }}</mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+  </mat-table>
+  <mat-paginator
+    [pageSizeOptions]="[10, 25, 75, 100]"
+    showFirstLastButtons
+  ></mat-paginator>
+</div>
