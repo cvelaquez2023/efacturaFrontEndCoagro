@@ -89,7 +89,21 @@ export class AsignacionRutasPageComponent implements OnInit, AfterViewInit {
       });
   }
 
+  /** El AGENTE guardado en la asignación es el CODIGO de ruteo interno (ver
+   *  _resolverAgenteYGuardar), que para asociaciones viejas puede diferir del código de vendedor
+   *  (p. ej. AG01 para VBV). Se resuelve de vuelta al código de vendedor antes de abrir el
+   *  formulario para que siempre se muestre (y se pueda re-guardar) con el código real. */
   clickMantenimiento(element: IAsignacionRutaFr): void {
+    this._agenteAsocRtApiService
+      .resolverVendedorDesdeCodigo(element.agente)
+      .subscribe({
+        next: (vendedor) =>
+          this._abrirMantenimiento({ ...element, agente: vendedor }),
+        error: () => this._abrirMantenimiento(element),
+      });
+  }
+
+  private _abrirMantenimiento(element: IAsignacionRutaFr): void {
     this._dialog
       .open(MantenimientoAsignacionRutaComponent, {
         width: "90vw",
