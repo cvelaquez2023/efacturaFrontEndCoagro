@@ -92,6 +92,17 @@ export class ClienteAsocRtApiService {
     );
   }
 
+  /** Mapa CLIENTE -> CODIGO de TODAS las asociaciones (todas las páginas). Se usa en "Cargar
+   *  Clientes" para: (1) no volver a ofrecer un cliente que ya tiene ruta/día activos, y (2), si
+   *  se vuelve a cargar uno que ya tenía asociación (p. ej. tras quitarlo de una ruta), reutilizar
+   *  su CODIGO real en vez de asumir que es igual al CLIENTE — mismo problema que el agente
+   *  VBV/AG01, ver AgenteAsocRtApiService.resolverCodigoAgente(). */
+  getCodigosPorCliente(): Observable<Map<string, string>> {
+    return this._getAllClientes().pipe(
+      map((asociaciones) => new Map(asociaciones.map((a) => [a.CLIENTE, a.CODIGO])))
+    );
+  }
+
   createCliente(
     cliente: ICreateClienteAsocRtModel
   ): Observable<IResponse<IResponseClienteAsocRt>> {
