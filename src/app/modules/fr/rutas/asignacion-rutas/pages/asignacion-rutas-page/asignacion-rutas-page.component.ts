@@ -8,6 +8,7 @@ import { SnotifyPosition, SnotifyService } from "ng-snotify";
 import { MantenimientoAsignacionRutaComponent } from "../mantenimiento-asignacion-ruta/mantenimiento-asignacion-ruta.component";
 import { RutaAsignadaApiService } from "../../service/ruta-asignada-api.service";
 import { RutaApiService } from "../../../rutas/service/ruta-api.service";
+import { AgenteAsocRtApiService } from "@app/modules/fr/administracion/agentes/service/agente-asoc-rt-api.service";
 import { IResponseRuta } from "../../../rutas/model/ruta-fr-model-interface";
 import {
   ICreateRutaAsignadaModel,
@@ -25,7 +26,8 @@ export class AsignacionRutasPageComponent implements OnInit, AfterViewInit {
     private _snotifyService: SnotifyService,
     private _dialog: MatDialog,
     private _rutaAsignadaApiService: RutaAsignadaApiService,
-    private _rutaApiService: RutaApiService
+    private _rutaApiService: RutaApiService,
+    private _agenteAsocRtApiService: AgenteAsocRtApiService
   ) {}
 
   listAsignaciones = new MatTableDataSource<IAsignacionRutaFr>();
@@ -58,28 +60,32 @@ export class AsignacionRutasPageComponent implements OnInit, AfterViewInit {
       .afterClosed()
       .subscribe((result: IAsignacionRutaFr) => {
         if (!result) return;
-        this._rutaAsignadaApiService
-          .createRutaAsignada(this._aModeloBackend(result))
-          .subscribe({
-            next: (response) => {
-              if (response.success) {
-                this._snotifyService.info(
-                  "La asignación de la ruta se guardó sin problema",
+        this._resolverAgenteYGuardar(result, (agenteResuelto) => {
+          this._rutaAsignadaApiService
+            .createRutaAsignada(
+              this._aModeloBackend({ ...result, agente: agenteResuelto })
+            )
+            .subscribe({
+              next: (response) => {
+                if (response.success) {
+                  this._snotifyService.info(
+                    "La asignación de la ruta se guardó sin problema",
+                    { position: SnotifyPosition.rightTop }
+                  );
+                  this._cargarAsignaciones();
+                } else {
+                  this._snotifyService.error(response.errors[0], {
+                    position: SnotifyPosition.rightTop,
+                  });
+                }
+              },
+              error: () =>
+                this._snotifyService.error(
+                  "No fue posible guardar la asignación de la ruta",
                   { position: SnotifyPosition.rightTop }
-                );
-                this._cargarAsignaciones();
-              } else {
-                this._snotifyService.error(response.errors[0], {
-                  position: SnotifyPosition.rightTop,
-                });
-              }
-            },
-            error: () =>
-              this._snotifyService.error(
-                "No fue posible guardar la asignación de la ruta",
-                { position: SnotifyPosition.rightTop }
-              ),
-          });
+                ),
+            });
+        });
       });
   }
 
@@ -93,30 +99,61 @@ export class AsignacionRutasPageComponent implements OnInit, AfterViewInit {
       .afterClosed()
       .subscribe((result: IAsignacionRutaFr) => {
         if (!result) return;
-        const { ruta, ...datos } = this._aModeloBackend(result);
-        this._rutaAsignadaApiService
-          .updateRutaAsignada(element.ruta, datos)
-          .subscribe({
-            next: (response) => {
-              if (response.success) {
-                this._snotifyService.info(
-                  "La asignación de la ruta se actualizó sin problema",
-                  { position: SnotifyPosition.rightTop }
-                );
-                this._cargarAsignaciones();
-              } else {
-                this._snotifyService.error(response.errors[0], {
-                  position: SnotifyPosition.rightTop,
-                });
-              }
-            },
-            error: () =>
-              this._snotifyService.error(
-                "No fue posible actualizar la asignación de la ruta",
-                { position: SnotifyPosition.rightTop }
-              ),
+        this._resolverAgenteYGuardar(result, (agenteResuelto) => {
+          const { ruta, ...datos } = this._aModeloBackend({
+            ...result,
+            agente: agenteResuelto,
           });
+          this._rutaAsignadaApiService
+            .updateRutaAsignada(element.ruta, datos)
+            .subscribe({
+              next: (response) => {
+                if (response.success) {
+                  this._snotifyService.info(
+                    "La asignación de la ruta se actualizó sin problema",
+                    { position: SnotifyPosition.rightTop }
+                  );
+                  this._cargarAsignaciones();
+                } else {
+                  this._snotifyService.error(response.errors[0], {
+                    position: SnotifyPosition.rightTop,
+                  });
+                }
+              },
+              error: () =>
+                this._snotifyService.error(
+                  "No fue posible actualizar la asignación de la ruta",
+                  { position: SnotifyPosition.rightTop }
+                ),
+            });
+        });
       });
+  }
+
+  /** El picker de Agente lista vendedores reales del ERP, pero RUTA_ASIGNADA_RT.AGENTE valida
+   *  contra AGENTE_ASOC_RT.CODIGO (ver AgenteAsocRtApiService). Antes de guardar, resuelve (y
+   *  vincula la primera vez que haga falta, sin crear vendedores) el código de ruteo real. */
+  private _resolverAgenteYGuardar(
+    result: IAsignacionRutaFr,
+    guardar: (agenteResuelto: string) => void
+  ): void {
+    this._agenteAsocRtApiService.resolverCodigoAgente(result.agente).subscribe({
+      next: (resolucion) => {
+        if (!resolucion.success) {
+          this._snotifyService.error(
+            resolucion.errors?.[0] ?? "No fue posible vincular el agente",
+            { position: SnotifyPosition.rightTop }
+          );
+          return;
+        }
+        guardar(resolucion.result);
+      },
+      error: () =>
+        this._snotifyService.error(
+          "No fue posible vincular el agente al módulo de rutas",
+          { position: SnotifyPosition.rightTop }
+        ),
+    });
   }
 
   clickEliminar(element: IAsignacionRutaFr): void {
@@ -214,6 +251,7 @@ export class AsignacionRutasPageComponent implements OnInit, AfterViewInit {
       handheld: modelo.handheld,
       grupoArticulo: modelo.grupoArticulo,
       bodega: modelo.bodega,
+      compania: modelo.compania,
       activa: modelo.activa ? "S" : "N",
     };
   }

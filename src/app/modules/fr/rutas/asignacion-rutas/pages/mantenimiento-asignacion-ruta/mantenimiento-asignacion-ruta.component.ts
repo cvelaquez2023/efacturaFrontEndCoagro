@@ -21,15 +21,13 @@ import { HandheldApiService } from "@app/modules/fr/administracion/handhelds/ser
 import { ClienteAsocRtApiService } from "@app/modules/fr/administracion/clientes/service/cliente-asoc-rt-api.service";
 import { IResponseClienteConAsoc } from "@app/modules/fr/administracion/clientes/model/cliente-fr-model-interface";
 import { BodegaAsocRtApiService } from "@app/modules/fr/administracion/bodegas/service/bodega-asoc-rt-api.service";
+import { VendedorErpApiService } from "@app/modules/fr/administracion/agentes/service/vendedor-erp-api.service";
 import { RutaApiService } from "../../../rutas/service/ruta-api.service";
 import {
   F1SelectorComponent,
   IF1Item,
 } from "../../../shared/f1-selector/f1-selector.component";
-import {
-  AGENTES_DISPONIBLES,
-  COMPANIAS_DISPONIBLES,
-} from "../../model/asignacion-ruta-mock-data";
+import { COMPANIAS_DISPONIBLES } from "../../model/asignacion-ruta-mock-data";
 import {
   DIA_NUMERO,
   DIAS_SEMANA,
@@ -63,9 +61,14 @@ const MODELO_VACIO: IAsignacionRutaFr = {
 // Mantenimiento de Asignación de Rutas (manual FRd pag. 50), reutilizado para Crear y Editar.
 // Cabecera Ruta Asignada / Asignación de Agente / Actividad de la Ruta: se guarda de forma real
 // contra /fr/rutaAsignadaRt (ver AsignacionRutasPageComponent). Ruta, Grupo Artículo, HandHeld y
-// Camión/Bodega son F1 reales (Ruta contra /fr/rutaRt, Bodega contra /fr/bodegaAsocRt); Compañía
-// y Agente siguen siendo F1 mock (el sistema no maneja compañías; Agente aún no tiene servicio
-// real en el frontend pese a existir /fr/agenteAsocRt en el backend).
+// Camión/Bodega son F1 reales (Ruta contra /fr/rutaRt, Bodega contra /fr/bodegaAsocRt). El picker
+// de Agente lista el catálogo de vendedores del ERP (/fr/vendedorErp, a pedido del usuario — no
+// solo los que ya tienen código de ruteo en /fr/agenteAsocRt). OJO: RUTA_ASIGNADA_RT.AGENTE valida
+// contra AGENTE_ASOC_RT.CODIGO en el backend, no contra el VENDEDOR crudo del ERP, así que guardar
+// la ruta solo funciona hoy para el vendedor que ya tiene esa asociación (VBV -> AG01); para el
+// resto el backend responderá "El agente X no existe en el modulo de rutas..." hasta que alguien
+// cree su asociación (POST /fr/agenteRt + POST /fr/agenteAsocRt). Compañía sigue siendo F1 mock
+// (el sistema no maneja compañías, ver RUTA_ASIGNADA_RT.COMPANIA en el backend).
 @Component({
   selector: "app-mantenimiento-asignacion-ruta",
   templateUrl: "./mantenimiento-asignacion-ruta.component.html",
@@ -99,6 +102,7 @@ export class MantenimientoAsignacionRutaComponent
     private _handheldApiService: HandheldApiService,
     private _clienteAsocRtApiService: ClienteAsocRtApiService,
     private _bodegaAsocRtApiService: BodegaAsocRtApiService,
+    private _vendedorErpApiService: VendedorErpApiService,
     private _rutaClienteApiService: RutaClienteApiService
   ) {
     this.modelo = { ...MODELO_VACIO, ...this.ediData };
@@ -432,9 +436,24 @@ export class MantenimientoAsignacionRutaComponent
   }
 
   abrirPickerAgente(): void {
-    this._abrirF1("Seleccionar Agente", AGENTES_DISPONIBLES, (seleccion) => {
-      this.modelo.agente = seleccion.codigo;
-      this.modelo.agenteNombre = seleccion.nombre;
+    this._vendedorErpApiService.getVendedoresErp("", 1, 100).subscribe({
+      next: (response) => {
+        if (!response.success) {
+          this._snotifyService.error(
+            response.errors?.[0] ?? "Error al consultar los vendedores",
+            { position: SnotifyPosition.rightTop }
+          );
+          return;
+        }
+        const items: IF1Item[] = response.result.map((v) => ({
+          codigo: v.VENDEDOR,
+          nombre: v.NOMBRE,
+        }));
+        this._abrirF1("Seleccionar Agente", items, (seleccion) => {
+          this.modelo.agente = seleccion.codigo;
+          this.modelo.agenteNombre = seleccion.nombre;
+        });
+      },
     });
   }
 

@@ -22,6 +22,7 @@ import {
 import { ClienteFrApiService } from "@app/modules/fr/administracion/clientes/service/cliente-fr-api.service";
 import { GrupoArticuloApiService } from "@app/modules/fr/administracion/grupos-articulos/service/grupo-articulo-api.service";
 import { HandheldApiService } from "@app/modules/fr/administracion/handhelds/service/handheld-api.service";
+import { VendedorErpApiService } from "@app/modules/fr/administracion/agentes/service/vendedor-erp-api.service";
 import { AsignacionRutaMockStoreService } from "../../../asignacion-rutas/service/asignacion-ruta-mock-store.service";
 import {
   DIAS_SEMANA,
@@ -58,13 +59,6 @@ const RESOLUCIONES_DISPONIBLES: IF1Item[] = [
   { codigo: "RES-2025-014", nombre: "Resolución Facturación - Descontinuada" },
 ];
 
-const AGENTES_DISPONIBLES: IF1Item[] = [
-  { codigo: "AG01", nombre: "Vendedor 1" },
-  { codigo: "AG02", nombre: "Vendedor 2" },
-  { codigo: "AG03", nombre: "Vendedor 3" },
-  { codigo: "AG04", nombre: "Vendedor 4" },
-];
-
 const BODEGAS_DISPONIBLES: IF1Item[] = [
   { codigo: "CAM1", nombre: "Bodega 1" },
   { codigo: "CAM2", nombre: "Bodega 2" },
@@ -86,9 +80,10 @@ const ESTADO_TEXTO: Record<EstadoAsignacionCliente, string> = {
 
 // Detalle de una Ruta: reúne Ruta Asignada / Asignación de Agente / Actividad / Consecutivos por
 // Compañía / Clientes (manual FRd, secciones RUTAS y ASIGNACIÓN DE RUTAS combinadas a pedido del
-// usuario). ACTIVA es el único dato real (se guarda contra /fr/rutaRt); Grupo Artículo y HandHeld
-// son F1 reales; los consecutivos, NCF, Resolución, Agente, Camión/Bodega y la asignación
-// cliente-día siguen en mock porque no existe backend todavía.
+// usuario). ACTIVA es el único dato real (se guarda contra /fr/rutaRt); Grupo Artículo, HandHeld
+// y el catálogo del F1 de Agente (contra /fr/agenteAsocRt) son reales; los consecutivos, NCF,
+// Resolución, Camión/Bodega y la asignación cliente-día siguen en mock porque no existe backend
+// todavía (y la selección de Agente en sí solo se guarda en el store mock de este diálogo).
 @Component({
   selector: "app-detalle-ruta",
   templateUrl: "./detalle-ruta.component.html",
@@ -122,6 +117,7 @@ export class DetalleRutaComponent implements OnInit, AfterViewInit {
     private _clienteApiService: ClienteFrApiService,
     private _grupoArticuloApiService: GrupoArticuloApiService,
     private _handheldApiService: HandheldApiService,
+    private _vendedorErpApiService: VendedorErpApiService,
     private _asignacionStore: AsignacionRutaMockStoreService
   ) {
     this.cabecera = this._store.getCabecera(this.ruta.RUTA);
@@ -380,9 +376,24 @@ export class DetalleRutaComponent implements OnInit, AfterViewInit {
   }
 
   abrirPickerAgente(): void {
-    this._abrirF1("Seleccionar Agente", AGENTES_DISPONIBLES, (seleccion) => {
-      this.cabecera.agente = seleccion.codigo;
-      this.cabecera.agenteNombre = seleccion.nombre;
+    this._vendedorErpApiService.getVendedoresErp("", 1, 100).subscribe({
+      next: (response) => {
+        if (!response.success) {
+          this._snotifyService.error(
+            response.errors?.[0] ?? "Error al consultar los vendedores",
+            { position: SnotifyPosition.rightTop }
+          );
+          return;
+        }
+        const items: IF1Item[] = response.result.map((v) => ({
+          codigo: v.VENDEDOR,
+          nombre: v.NOMBRE,
+        }));
+        this._abrirF1("Seleccionar Agente", items, (seleccion) => {
+          this.cabecera.agente = seleccion.codigo;
+          this.cabecera.agenteNombre = seleccion.nombre;
+        });
+      },
     });
   }
 

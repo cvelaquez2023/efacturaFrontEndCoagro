@@ -65,6 +65,7 @@ export interface ICreateRutaAsignadaModel {
   handheld: string;
   grupoArticulo: string;
   bodega: string;
+  compania: string;
   activa: "S" | "N";
 }
 
