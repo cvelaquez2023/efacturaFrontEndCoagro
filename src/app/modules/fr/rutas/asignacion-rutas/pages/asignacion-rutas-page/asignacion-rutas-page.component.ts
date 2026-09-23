@@ -3,7 +3,8 @@ import { MatDialog } from "@angular/material/dialog";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
-import { Observable, forkJoin } from "rxjs";
+import { Observable, forkJoin, of } from "rxjs";
+import { catchError, switchMap } from "rxjs/operators";
 import { SnotifyPosition, SnotifyService } from "ng-snotify";
 import { MantenimientoAsignacionRutaComponent } from "../mantenimiento-asignacion-ruta/mantenimiento-asignacion-ruta.component";
 import { RutaAsignadaApiService } from "../../service/ruta-asignada-api.service";
@@ -34,7 +35,14 @@ export class AsignacionRutasPageComponent implements OnInit, AfterViewInit {
   ) {}
 
   listAsignaciones = new MatTableDataSource<IAsignacionRutaFr>();
-  displayedColumns: string[] = ["ruta", "descripcion", "activa", "actions"];
+  displayedColumns: string[] = [
+    "ruta",
+    "descripcion",
+    "handheld",
+    "cantidadClientes",
+    "activa",
+    "actions",
+  ];
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -131,7 +139,12 @@ export class AsignacionRutasPageComponent implements OnInit, AfterViewInit {
       })
       .afterClosed()
       .subscribe((result: IAsignacionRutaFr) => {
-        if (!result) return;
+        // Los clientes por día se guardan al instante dentro del diálogo: aunque se cierre sin
+        // guardar la cabecera, se refresca para que la cuenta de Clientes quede al día.
+        if (!result) {
+          this._cargarAsignaciones();
+          return;
+        }
         this._resolverAgenteYGuardar(result, (agenteResuelto) => {
           const modelo = this._aModeloBackend({
             ...result,
@@ -188,57 +201,101 @@ export class AsignacionRutasPageComponent implements OnInit, AfterViewInit {
     });
   }
 
+  /** Elimina la ruta asignada por completo: primero sus clientes-día en rutaCliente y después su
+   *  cabecera en rutaAsignadaRt (si la tiene). Borrar solo la cabecera no alcanza: la lista
+   *  también muestra toda ruta con clientes (ver _cargarAsignaciones), así que al recargar volvía
+   *  a aparecer — y el backend responde success aunque no haya borrado ninguna fila. */
   clickEliminar(element: IAsignacionRutaFr): void {
-    this._snotifyService.confirm(
-      `¿Eliminar la asignación de la ruta ${element.ruta}?`,
-      {
-        position: SnotifyPosition.rightTop,
-        buttons: [
-          {
-            text: "SI",
-            bold: true,
-            action: (toast) => {
-              this._snotifyService.remove(toast.id);
-              this._rutaAsignadaApiService
-                .deleteRutaAsignada(element.ruta)
-                .subscribe({
-                  next: (response) => {
-                    if (response.success) {
-                      this._snotifyService.info(
-                        "La asignación de la ruta se eliminó sin problema",
-                        { position: SnotifyPosition.rightTop }
-                      );
-                      this._data = this._data.filter(
-                        (item) => item.ruta !== element.ruta
-                      );
-                      this.listAsignaciones.data = this._data;
-                    } else {
-                      this._snotifyService.error(response.errors[0], {
-                        position: SnotifyPosition.rightTop,
-                      });
-                    }
-                  },
-                  error: () =>
-                    this._snotifyService.error(
-                      "No fue posible eliminar la asignación de la ruta",
-                      { position: SnotifyPosition.rightTop }
-                    ),
-                });
-            },
+    const clientes = element.cantidadClientes ?? 0;
+    const mensaje = clientes
+      ? `¿Eliminar la asignación de la ruta ${element.ruta}? También se quitarán sus ${clientes} cliente(s) asignado(s).`
+      : `¿Eliminar la asignación de la ruta ${element.ruta}?`;
+    this._snotifyService.confirm(mensaje, {
+      position: SnotifyPosition.rightTop,
+      buttons: [
+        {
+          text: "SI",
+          bold: true,
+          action: (toast) => {
+            this._snotifyService.remove(toast.id);
+            this._eliminarRuta(element.ruta);
           },
-          { text: "CANCELAR" },
-        ],
-      }
-    );
+        },
+        { text: "CANCELAR" },
+      ],
+    });
+  }
+
+  private _eliminarRuta(ruta: string): void {
+    const fallo = (errors: string[]): IResponse<number> => ({
+      success: false,
+      errors,
+      result: 0,
+    });
+    const conexion = () => of(fallo(["Error de conexión"]));
+
+    this._rutaClienteApiService
+      .getAllRutaCliente(ruta)
+      .pipe(
+        switchMap((asignaciones) =>
+          asignaciones.length
+            ? forkJoin(
+                asignaciones.map((a) =>
+                  this._rutaClienteApiService
+                    .deleteRutaCliente(a.RUTA, a.CLIENTE, a.DIA)
+                    .pipe(catchError(conexion))
+                )
+              )
+            : of([] as IResponse<number>[])
+        ),
+        switchMap((borrados) => {
+          const error = borrados.find((b) => !b.success);
+          if (error) return of(error);
+          // Sin cabecera propia (ruta listada solo por tener clientes) no hay nada más que borrar.
+          if (!this._rutasConCabecera.has(ruta)) {
+            return of<IResponse<number>>({ success: true, errors: [], result: 0 });
+          }
+          return this._rutaAsignadaApiService
+            .deleteRutaAsignada(ruta)
+            .pipe(catchError(conexion));
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this._snotifyService.info(
+              "La asignación de la ruta se eliminó sin problema",
+              { position: SnotifyPosition.rightTop }
+            );
+          } else {
+            this._snotifyService.error(
+              response.errors?.[0] ??
+                "No fue posible eliminar la asignación de la ruta",
+              { position: SnotifyPosition.rightTop }
+            );
+          }
+          // Se recarga desde el backend (en vez de filtrar localmente) para que la lista refleje
+          // lo que realmente quedó guardado, incluso si algo falló a medias.
+          this._cargarAsignaciones();
+        },
+        error: () => {
+          this._snotifyService.error(
+            "No fue posible eliminar la asignación de la ruta",
+            { position: SnotifyPosition.rightTop }
+          );
+          this._cargarAsignaciones();
+        },
+      });
   }
 
   private _cargarAsignaciones(): void {
     forkJoin([
       this._rutaAsignadaApiService.getRutasAsignadas(),
       this._rutaApiService.getRutas(),
-      this._rutaClienteApiService.getRutasConClientes(),
+      this._rutaClienteApiService.getClientesPorRuta(),
     ]).subscribe({
-      next: ([asignadas, rutas, rutasConClientes]) => {
+      next: ([asignadas, rutas, clientesPorRuta]) => {
+        const rutasConClientes = clientesPorRuta.keys();
         if (!asignadas.success) {
           this._snotifyService.error(asignadas.errors[0], {
             position: SnotifyPosition.rightTop,
@@ -267,7 +324,12 @@ export class AsignacionRutasPageComponent implements OnInit, AfterViewInit {
           this._aFilaSinCabecera(ruta, porRuta.get(ruta))
         );
 
-        this._data = [...filasAsignadas, ...filasSoloClientes].sort((a, b) =>
+        this._data = [...filasAsignadas, ...filasSoloClientes]
+          .map((fila) => ({
+            ...fila,
+            cantidadClientes: clientesPorRuta.get(fila.ruta) ?? 0,
+          }))
+          .sort((a, b) =>
           a.ruta.localeCompare(b.ruta, undefined, {
             numeric: true,
             sensitivity: "base",

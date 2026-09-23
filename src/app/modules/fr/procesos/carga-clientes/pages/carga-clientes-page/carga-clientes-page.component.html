@@ -1,9 +1,10 @@
 <h2>Cargar Clientes</h2>
 <p class="subtitulo">
   Seleccione los clientes ya existentes en el ERP que desea habilitar en el
-  módulo de rutas. Opcionalmente, elija su Ruta y Día para asignarlos de una
-  vez; si deja "No seleccionado" el cliente se carga igual, para asignarlo
-  manualmente después.
+  módulo de rutas. Opcionalmente, elija la Ruta Asignada (creada en Asignación
+  de Rutas) y el Día: el cliente queda relacionado con esa ruta y aparece en su
+  calendario. Si deja "No seleccionado" el cliente se carga igual, para
+  asignarlo después.
 </p>
 
 <div class="row">
@@ -51,7 +52,9 @@
       <mat-cell *matCellDef="let element">{{ element.NOMBRE }}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="ruta">
-      <mat-header-cell *matHeaderCellDef class="select-cell">Ruta</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef class="select-cell"
+        >Ruta Asignada</mat-header-cell
+      >
       <mat-cell *matCellDef="let element" class="select-cell">
         <mat-form-field appearance="outline" class="select-inline">
           <mat-select
@@ -59,8 +62,11 @@
             (selectionChange)="onRutaChange(element.CLIENTE, $event.value)"
           >
             <mat-option value="">No seleccionado</mat-option>
-            <mat-option *ngFor="let ruta of rutas" [value]="ruta.RUTA"
-              >{{ ruta.RUTA }} - {{ ruta.DESCRIPCION }}</mat-option
+            <mat-option *ngFor="let ruta of rutas" [value]="ruta.ruta"
+              >{{ ruta.ruta }} - {{ ruta.descripcion
+              }}<ng-container *ngIf="ruta.handheld">
+                (HH {{ ruta.handheld }})</ng-container
+              ></mat-option
             >
           </mat-select>
         </mat-form-field>
