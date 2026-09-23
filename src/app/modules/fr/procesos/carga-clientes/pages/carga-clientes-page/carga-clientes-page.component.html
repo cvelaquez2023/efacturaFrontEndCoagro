@@ -1,7 +1,9 @@
 <h2>Cargar Clientes</h2>
 <p class="subtitulo">
   Seleccione los clientes ya existentes en el ERP que desea habilitar en el
-  módulo de rutas.
+  módulo de rutas. Opcionalmente, elija su Ruta y Día para asignarlos de una
+  vez; si deja "No seleccionado" el cliente se carga igual, para asignarlo
+  manualmente después.
 </p>
 
 <div class="row">
@@ -47,6 +49,38 @@
     <ng-container matColumnDef="descripcion">
       <mat-header-cell *matHeaderCellDef>Descripción</mat-header-cell>
       <mat-cell *matCellDef="let element">{{ element.NOMBRE }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="ruta">
+      <mat-header-cell *matHeaderCellDef class="select-cell">Ruta</mat-header-cell>
+      <mat-cell *matCellDef="let element" class="select-cell">
+        <mat-form-field appearance="outline" class="select-inline">
+          <mat-select
+            [value]="rutaSeleccionada(element.CLIENTE)"
+            (selectionChange)="onRutaChange(element.CLIENTE, $event.value)"
+          >
+            <mat-option value="">No seleccionado</mat-option>
+            <mat-option *ngFor="let ruta of rutas" [value]="ruta.RUTA"
+              >{{ ruta.RUTA }} - {{ ruta.DESCRIPCION }}</mat-option
+            >
+          </mat-select>
+        </mat-form-field>
+      </mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="dia">
+      <mat-header-cell *matHeaderCellDef class="select-cell">Día</mat-header-cell>
+      <mat-cell *matCellDef="let element" class="select-cell">
+        <mat-form-field appearance="outline" class="select-inline">
+          <mat-select
+            [value]="diaSeleccionadoCliente(element.CLIENTE)"
+            (selectionChange)="onDiaChange(element.CLIENTE, $event.value)"
+          >
+            <mat-option value="">No seleccionado</mat-option>
+            <mat-option *ngFor="let dia of dias" [value]="dia">{{
+              dia
+            }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </mat-cell>
     </ng-container>
 
     <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>

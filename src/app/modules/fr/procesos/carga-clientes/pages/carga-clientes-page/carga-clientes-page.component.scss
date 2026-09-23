@@ -74,6 +74,19 @@ $gutter: 12px;
 		justify-content: center;
 	}
 
+	.select-cell {
+		flex: 0 0 220px;
+	}
+
+	.select-inline {
+		width: 100%;
+		margin: 8px 0;
+
+		.mat-form-field-wrapper {
+			padding-bottom: 0;
+		}
+	}
+
 	.sin-datos {
 		text-align: center;
 		padding: 16px;

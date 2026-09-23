@@ -83,6 +83,48 @@ export class RutaClienteApiService {
     return this._httpClient.put<IResponse<number>>(url, { orden });
   }
 
+  /** Recorre TODO rutaCliente (sin filtrar por ruta) y devuelve el conjunto de RUTAs que tienen
+   *  al menos un cliente asignado — incluye rutas cargadas desde "Cargar Clientes" que todavía no
+   *  tienen cabecera propia en rutaAsignadaRt, para poder listarlas también en Asignación de
+   *  Rutas (ver AsignacionRutasPageComponent). */
+  getRutasConClientes(): Observable<Set<string>> {
+    const pagina = (page: number) =>
+      this.getRutaCliente({ page, limit: LIMIT_PAGINA });
+    return pagina(1).pipe(
+      expand((response) =>
+        response.pagination &&
+        response.pagination.page < response.pagination.totalPages
+          ? pagina(response.pagination.page + 1)
+          : EMPTY
+      ),
+      reduce((acumulado: Set<string>, response) => {
+        (response.result || []).forEach((r) => acumulado.add(r.RUTA));
+        return acumulado;
+      }, new Set<string>())
+    );
+  }
+
+  /** Clientes (CODIGO de clienteAsocRt) que tienen al menos un día asignado en alguna ruta —
+   *  usado en "Cargar Clientes" para no volver a ofrecer a alguien que ya tiene ruta/día activos,
+   *  pero sí mostrar a los que se quitaron de una ruta (ver quitarAsignacion en Mantenimiento de
+   *  Asignación de Ruta) para poder reasignarlos, en la misma ruta o en otra. */
+  getClientesConRuta(): Observable<Set<string>> {
+    const pagina = (page: number) =>
+      this.getRutaCliente({ page, limit: LIMIT_PAGINA });
+    return pagina(1).pipe(
+      expand((response) =>
+        response.pagination &&
+        response.pagination.page < response.pagination.totalPages
+          ? pagina(response.pagination.page + 1)
+          : EMPTY
+      ),
+      reduce((acumulado: Set<string>, response) => {
+        (response.result || []).forEach((r) => acumulado.add(r.CLIENTE));
+        return acumulado;
+      }, new Set<string>())
+    );
+  }
+
   /** Recorre todas las páginas para traer, en un solo arreglo, todos los clientes-día de una ruta. */
   getAllRutaCliente(ruta: string): Observable<IResponseRutaCliente[]> {
     const pagina = (page: number) =>
