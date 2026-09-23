@@ -14,7 +14,7 @@ import { ClienteAsocRtApiService } from "@app/modules/fr/administracion/clientes
 import { IResponseClienteFr } from "@app/modules/fr/administracion/clientes/model/cliente-fr-model-interface";
 import { IResponse } from "@app/shared/api-models-base-interface";
 import { RutaApiService } from "@app/modules/fr/rutas/rutas/service/ruta-api.service";
-import { IResponseRuta } from "@app/modules/fr/rutas/rutas/model/ruta-fr-model-interface";
+import { RutaAsignadaApiService } from "@app/modules/fr/rutas/asignacion-rutas/service/ruta-asignada-api.service";
 import { RutaClienteApiService } from "@app/modules/fr/rutas/asignacion-rutas/service/ruta-cliente-api.service";
 import {
   DIA_NUMERO,
@@ -27,6 +27,14 @@ import {
   IResponseClienteErp,
   IResponsePaginadaClienteErp,
 } from "../../model/cliente-erp-fr-model-interface";
+
+/** Opción del desplegable "Ruta Asignada": una cabecera de rutaAsignadaRt (ruta con su handheld,
+ *  agente, etc. ya asignados en Asignación de Rutas) más la descripción de la ruta. */
+interface IOpcionRutaAsignada {
+  ruta: string;
+  descripcion: string;
+  handheld: string;
+}
 
 interface ISeleccionCliente {
   CLIENTE: string;
@@ -55,6 +63,7 @@ export class CargaClientesPageComponent implements OnInit, OnDestroy {
     private _clienteFrApiService: ClienteFrApiService,
     private _clienteAsocRtApiService: ClienteAsocRtApiService,
     private _rutaApiService: RutaApiService,
+    private _rutaAsignadaApiService: RutaAsignadaApiService,
     private _rutaClienteApiService: RutaClienteApiService,
     private _snotifyService: SnotifyService
   ) {}
@@ -68,9 +77,11 @@ export class CargaClientesPageComponent implements OnInit, OnDestroy {
     "dia",
   ];
 
-  /** Catálogo de rutas para el desplegable de carga rápida. "No seleccionado" (valor "") deja
-   *  el cliente sin ruta ni día — se carga igual, para asignarlo manualmente después. */
-  rutas: IResponseRuta[] = [];
+  /** Rutas asignadas (creadas en Asignación de Rutas, con su handheld/agente) para el desplegable
+   *  de la grilla. Solo se ofrecen las activas: así el cliente queda relacionado con una ruta que
+   *  ya tiene cabecera y aparece en el calendario de esa ruta en Asignación de Rutas.
+   *  "No seleccionado" (valor "") deja el cliente sin ruta ni día — se carga igual. */
+  rutas: IOpcionRutaAsignada[] = [];
   dias = DIAS_SEMANA;
 
   q = "";
@@ -159,19 +170,56 @@ export class CargaClientesPageComponent implements OnInit, OnDestroy {
 
     this._cargarEstadoClientes().subscribe(() => this._consulta$.next());
 
-    this._rutaApiService.getRutas().subscribe({
-      next: (response) => {
-        if (response.success) {
-          // Orden correlativo (RT01, RT02, RT03...) para encontrar la ruta correcta rápido y
-          // evitar elegir por error una ruta distinta a la que se busca.
-          this.rutas = [...response.result].sort((a, b) =>
-            a.RUTA.localeCompare(b.RUTA, undefined, {
+    this._cargarRutasAsignadas();
+  }
+
+  private _cargarRutasAsignadas(): void {
+    forkJoin([
+      this._rutaAsignadaApiService.getRutasAsignadas(),
+      // La descripción es solo informativa: si falla, igual se listan las rutas asignadas.
+      this._rutaApiService.getRutas().pipe(catchError(() => of(null))),
+    ]).subscribe({
+      next: ([asignadas, rutas]) => {
+        if (!asignadas.success) {
+          this._snotifyService.error(
+            asignadas.errors?.[0] ?? "Error al consultar las rutas asignadas",
+            { position: SnotifyPosition.rightTop }
+          );
+          return;
+        }
+        const descripcionPorRuta = new Map(
+          (rutas?.success ? rutas.result : []).map((r) => [
+            r.RUTA,
+            r.DESCRIPCION,
+          ])
+        );
+        // Orden correlativo (RT01, RT02, RT03...) para encontrar la ruta correcta rápido y
+        // evitar elegir por error una ruta distinta a la que se busca.
+        this.rutas = asignadas.result
+          .filter((a) => a.ACTIVA === "S")
+          .map((a) => ({
+            ruta: a.RUTA,
+            descripcion: descripcionPorRuta.get(a.RUTA) ?? "",
+            handheld: a.HANDHELD ?? "",
+          }))
+          .sort((a, b) =>
+            a.ruta.localeCompare(b.ruta, undefined, {
               numeric: true,
               sensitivity: "base",
             })
           );
+        if (this.rutas.length === 0) {
+          this._snotifyService.warning(
+            "No hay rutas asignadas activas. Cree una en Asignación de Rutas para poder asignarle clientes desde aquí.",
+            { position: SnotifyPosition.rightTop }
+          );
         }
       },
+      error: () =>
+        this._snotifyService.error(
+          "No fue posible consultar las rutas asignadas",
+          { position: SnotifyPosition.rightTop }
+        ),
     });
   }
 

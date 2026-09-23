@@ -33,6 +33,20 @@
       >
       <mat-cell *matCellDef="let element">{{ element.descripcion }}</mat-cell>
     </ng-container>
+    <ng-container matColumnDef="handheld">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >HandHeld</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{ element.handheld }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="cantidadClientes">
+      <mat-header-cell *matHeaderCellDef mat-sort-header
+        >Clientes</mat-header-cell
+      >
+      <mat-cell *matCellDef="let element">{{
+        element.cantidadClientes || 0
+      }}</mat-cell>
+    </ng-container>
     <ng-container matColumnDef="activa">
       <mat-header-cell *matHeaderCellDef mat-sort-header
         >Activa</mat-header-cell
@@ -76,7 +90,7 @@
       class="asig-row"
     ></mat-row>
     <tr class="mat-row" *matNoDataRow>
-      <td class="mat-cell" colspan="4">
+      <td class="mat-cell" [attr.colspan]="displayedColumns.length">
         No hay datos que coincidan con el filtro
       </td>
     </tr>
