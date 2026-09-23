@@ -42,6 +42,8 @@ export interface IAsignacionRutaFr {
   handheldNombre?: string;
   bodega: string;
   bodegaNombre?: string;
+  /** Clientes distintos asignados a la ruta en rutaCliente (solo lectura, para el listado). */
+  cantidadClientes?: number;
 }
 
 /** Estado de asignación de un cliente a través de TODAS las rutas (no solo la actual). */
