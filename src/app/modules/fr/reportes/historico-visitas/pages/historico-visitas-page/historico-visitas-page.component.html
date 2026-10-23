@@ -1,71 +1,100 @@
-<h2>Historico de Visitas</h2>
+<h2>Histórico de Visitas</h2>
 
-<form
-  [formGroup]="filtroForm"
-  class="filtro-reporte"
-  fxLayout="row wrap"
-  fxLayoutGap="16px"
-  fxLayoutAlign="start center"
->
-  <mat-form-field appearance="outline">
-    <mat-label>Compania</mat-label>
-    <input formControlName="compania" matInput />
-  </mat-form-field>
-  <mat-form-field appearance="outline">
-    <mat-label>Agentes (opcional)</mat-label>
-    <input formControlName="agentes" matInput placeholder="Rango de agentes" />
-  </mat-form-field>
-  <mat-form-field appearance="outline">
-    <mat-label>Fecha Desde</mat-label>
-    <input formControlName="fechaDesde" matInput type="date" />
-  </mat-form-field>
-  <mat-form-field appearance="outline">
-    <mat-label>Fecha Hasta</mat-label>
-    <input formControlName="fechaHasta" matInput type="date" />
-  </mat-form-field>
-  <button mat-raised-button color="warn" (click)="generar()">
-    <mat-icon>print</mat-icon>Generar
+<mat-card class="reporte-filtro">
+  <div class="reporte-descripcion">
+    Este reporte muestra el historial de visitas de los Agentes entre las fechas especificadas.
+  </div>
+
+  <form [formGroup]="filtroForm">
+    <app-rango-f1
+      titulo="Agentes"
+      [items]="agentesF1"
+      [desde]="filtroForm.get('agenteDesde')"
+      [hasta]="filtroForm.get('agenteHasta')"
+    ></app-rango-f1>
+
+    <fieldset class="grupo">
+      <legend>Fechas de Visita</legend>
+      <div fxLayout="row wrap" fxLayoutGap="16px">
+        <mat-form-field appearance="outline" fxFlex="1 1 200px">
+          <mat-label>Desde</mat-label>
+          <input formControlName="desde" matInput type="date" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" fxFlex="1 1 200px">
+          <mat-label>Hasta</mat-label>
+          <input formControlName="hasta" matInput type="date" />
+        </mat-form-field>
+      </div>
+    </fieldset>
+
+    <div class="acciones" fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
+      <button mat-raised-button color="primary" type="button" (click)="imprimir()">
+        <mat-icon>print</mat-icon> Imprimir
+      </button>
+      <button mat-stroked-button type="button" (click)="cancelar()">Cancelar</button>
+    </div>
+  </form>
+</mat-card>
+
+<div *ngIf="consultado" class="resultado-barra" fxLayout="row" fxLayoutAlign="space-between center">
+  <strong>{{ resultados.data.length }} visita(s)</strong>
+  <button mat-stroked-button type="button" (click)="pdf()">
+    <mat-icon>picture_as_pdf</mat-icon> PDF
   </button>
-</form>
+</div>
 
-<div class="mat-elevation-z8">
+<div class="mat-elevation-z8 tabla-wrapper" [hidden]="!consultado">
   <mat-table [dataSource]="resultados" matSort>
     <ng-container matColumnDef="agente">
-      <mat-header-cell *matHeaderCellDef mat-sort-header
-        >Agente</mat-header-cell
-      >
-      <mat-cell *matCellDef="let element">{{ element.agente }}</mat-cell>
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Agente</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.agente || "—" }}</mat-cell>
     </ng-container>
-    <ng-container matColumnDef="cliente">
-      <mat-header-cell *matHeaderCellDef mat-sort-header
-        >Cliente</mat-header-cell
-      >
-      <mat-cell *matCellDef="let element">{{ element.cliente }}</mat-cell>
+    <ng-container matColumnDef="agenteNombre">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Nombre Agente</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.agenteNombre }}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="ruta">
       <mat-header-cell *matHeaderCellDef mat-sort-header>Ruta</mat-header-cell>
       <mat-cell *matCellDef="let element">{{ element.ruta }}</mat-cell>
     </ng-container>
-    <ng-container matColumnDef="inicio">
-      <mat-header-cell *matHeaderCellDef mat-sort-header
-        >Inicio</mat-header-cell
-      >
-      <mat-cell *matCellDef="let element">{{
-        element.inicio | date: "short"
-      }}</mat-cell>
+    <ng-container matColumnDef="cliente">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Cliente</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.cliente }}</mat-cell>
     </ng-container>
-    <ng-container matColumnDef="fin">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Fin</mat-header-cell>
-      <mat-cell *matCellDef="let element">{{
-        element.fin | date: "short"
-      }}</mat-cell>
+    <ng-container matColumnDef="clienteNombre">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Nombre Cliente</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.clienteNombre }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="fecha">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Fecha</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ fmtFecha(element.inicio) }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="horaInicio">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Hora Inicio</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ fmtHora(element.inicio) }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="horaFin">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Hora Fin</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ fmtHora(element.fin) }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="duracion">
+      <mat-header-cell *matHeaderCellDef mat-sort-header class="numero">Duración (min)</mat-header-cell>
+      <mat-cell *matCellDef="let element" class="numero">{{ element.duracion }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="razon">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Razón</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.razon }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="notas">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Notas</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.notas }}</mat-cell>
     </ng-container>
 
     <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
     <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
   </mat-table>
-  <mat-paginator
-    [pageSizeOptions]="[10, 25, 75, 100]"
-    showFirstLastButtons
-  ></mat-paginator>
+  <div class="vacio" *ngIf="resultados.data.length === 0">
+    No hay visitas para los filtros indicados.
+  </div>
+  <mat-paginator [pageSizeOptions]="[25, 50, 100]" showFirstLastButtons></mat-paginator>
 </div>

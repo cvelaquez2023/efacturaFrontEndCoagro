@@ -1,0 +1,105 @@
+// Estilo común de las pantallas de filtro de los reportes de FR (imitan la ventana de filtro de
+// Softland: texto descriptivo, grupos de parámetros, botones Imprimir / Cancelar).
+
+.reporte-filtro {
+  max-width: 760px;
+  margin-bottom: 16px;
+}
+
+.reporte-descripcion {
+  background: #f5f7fb;
+  border: 1px solid #dde3ee;
+  border-radius: 4px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  color: #333;
+}
+
+.grupo {
+  border: 1px solid #dde3ee;
+  border-radius: 4px;
+  padding: 8px 14px 0;
+  margin-bottom: 12px;
+
+  legend,
+  .grupo-titulo {
+    font-weight: 600;
+    color: #1f3864;
+    padding: 0 4px;
+    font-size: 13px;
+  }
+}
+
+.rango-etiqueta {
+  width: 60px;
+  padding-top: 18px;
+  color: #444;
+}
+
+.acciones {
+  padding: 4px 0 8px;
+
+  button {
+    min-width: 120px;
+  }
+}
+
+.resultado-barra {
+  padding: 4px 0;
+}
+
+.tabla-wrapper {
+  overflow-x: auto;
+}
+
+.vacio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 24px;
+  color: #666;
+
+  &.pendiente {
+    color: #b71c1c;
+  }
+}
+
+.mat-cell.numero,
+.mat-header-cell.numero {
+  justify-content: flex-end;
+  padding-right: 16px;
+}
+
+.estado {
+  border-radius: 12px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 500;
+
+  &.ok {
+    background: #e8f5e9;
+    color: #1b5e20;
+  }
+  &.error {
+    background: #ffebee;
+    color: #b71c1c;
+  }
+  &.proceso {
+    background: #fff8e1;
+    color: #8d6e00;
+  }
+  &.neutro {
+    background: #eceff1;
+    color: #37474f;
+  }
+}
+
+// Aviso de datos pendientes de backend (p. ej. pedidos de alFAC_ENC_PED).
+.aviso-pedidos {
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  border-left: 4px solid #f9a825;
+  background: #fff8e1;
+  font-size: 13px;
+  color: #5d4037;
+}

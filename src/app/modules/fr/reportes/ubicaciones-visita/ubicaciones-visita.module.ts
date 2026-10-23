@@ -2,6 +2,7 @@ import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { AngularMaterialModule } from "@app/angular-material-modulo";
+import { ReportesSharedModule } from "../shared/reportes-shared.module";
 
 import { UbicacionesVisitaRoutingModule } from "./ubicaciones-visita-routing.module";
 import { UbicacionesVisitaPageComponent } from "./pages/ubicaciones-visita-page/ubicaciones-visita-page.component";
@@ -14,6 +15,7 @@ import { UbicacionesVisitaPageComponent } from "./pages/ubicaciones-visita-page/
     FormsModule,
     ReactiveFormsModule,
     AngularMaterialModule,
+    ReportesSharedModule,
   ],
 })
 export class UbicacionesVisitaModule {}

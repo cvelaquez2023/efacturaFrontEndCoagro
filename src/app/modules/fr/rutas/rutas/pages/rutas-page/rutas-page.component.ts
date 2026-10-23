@@ -12,6 +12,7 @@ import { MatTableDataSource } from "@angular/material/table";
 import { SnotifyPosition, SnotifyService } from "ng-snotify";
 import { AddRutaComponent } from "../add-ruta/add-ruta.component";
 import { RutaApiService } from "../../service/ruta-api.service";
+import { RutaConsecutRtApiService } from "../../service/ruta-consecut-rt-api.service";
 import { IResponseRuta } from "../../model/ruta-fr-model-interface";
 
 @Component({
@@ -23,7 +24,8 @@ export class RutasPageComponent implements OnInit, AfterViewInit {
   constructor(
     private _snotifyService: SnotifyService,
     private _dialog: MatDialog,
-    private _rutaApiService: RutaApiService
+    private _rutaApiService: RutaApiService,
+    private _rutaConsecutApiService: RutaConsecutRtApiService
   ) {}
 
   listRutas = new MatTableDataSource<IResponseRuta>();
@@ -110,6 +112,8 @@ export class RutasPageComponent implements OnInit, AfterViewInit {
             this._snotifyService.remove(toast.id);
             this._rutaApiService.deleteRuta(ruta).subscribe((response) => {
               if (response.success) {
+                // RUTA_CONSECUT_RT no tiene FK a RUTA_RT: se borran sus consecutivos aparte.
+                this._rutaConsecutApiService.deleteRutaConsecutRt(ruta).subscribe();
                 this._snotifyService.info("El registro ha sido eliminado");
                 this._loadRutas();
               } else {

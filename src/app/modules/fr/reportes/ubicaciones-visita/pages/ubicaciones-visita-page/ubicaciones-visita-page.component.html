@@ -1,69 +1,137 @@
-<h2>Ubicaciones por Visita</h2>
+<h2>Reporte de Ubicaciones por Visita</h2>
 
-<form
-  [formGroup]="filtroForm"
-  class="filtro-reporte"
-  fxLayout="row wrap"
-  fxLayoutGap="16px"
-  fxLayoutAlign="start center"
->
-  <mat-form-field appearance="outline">
-    <mat-label>Compania</mat-label>
-    <input formControlName="compania" matInput />
-  </mat-form-field>
-  <mat-form-field appearance="outline">
-    <mat-label>Fecha Desde</mat-label>
-    <input formControlName="fechaDesde" matInput type="date" />
-  </mat-form-field>
-  <mat-form-field appearance="outline">
-    <mat-label>Fecha Hasta</mat-label>
-    <input formControlName="fechaHasta" matInput type="date" />
-  </mat-form-field>
-  <button mat-raised-button color="warn" (click)="generar()">
-    <mat-icon>print</mat-icon>Generar
+<mat-card class="reporte-filtro">
+  <div class="reporte-descripcion">
+    Este reporte muestra las ubicaciones donde fueron efectuadas las visitas y las compara con las
+    ubicaciones registradas a los clientes, para determinar si la visita está dentro de la
+    ubicación del cliente.
+  </div>
+
+  <form [formGroup]="filtroForm">
+    <app-rango-f1
+      titulo="Ruta"
+      [items]="rutasF1"
+      [desde]="filtroForm.get('rutaDesde')"
+      [hasta]="filtroForm.get('rutaHasta')"
+    ></app-rango-f1>
+
+    <app-rango-f1
+      titulo="Razón Visita"
+      [items]="razonesF1"
+      [desde]="filtroForm.get('razonDesde')"
+      [hasta]="filtroForm.get('razonHasta')"
+    ></app-rango-f1>
+
+    <div fxLayout="row wrap" fxLayoutGap="12px">
+      <fieldset class="grupo" fxFlex="1 1 200px">
+        <legend>Estado Visita</legend>
+        <div fxLayout="column" fxLayoutGap="8px" class="estados">
+          <mat-checkbox formControlName="dentroGps">Dentro GPS</mat-checkbox>
+          <mat-checkbox formControlName="fueraGps">Fuera GPS</mat-checkbox>
+        </div>
+        <mat-form-field appearance="outline" class="distancia">
+          <mat-label>Distancia permitida (m)</mat-label>
+          <input formControlName="distancia" matInput type="number" min="1" />
+        </mat-form-field>
+      </fieldset>
+
+      <fieldset class="grupo" fxFlex="1 1 300px">
+        <legend>Fecha</legend>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Desde</mat-label>
+          <input formControlName="desde" matInput type="date" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Hasta</mat-label>
+          <input formControlName="hasta" matInput type="date" />
+        </mat-form-field>
+      </fieldset>
+    </div>
+
+    <div class="acciones" fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
+      <button mat-raised-button color="primary" type="button" (click)="imprimir()">
+        <mat-icon>print</mat-icon> Imprimir
+      </button>
+      <button mat-stroked-button type="button" (click)="cancelar()">Cancelar</button>
+    </div>
+  </form>
+</mat-card>
+
+<div *ngIf="consultado" class="resultado-barra" fxLayout="row wrap" fxLayoutAlign="space-between center">
+  <div fxLayout="row wrap" fxLayoutGap="8px" fxLayoutAlign="start center">
+    <strong>{{ resultados.data.length }} visita(s)</strong>
+    <span class="estado ok">Dentro GPS: {{ cantidad("Dentro GPS") }}</span>
+    <span class="estado error">Fuera GPS: {{ cantidad("Fuera GPS") }}</span>
+    <span class="estado neutro">Sin GPS en visita: {{ cantidad("Sin GPS en visita") }}</span>
+    <span class="estado neutro">Sin ubicación de cliente: {{ cantidad("Sin ubicación de cliente") }}</span>
+  </div>
+  <button mat-stroked-button type="button" (click)="pdf()">
+    <mat-icon>picture_as_pdf</mat-icon> PDF
   </button>
-</form>
+</div>
 
-<div class="mat-elevation-z8">
+<div class="mat-elevation-z8 tabla-wrapper" [hidden]="!consultado">
   <mat-table [dataSource]="resultados" matSort>
-    <ng-container matColumnDef="cliente">
-      <mat-header-cell *matHeaderCellDef mat-sort-header
-        >Cliente</mat-header-cell
-      >
-      <mat-cell *matCellDef="let element">{{ element.cliente }}</mat-cell>
-    </ng-container>
     <ng-container matColumnDef="ruta">
       <mat-header-cell *matHeaderCellDef mat-sort-header>Ruta</mat-header-cell>
-      <mat-cell *matCellDef="let element">{{ element.ruta }}</mat-cell>
+      <mat-cell *matCellDef="let u">{{ u.ruta }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="cliente">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Cliente</mat-header-cell>
+      <mat-cell *matCellDef="let u">{{ u.cliente }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="nombre">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</mat-header-cell>
+      <mat-cell *matCellDef="let u">{{ u.nombre }}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="fecha">
       <mat-header-cell *matHeaderCellDef mat-sort-header>Fecha</mat-header-cell>
-      <mat-cell *matCellDef="let element">{{
-        element.fecha | date: "shortDate"
-      }}</mat-cell>
+      <mat-cell *matCellDef="let u">{{ fmtFecha(u.inicio) }}</mat-cell>
     </ng-container>
-    <ng-container matColumnDef="distanciaM">
-      <mat-header-cell *matHeaderCellDef mat-sort-header
-        >Distancia (m)</mat-header-cell
-      >
-      <mat-cell *matCellDef="let element">{{ element.distanciaM }}</mat-cell>
+    <ng-container matColumnDef="hora">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Hora</mat-header-cell>
+      <mat-cell *matCellDef="let u">{{ fmtHora(u.inicio) }}</mat-cell>
     </ng-container>
-    <ng-container matColumnDef="dentroTolerancia">
-      <mat-header-cell *matHeaderCellDef mat-sort-header
-        >Dentro de Tolerancia</mat-header-cell
-      >
-      <mat-cell *matCellDef="let element">
-        <mat-icon [color]="element.dentroTolerancia ? 'primary' : 'warn'">{{
-          element.dentroTolerancia ? "check_circle" : "cancel"
-        }}</mat-icon>
+    <ng-container matColumnDef="razon">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Razón</mat-header-cell>
+      <mat-cell *matCellDef="let u">{{ u.razon }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="ubicacionVisita">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Ubicación Visita</mat-header-cell>
+      <mat-cell *matCellDef="let u">
+        <a *ngIf="u.latVisita !== null && u.lonVisita !== null; else sinDato"
+           [href]="mapa(u.latVisita, u.lonVisita)" target="_blank" rel="noopener">
+          {{ coords(u.latVisita, u.lonVisita) }}
+        </a>
+      </mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="ubicacionCliente">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Ubicación Cliente</mat-header-cell>
+      <mat-cell *matCellDef="let u">
+        <a *ngIf="u.latCliente !== null && u.lonCliente !== null; else sinDato"
+           [href]="mapa(u.latCliente, u.lonCliente)" target="_blank" rel="noopener">
+          {{ coords(u.latCliente, u.lonCliente) }}
+        </a>
+      </mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="distancia">
+      <mat-header-cell *matHeaderCellDef mat-sort-header class="numero">Distancia (m)</mat-header-cell>
+      <mat-cell *matCellDef="let u" class="numero">{{ u.distancia ?? "—" }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="estado">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Estado</mat-header-cell>
+      <mat-cell *matCellDef="let u">
+        <span class="estado" [ngClass]="claseEstado(u.estado)">{{ u.estado }}</span>
       </mat-cell>
     </ng-container>
 
     <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
     <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
   </mat-table>
-  <mat-paginator
-    [pageSizeOptions]="[10, 25, 75, 100]"
-    showFirstLastButtons
-  ></mat-paginator>
+  <div class="vacio" *ngIf="resultados.data.length === 0">
+    No hay visitas para los filtros indicados.
+  </div>
+  <mat-paginator [pageSizeOptions]="[25, 50, 100]" showFirstLastButtons></mat-paginator>
 </div>
+
+<ng-template #sinDato><span class="sin-dato">—</span></ng-template>

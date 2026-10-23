@@ -10,23 +10,43 @@ import {
   MatDialog,
   MatDialogRef,
 } from "@angular/material/dialog";
+import { Observable, of } from "rxjs";
+import { switchMap } from "rxjs/operators";
 import { SnotifyPosition, SnotifyService } from "ng-snotify";
+import { IResponse } from "@app/shared/api-models-base-interface";
 import { RutaApiService } from "../../service/ruta-api.service";
+import { RutaConsecutRtApiService } from "../../service/ruta-consecut-rt-api.service";
 import {
   ICreateRutaModel,
   IResponseRuta,
 } from "../../model/ruta-fr-model-interface";
 import { ICompaniaConsecutivoRuta } from "../../model/detalle-ruta-model-interface";
 import {
+  IResponseRutaConsecutRt,
+  IRutaConsecutRtModel,
+} from "../../model/ruta-consecut-rt-model-interface";
+import {
   COMPANIAS_DISPONIBLES,
   ICompaniaF1Item,
   NCF_DISPONIBLES,
 } from "../../model/detalle-ruta-mock-data";
-import { DetalleRutaMockStoreService } from "../../service/detalle-ruta-mock-store.service";
 import {
   F1SelectorComponent,
   IF1Item,
 } from "../../../shared/f1-selector/f1-selector.component";
+
+/** Columnas NOT NULL de RUTA_CONSECUT_RT (el backend las exige en el POST). */
+const CONSECUTIVOS_REQUERIDOS: {
+  campo: keyof ICompaniaConsecutivoRuta;
+  label: string;
+}[] = [
+  { campo: "pedido", label: "Pedido" },
+  { campo: "pedidoConDescuento", label: "Pedido Con Descuento" },
+  { campo: "factura", label: "Factura" },
+  { campo: "devolucion", label: "Devolución" },
+  { campo: "inventario", label: "Inventario" },
+  { campo: "reciboCobro", label: "Recibo Cobro" },
+];
 
 @Component({
   selector: "app-add-ruta",
@@ -37,16 +57,17 @@ export class AddRutaComponent {
   rutaForm!: FormGroup;
   actionBtn = "Guardar";
 
-  /** Consecutivos por compañía de esta ruta (sin backend aún, ver DetalleRutaMockStoreService). */
+  /** Consecutivos de esta ruta, guardados en ERPADMIN.RUTA_CONSECUT_RT (/fr/rutaConsecutRt).
+   *  La tabla es 1:1 con la ruta (COMPANIA siempre NULL), así que la grilla admite una fila. */
   filas: ICompaniaConsecutivoRuta[] = [];
   filaSeleccionada: ICompaniaConsecutivoRuta | null = null;
 
   constructor(
     private _formBuilder: FormBuilder,
     private _rutaApiService: RutaApiService,
+    private _rutaConsecutApiService: RutaConsecutRtApiService,
     private _snotifyService: SnotifyService,
     private _dialog: MatDialog,
-    private _store: DetalleRutaMockStoreService,
     @Inject(MAT_DIALOG_DATA) public ediData: IResponseRuta,
     private _dialogRef: MatDialogRef<AddRutaComponent>
   ) {
@@ -74,8 +95,46 @@ export class AddRutaComponent {
   }
 
   private _cargarConsecutivos(): void {
-    this.filas = this._store.getFilas(this.ediData?.RUTA ?? "");
-    this.filaSeleccionada = this.filas[0] ?? null;
+    if (!this.ediData) return;
+    this._rutaConsecutApiService
+      .getRutaConsecutRt(this.ediData.RUTA)
+      .subscribe({
+        next: (response) => {
+          if (!response.success) {
+            this._snotifyService.error(response.errors[0], {
+              position: SnotifyPosition.rightTop,
+            });
+            return;
+          }
+          if (!response.result) return;
+          this.filas = [this._filaDesdeBd(response.result)];
+          this.filaSeleccionada = this.filas[0];
+        },
+        error: () =>
+          this._snotifyService.error(
+            "No se pudieron cargar los consecutivos de la ruta",
+            { position: SnotifyPosition.rightTop }
+          ),
+      });
+  }
+
+  private _filaDesdeBd(c: IResponseRutaConsecutRt): ICompaniaConsecutivoRuta {
+    return {
+      compania: c.COMPANIA ?? "",
+      companiaNombre: "",
+      pais: "SV",
+      devolucion: c.DEVOLUCION ?? "",
+      pedido: c.PEDIDO ?? "",
+      pedidoConDescuento: c.PEDIDO_DESCUENTO ?? "",
+      factura: c.FACTURA ?? "",
+      inventario: c.INVENTARIO ?? "",
+      reciboCobro: c.RECIBO ?? "",
+      notaCredito: c.NOTACREDITO ?? "",
+      ncfConsumidorFinal: c.NCF_CONSUMIDOR_F ?? "",
+      ncfCreditoFiscal: "",
+      resolucionFactura: "",
+      resolucionDevolucion: "",
+    };
   }
 
   seleccionarFilaConsecutivo(fila: ICompaniaConsecutivoRuta): void {
@@ -83,6 +142,13 @@ export class AddRutaComponent {
   }
 
   nuevaCompania(): void {
+    if (this.filas.length > 0) {
+      this._snotifyService.warning(
+        "La ruta ya tiene consecutivos definidos (solo admite una configuración)",
+        { position: SnotifyPosition.rightTop }
+      );
+      return;
+    }
     this._dialog
       .open(F1SelectorComponent, {
         width: "40%",
@@ -96,13 +162,6 @@ export class AddRutaComponent {
       .afterClosed()
       .subscribe((seleccion: ICompaniaF1Item) => {
         if (!seleccion) return;
-        if (this.filas.some((f) => f.compania === seleccion.codigo)) {
-          this._snotifyService.warning(
-            "Esa compañía ya tiene consecutivos definidos en esta ruta",
-            { position: SnotifyPosition.rightTop }
-          );
-          return;
-        }
         const nueva: ICompaniaConsecutivoRuta = {
           compania: seleccion.codigo,
           companiaNombre: seleccion.nombre,
@@ -119,7 +178,7 @@ export class AddRutaComponent {
           resolucionFactura: "",
           resolucionDevolucion: "",
         };
-        this.filas = [...this.filas, nueva];
+        this.filas = [nueva];
         this.filaSeleccionada = nueva;
       });
   }
@@ -169,6 +228,19 @@ export class AddRutaComponent {
     if (this.rutaForm.invalid) {
       return;
     }
+    const fila = this.filas[0];
+    if (fila) {
+      const faltantes = CONSECUTIVOS_REQUERIDOS.filter(
+        (r) => !(fila[r.campo] as string)?.trim()
+      ).map((r) => r.label);
+      if (faltantes.length > 0) {
+        this._snotifyService.warning(
+          `Complete los consecutivos: ${faltantes.join(", ")}`,
+          { position: SnotifyPosition.rightTop }
+        );
+        return;
+      }
+    }
     const data: ICreateRutaModel = {
       ruta: this.rutaField.value as string,
       descripcion: this.descripcionField.value as string,
@@ -189,12 +261,11 @@ export class AddRutaComponent {
     this._rutaApiService.createRuta(ruta).subscribe({
       next: (response) => {
         if (response.success) {
-          this._store.guardarFilas(ruta.ruta, this.filas);
-          this.rutaForm.reset();
-          this._snotifyService.info("El registro se guardó sin problema", {
-            position: SnotifyPosition.rightTop,
-          });
-          this._dialogRef.close("save");
+          this._finalizar(
+            ruta.ruta,
+            "El registro se guardó sin problema",
+            "save"
+          );
         } else {
           this._snotifyService.error(response.errors[0], {
             position: SnotifyPosition.rightTop,
@@ -208,17 +279,86 @@ export class AddRutaComponent {
     this._rutaApiService.updateRuta(this.ediData.RUTA, ruta).subscribe({
       next: (response) => {
         if (response.success) {
-          this._store.guardarFilas(this.ediData.RUTA, this.filas);
-          this.rutaForm.reset();
-          this._snotifyService.info("El registro se actualizó sin problema", {
-            position: SnotifyPosition.rightTop,
-          });
-          this._dialogRef.close("update");
+          this._finalizar(
+            this.ediData.RUTA,
+            "El registro se actualizó sin problema",
+            "update"
+          );
         } else {
           this._snotifyService.error(response.errors[0], {
             position: SnotifyPosition.rightTop,
           });
         }
+      },
+    });
+  }
+
+  private _datosConsecutivos(
+    fila: ICompaniaConsecutivoRuta
+  ): IRutaConsecutRtModel {
+    const texto = (valor: string) => (valor ?? "").trim().toUpperCase();
+    return {
+      pedido: texto(fila.pedido),
+      pedidoDescuento: texto(fila.pedidoConDescuento),
+      factura: texto(fila.factura),
+      devolucion: texto(fila.devolucion),
+      inventario: texto(fila.inventario),
+      recibo: texto(fila.reciboCobro),
+      notacredito: texto(fila.notaCredito) || null,
+      ncfConsumidorF: texto(fila.ncfConsumidorFinal) || null,
+    };
+  }
+
+  /** Sincroniza la grilla con RUTA_CONSECUT_RT: PUT si la ruta ya tiene fila, POST si no, y
+   *  DELETE si se quitó la fila de la grilla. Se consulta en el momento porque la tabla no tiene
+   *  FK a RUTA_RT y puede quedar una fila previa de una ruta eliminada con el mismo código. */
+  private _guardarConsecutivos(ruta: string): Observable<IResponse<unknown>> {
+    const fila = this.filas[0];
+    return this._rutaConsecutApiService.getRutaConsecutRt(ruta).pipe(
+      switchMap((response): Observable<IResponse<unknown>> => {
+        const existe = response.success && !!response.result;
+        if (!fila) {
+          return existe
+            ? this._rutaConsecutApiService.deleteRutaConsecutRt(ruta)
+            : of({ success: true, errors: [], result: null });
+        }
+        const datos = this._datosConsecutivos(fila);
+        return existe
+          ? this._rutaConsecutApiService.updateRutaConsecutRt(ruta, datos)
+          : this._rutaConsecutApiService.createRutaConsecutRt({
+              ruta,
+              ...datos,
+            });
+      })
+    );
+  }
+
+  /** Guarda los consecutivos después de guardar la ruta y cierra el diálogo. */
+  private _finalizar(ruta: string, mensaje: string, resultado: string): void {
+    const cerrar = () => {
+      this.rutaForm.reset();
+      this._dialogRef.close(resultado);
+    };
+    this._guardarConsecutivos(ruta).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this._snotifyService.info(mensaje, {
+            position: SnotifyPosition.rightTop,
+          });
+        } else {
+          this._snotifyService.error(
+            `La ruta se guardó, pero los consecutivos no: ${response.errors[0]}`,
+            { position: SnotifyPosition.rightTop }
+          );
+        }
+        cerrar();
+      },
+      error: () => {
+        this._snotifyService.error(
+          "La ruta se guardó, pero no se pudieron guardar los consecutivos",
+          { position: SnotifyPosition.rightTop }
+        );
+        cerrar();
       },
     });
   }

@@ -1,0 +1,24 @@
+<fieldset class="rango">
+  <legend>{{ titulo }}</legend>
+  <div
+    *ngFor="let extremo of [{ etiqueta: 'Desde', c: desde }, { etiqueta: 'Hasta', c: hasta }]"
+    fxLayout="row"
+    fxLayoutGap="12px"
+  >
+    <span class="etiqueta">{{ extremo.etiqueta }}:</span>
+    <mat-form-field appearance="outline" fxFlex="35">
+      <input
+        matInput
+        [formControl]="control(extremo.c)"
+        (keydown.f1)="$event.preventDefault(); buscar(extremo.c)"
+        placeholder="F1 para buscar"
+      />
+      <button mat-icon-button matSuffix type="button" (click)="buscar(extremo.c)" matTooltip="Buscar (F1)">
+        <mat-icon>search</mat-icon>
+      </button>
+    </mat-form-field>
+    <mat-form-field appearance="outline" fxFlex>
+      <input matInput [value]="nombre(extremo.c)" readonly tabindex="-1" />
+    </mat-form-field>
+  </div>
+</fieldset>

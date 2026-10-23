@@ -1,104 +1,193 @@
-<h2>Visitas por Dia</h2>
+<h2>Visitas por Día</h2>
 
-<form
-  [formGroup]="filtroForm"
-  class="filtro-reporte"
-  fxLayout="row wrap"
-  fxLayoutGap="16px"
-  fxLayoutAlign="start center"
->
-  <mat-form-field appearance="outline">
-    <mat-label>Fecha</mat-label>
-    <input formControlName="fecha" matInput type="date" />
-  </mat-form-field>
-  <mat-form-field appearance="outline">
-    <mat-label>Ruta</mat-label>
-    <input formControlName="ruta" matInput placeholder="Codigo de ruta" />
-  </mat-form-field>
-  <mat-form-field appearance="outline">
-    <mat-label>Agente</mat-label>
-    <input formControlName="agente" matInput placeholder="Codigo de agente" />
-  </mat-form-field>
-  <button mat-raised-button color="warn" (click)="generar()">
-    <mat-icon>print</mat-icon>Generar
-  </button>
-</form>
+<mat-card class="reporte-filtro">
+  <div class="reporte-descripcion">
+    Este reporte muestra el detalle de las visitas realizadas durante un día por el agente
+    asignado a la ruta: la duración de cada visita y el tiempo entre una visita y la siguiente.
+    Incluye los clientes sin visita, los clientes visitados fuera de ruta y los clientes
+    visitados a los que no se les generó una venta.
+  </div>
 
-<div class="mat-elevation-z8">
-  <mat-table [dataSource]="resultados" matSort>
-    <ng-container matColumnDef="cliente">
-      <mat-header-cell *matHeaderCellDef mat-sort-header
-        >Cliente</mat-header-cell
-      >
-      <mat-cell *matCellDef="let element">{{ element.cliente }}</mat-cell>
-    </ng-container>
-    <ng-container matColumnDef="tipoDocumento">
-      <mat-header-cell *matHeaderCellDef mat-sort-header
-        >Tipo Documento</mat-header-cell
-      >
-      <mat-cell *matCellDef="let element">{{ element.tipoDocumento }}</mat-cell>
-    </ng-container>
-    <ng-container matColumnDef="horaInicio">
-      <mat-header-cell *matHeaderCellDef mat-sort-header
-        >Hora Inicio</mat-header-cell
-      >
-      <mat-cell *matCellDef="let element">{{
-        element.horaInicio | date: "shortTime"
-      }}</mat-cell>
-    </ng-container>
-    <ng-container matColumnDef="horaFin">
-      <mat-header-cell *matHeaderCellDef mat-sort-header
-        >Hora Fin</mat-header-cell
-      >
-      <mat-cell *matCellDef="let element">{{
-        element.horaFin | date: "shortTime"
-      }}</mat-cell>
-    </ng-container>
-    <ng-container matColumnDef="duracionMin">
-      <mat-header-cell *matHeaderCellDef mat-sort-header
-        >Duracion (min)</mat-header-cell
-      >
-      <mat-cell *matCellDef="let element">{{ element.duracionMin }}</mat-cell>
-    </ng-container>
+  <form [formGroup]="filtroForm">
+    <app-rango-f1
+      titulo="Rutas"
+      [items]="rutasF1"
+      [desde]="filtroForm.get('rutaDesde')"
+      [hasta]="filtroForm.get('rutaHasta')"
+    ></app-rango-f1>
 
-    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-    <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
-  </mat-table>
-  <mat-paginator
-    [pageSizeOptions]="[10, 25, 75, 100]"
-    showFirstLastButtons
-  ></mat-paginator>
-</div>
+    <fieldset class="grupo">
+      <legend>Día</legend>
+      <mat-form-field appearance="outline" fxFlex="1 1 220px">
+        <mat-label>Fecha</mat-label>
+        <input formControlName="fecha" matInput type="date" />
+      </mat-form-field>
+    </fieldset>
 
-<div class="resumen-visitas-dia" fxLayout="row wrap" fxLayoutGap="24px">
-  <mat-card>
-    <mat-card-title>Clientes sin visita</mat-card-title>
-    <mat-card-content>
-      <mat-chip-list>
-        <mat-chip *ngFor="let cliente of clientesSinVisita">{{
-          cliente
-        }}</mat-chip>
-      </mat-chip-list>
-    </mat-card-content>
-  </mat-card>
-  <mat-card>
-    <mat-card-title>Visitados fuera de ruta</mat-card-title>
-    <mat-card-content>
-      <mat-chip-list>
-        <mat-chip *ngFor="let cliente of clientesFueraRuta">{{
-          cliente
-        }}</mat-chip>
-      </mat-chip-list>
-    </mat-card-content>
-  </mat-card>
-  <mat-card>
-    <mat-card-title>Visitados sin venta</mat-card-title>
-    <mat-card-content>
-      <mat-chip-list>
-        <mat-chip *ngFor="let cliente of clientesSinVenta">{{
-          cliente
-        }}</mat-chip>
-      </mat-chip-list>
-    </mat-card-content>
-  </mat-card>
-</div>
+    <div class="acciones" fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
+      <button mat-raised-button color="primary" type="button" (click)="imprimir()">
+        <mat-icon>print</mat-icon> Imprimir
+      </button>
+      <button mat-stroked-button type="button" (click)="cancelar()">Cancelar</button>
+    </div>
+  </form>
+</mat-card>
+
+<ng-container *ngIf="consultado">
+  <div class="resultado-barra" fxLayout="row" fxLayoutAlign="space-between center">
+    <strong>{{ diaSemana }} — {{ visitas.data.length }} visita(s)</strong>
+    <div fxLayout="row" fxLayoutGap="8px">
+      <button mat-raised-button color="primary" type="button" (click)="generarReporte()">
+        <mat-icon>summarize</mat-icon> Generar Reporte
+      </button>
+      <button mat-stroked-button type="button" (click)="pdf()">
+        <mat-icon>picture_as_pdf</mat-icon> PDF
+      </button>
+    </div>
+  </div>
+  <div class="aviso-pedidos" *ngIf="!pedidosDisponibles">
+    Los montos de pedido (alFAC_ENC_PED) aún no están disponibles: falta el endpoint en el backend.
+    La columna de pedido se muestra vacía.
+  </div>
+
+  <div fxLayout="row wrap" fxLayoutGap="12px" class="resumen">
+    <mat-card *ngFor="let r of resumen" class="resumen-card">
+      <div class="resumen-ruta">{{ r.RUTA }} <span>{{ r.RUTA_DESCRIPCION }}</span></div>
+      <div>Visitas: <strong>{{ r.TOTAL_VISITAS }}</strong> · Clientes: <strong>{{ r.CLIENTES_VISITADOS }}</strong></div>
+      <div>Con GPS: {{ r.VISITAS_CON_GPS }} · Prom.: {{ r.DURACION_PROMEDIO_MIN ?? "—" }} min</div>
+      <div>Jornada: {{ fmtHora(r.PRIMERA_VISITA) }} – {{ fmtHora(r.ULTIMA_VISITA) }}</div>
+    </mat-card>
+  </div>
+
+  <mat-tab-group animationDuration="0ms" class="mat-elevation-z8">
+    <mat-tab [label]="'Detalle de visitas (' + visitas.data.length + ')'">
+      <div class="tabla-wrapper">
+        <mat-table [dataSource]="visitas">
+          <ng-container matColumnDef="ruta">
+            <mat-header-cell *matHeaderCellDef>Ruta</mat-header-cell>
+            <mat-cell *matCellDef="let v">{{ v.ruta }}</mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="agente">
+            <mat-header-cell *matHeaderCellDef>Agente</mat-header-cell>
+            <mat-cell *matCellDef="let v">{{ v.agente }}</mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="cliente">
+            <mat-header-cell *matHeaderCellDef>Cliente</mat-header-cell>
+            <mat-cell *matCellDef="let v">{{ v.cliente }}</mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="nombre">
+            <mat-header-cell *matHeaderCellDef>Nombre</mat-header-cell>
+            <mat-cell *matCellDef="let v">{{ v.nombre }}</mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="razon">
+            <mat-header-cell *matHeaderCellDef>Razón</mat-header-cell>
+            <mat-cell *matCellDef="let v">{{ v.razon }}</mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="documento">
+            <mat-header-cell *matHeaderCellDef>Documento</mat-header-cell>
+            <mat-cell *matCellDef="let v">{{ v.documento || "—" }}</mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="inicio">
+            <mat-header-cell *matHeaderCellDef>Inicio</mat-header-cell>
+            <mat-cell *matCellDef="let v">{{ fmtHora(v.inicio) }}</mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="fin">
+            <mat-header-cell *matHeaderCellDef>Fin</mat-header-cell>
+            <mat-cell *matCellDef="let v">{{ fmtHora(v.fin) }}</mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="duracion">
+            <mat-header-cell *matHeaderCellDef class="numero">Duración (min)</mat-header-cell>
+            <mat-cell *matCellDef="let v" class="numero">{{ v.duracion }}</mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="traslado">
+            <mat-header-cell *matHeaderCellDef class="numero">Traslado (min)</mat-header-cell>
+            <mat-cell *matCellDef="let v" class="numero">{{ v.traslado ?? "—" }}</mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="totalPedido">
+            <mat-header-cell *matHeaderCellDef class="numero">Total Pedido</mat-header-cell>
+            <mat-cell *matCellDef="let v" class="numero">{{ fmtMonto(v.totalPedido) }}</mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="enRuta">
+            <mat-header-cell *matHeaderCellDef>En Ruta</mat-header-cell>
+            <mat-cell *matCellDef="let v">
+              <span class="estado" [ngClass]="v.enRuta ? 'ok' : 'proceso'">{{ v.enRuta ? "Sí" : "Fuera" }}</span>
+            </mat-cell>
+          </ng-container>
+          <mat-header-row *matHeaderRowDef="columnasVisitas"></mat-header-row>
+          <mat-row *matRowDef="let row; columns: columnasVisitas"></mat-row>
+        </mat-table>
+        <div class="vacio" *ngIf="!visitas.data.length">No hay visitas registradas ese día.</div>
+      </div>
+    </mat-tab>
+
+    <mat-tab [label]="'Clientes sin visita (' + sinVisita.data.length + ')'">
+      <div class="tabla-wrapper">
+        <mat-table [dataSource]="sinVisita">
+          <ng-container matColumnDef="ruta">
+            <mat-header-cell *matHeaderCellDef>Ruta</mat-header-cell>
+            <mat-cell *matCellDef="let c">{{ c.ruta }}</mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="cliente">
+            <mat-header-cell *matHeaderCellDef>Cliente</mat-header-cell>
+            <mat-cell *matCellDef="let c">{{ c.cliente }}</mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="nombre">
+            <mat-header-cell *matHeaderCellDef>Nombre</mat-header-cell>
+            <mat-cell *matCellDef="let c">{{ c.nombre }}</mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="orden">
+            <mat-header-cell *matHeaderCellDef class="numero">Orden</mat-header-cell>
+            <mat-cell *matCellDef="let c" class="numero">{{ c.orden }}</mat-cell>
+          </ng-container>
+          <mat-header-row *matHeaderRowDef="columnasSinVisita"></mat-header-row>
+          <mat-row *matRowDef="let row; columns: columnasSinVisita"></mat-row>
+        </mat-table>
+        <div class="vacio" *ngIf="!sinVisita.data.length">
+          Todos los clientes planificados para el {{ diaSemana }} fueron visitados.
+        </div>
+      </div>
+    </mat-tab>
+
+    <mat-tab [label]="'Visitados fuera de ruta (' + fueraRuta.data.length + ')'">
+      <ng-container *ngTemplateOutlet="tablaSimple; context: { $implicit: fueraRuta, vacio: 'No hay visitas fuera de ruta.' }"></ng-container>
+    </mat-tab>
+
+    <mat-tab [label]="'Visitados sin venta (' + sinVenta.data.length + ')'">
+      <ng-container *ngTemplateOutlet="tablaSimple; context: { $implicit: sinVenta, vacio: 'Todas las visitas generaron documento.' }"></ng-container>
+    </mat-tab>
+  </mat-tab-group>
+</ng-container>
+
+<ng-template #tablaSimple let-fuente let-vacio="vacio">
+  <div class="tabla-wrapper">
+    <mat-table [dataSource]="fuente">
+      <ng-container matColumnDef="ruta">
+        <mat-header-cell *matHeaderCellDef>Ruta</mat-header-cell>
+        <mat-cell *matCellDef="let v">{{ v.ruta }}</mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="cliente">
+        <mat-header-cell *matHeaderCellDef>Cliente</mat-header-cell>
+        <mat-cell *matCellDef="let v">{{ v.cliente }}</mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="nombre">
+        <mat-header-cell *matHeaderCellDef>Nombre</mat-header-cell>
+        <mat-cell *matCellDef="let v">{{ v.nombre }}</mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="razon">
+        <mat-header-cell *matHeaderCellDef>Razón</mat-header-cell>
+        <mat-cell *matCellDef="let v">{{ v.razon }}</mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="inicio">
+        <mat-header-cell *matHeaderCellDef>Inicio</mat-header-cell>
+        <mat-cell *matCellDef="let v">{{ fmtHora(v.inicio) }}</mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="fin">
+        <mat-header-cell *matHeaderCellDef>Fin</mat-header-cell>
+        <mat-cell *matCellDef="let v">{{ fmtHora(v.fin) }}</mat-cell>
+      </ng-container>
+      <mat-header-row *matHeaderRowDef="columnasVisitaSimple"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: columnasVisitaSimple"></mat-row>
+    </mat-table>
+    <div class="vacio" *ngIf="!fuente.data.length">{{ vacio }}</div>
+  </div>
+</ng-template>
