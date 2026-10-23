@@ -1,61 +1,106 @@
-<h2>Bitacora de Sincronizacion</h2>
+<h2>Bitácora de Sincronización</h2>
 
-<form
-  [formGroup]="filtroForm"
-  class="filtro-reporte"
-  fxLayout="row wrap"
-  fxLayoutGap="16px"
-  fxLayoutAlign="start center"
->
-  <mat-form-field appearance="outline">
-    <mat-label>Compania</mat-label>
-    <input formControlName="compania" matInput />
-  </mat-form-field>
-  <mat-form-field appearance="outline">
-    <mat-label>Fecha</mat-label>
-    <input formControlName="fecha" matInput type="date" />
-  </mat-form-field>
-  <button mat-raised-button color="warn" (click)="generar()">
-    <mat-icon>print</mat-icon>Generar
-  </button>
-</form>
+<mat-card class="reporte-filtro">
+  <div class="reporte-descripcion">
+    Este reporte muestra las cargas y descargas de datos que se han realizado de las tablas
+    intermedias de Facturación de Rutero al ERP y viceversa. Así como todas las cargas y
+    descargas desde las Handhelds en un rango de fecha dada, con el estado (status) de cada
+    sincronización.
+  </div>
 
-<div class="mat-elevation-z8">
+  <form [formGroup]="filtroForm">
+    <fieldset class="grupo">
+      <legend>Fechas de Auditoría</legend>
+      <div fxLayout="row wrap" fxLayoutGap="16px">
+        <mat-form-field appearance="outline" fxFlex="1 1 200px">
+          <mat-label>Desde</mat-label>
+          <input formControlName="desde" matInput type="date" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" fxFlex="1 1 200px">
+          <mat-label>Hasta</mat-label>
+          <input formControlName="hasta" matInput type="date" />
+        </mat-form-field>
+      </div>
+    </fieldset>
+
+    <div class="acciones" fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
+      <button mat-raised-button color="primary" type="button" (click)="imprimir()">
+        <mat-icon>print</mat-icon> Imprimir
+      </button>
+      <button mat-stroked-button type="button" (click)="cancelar()">Cancelar</button>
+    </div>
+  </form>
+</mat-card>
+
+<ng-container *ngIf="consultado">
+  <div class="resultado-barra" fxLayout="row" fxLayoutAlign="space-between center">
+    <strong>{{ resultados.data.length }} sincronización(es)</strong>
+    <button mat-stroked-button type="button" (click)="pdf()">
+      <mat-icon>picture_as_pdf</mat-icon> PDF
+    </button>
+  </div>
+</ng-container>
+
+<div class="mat-elevation-z8 tabla-wrapper" [hidden]="!consultado">
   <mat-table [dataSource]="resultados" matSort>
-    <ng-container matColumnDef="rutero">
-      <mat-header-cell *matHeaderCellDef mat-sort-header
-        >Rutero</mat-header-cell
-      >
-      <mat-cell *matCellDef="let element">{{ element.rutero }}</mat-cell>
+    <ng-container matColumnDef="ruta">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Ruta</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.ruta }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="handheld">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>HandHeld</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.handheld }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="agente">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Agente</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.agente }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="tipo">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Tipo</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.tipo }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="proceso">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Proceso</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.proceso }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="fecha">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Fecha</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ fmtFecha(element.fecha) }}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="horaInicio">
-      <mat-header-cell *matHeaderCellDef mat-sort-header
-        >Hora Inicio</mat-header-cell
-      >
-      <mat-cell *matCellDef="let element">{{
-        element.horaInicio | date: "shortTime"
-      }}</mat-cell>
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Hora Inicio</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ fmtHora(element.horaInicio) }}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="horaFin">
-      <mat-header-cell *matHeaderCellDef mat-sort-header
-        >Hora Fin</mat-header-cell
-      >
-      <mat-cell *matCellDef="let element">{{
-        element.horaFin | date: "shortTime"
-      }}</mat-cell>
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Hora Fin</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ fmtHora(element.horaFin) }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="registros">
+      <mat-header-cell *matHeaderCellDef mat-sort-header class="numero">Registros</mat-header-cell>
+      <mat-cell *matCellDef="let element" class="numero">{{ element.registros }}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="estado">
-      <mat-header-cell *matHeaderCellDef mat-sort-header
-        >Estado</mat-header-cell
-      >
-      <mat-cell *matCellDef="let element">{{ element.estado }}</mat-cell>
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Status</mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <span class="estado" [ngClass]="claseEstado(element.estado)" [matTooltip]="element.mensaje">
+          {{ element.estado }}
+        </span>
+      </mat-cell>
     </ng-container>
 
     <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
     <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
   </mat-table>
-  <mat-paginator
-    [pageSizeOptions]="[10, 25, 75, 100]"
-    showFirstLastButtons
-  ></mat-paginator>
+
+  <div class="vacio pendiente" *ngIf="resultados.data.length === 0 && !backendDisponible">
+    <mat-icon>hourglass_empty</mat-icon>
+    Sin datos — pendiente backend: todavía no existe el registro (bitácora) de las
+    sincronizaciones de las handhelds ni de las cargas al ERP. La pantalla ya está lista para
+    cuando se exponga.
+  </div>
+  <div class="vacio" *ngIf="resultados.data.length === 0 && backendDisponible">
+    Sin sincronizaciones en el rango de fechas indicado.
+  </div>
+
+  <mat-paginator [pageSizeOptions]="[25, 50, 100]" showFirstLastButtons></mat-paginator>
 </div>

@@ -2,6 +2,7 @@ import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { AngularMaterialModule } from "@app/angular-material-modulo";
+import { ReportesSharedModule } from "../shared/reportes-shared.module";
 
 import { ClientesAbandonoRoutingModule } from "./clientes-abandono-routing.module";
 import { ClientesAbandonoPageComponent } from "./pages/clientes-abandono-page/clientes-abandono-page.component";
@@ -14,6 +15,7 @@ import { ClientesAbandonoPageComponent } from "./pages/clientes-abandono-page/cl
     FormsModule,
     ReactiveFormsModule,
     AngularMaterialModule,
+    ReportesSharedModule,
   ],
 })
 export class ClientesAbandonoModule {}

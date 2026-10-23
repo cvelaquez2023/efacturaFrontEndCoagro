@@ -1,0 +1,22 @@
+
+.resumen {
+  margin-bottom: 12px;
+}
+
+.resumen-card {
+  min-width: 240px;
+  padding: 10px 14px;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.resumen-ruta {
+  font-weight: 600;
+  color: #1f3864;
+
+  span {
+    font-weight: 400;
+    color: #555;
+    margin-left: 4px;
+  }
+}

@@ -1,69 +1,108 @@
-<h2>Clientes en Abandono</h2>
+<h2>Reporte de Clientes en Abandono</h2>
 
-<form
-  [formGroup]="filtroForm"
-  class="filtro-reporte"
-  fxLayout="row wrap"
-  fxLayoutGap="16px"
-  fxLayoutAlign="start center"
->
-  <mat-form-field appearance="outline">
-    <mat-label>Compania</mat-label>
-    <input formControlName="compania" matInput />
-  </mat-form-field>
-  <mat-form-field appearance="outline">
-    <mat-label>Clientes (opcional)</mat-label>
-    <input
-      formControlName="clientes"
-      matInput
-      placeholder="Rango de clientes"
-    />
-  </mat-form-field>
-  <mat-form-field appearance="outline">
-    <mat-label>Rutas (opcional)</mat-label>
-    <input formControlName="rutas" matInput placeholder="Rango de rutas" />
-  </mat-form-field>
-  <mat-form-field appearance="outline">
-    <mat-label>Cantidad de dias</mat-label>
-    <input formControlName="cantidadDias" matInput type="number" min="0" />
-  </mat-form-field>
-  <button mat-raised-button color="warn" (click)="generar()">
-    <mat-icon>print</mat-icon>Generar
-  </button>
-</form>
+<mat-card class="reporte-filtro">
+  <div class="reporte-descripcion">
+    Este reporte muestra los clientes en abandono, que no tengan registrado visitas en los
+    últimos días especificados en los siguientes parámetros.
+  </div>
 
-<div class="mat-elevation-z8">
+  <form [formGroup]="filtroForm">
+    <app-rango-f1
+      titulo="Clientes"
+      [items]="clientesF1"
+      [desde]="filtroForm.get('clienteDesde')"
+      [hasta]="filtroForm.get('clienteHasta')"
+    ></app-rango-f1>
+
+    <app-rango-f1
+      titulo="Rutas"
+      [items]="rutasF1"
+      [desde]="filtroForm.get('rutaDesde')"
+      [hasta]="filtroForm.get('rutaHasta')"
+    ></app-rango-f1>
+
+    <fieldset class="grupo">
+      <legend>Días en Abandono</legend>
+      <mat-form-field appearance="outline" fxFlex="1 1 220px">
+        <mat-label>Cantidad</mat-label>
+        <input formControlName="dias" matInput type="number" min="0" />
+        <mat-error>Obligatorio, mayor o igual a cero</mat-error>
+      </mat-form-field>
+    </fieldset>
+
+    <div class="acciones" fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
+      <button mat-raised-button color="primary" type="button" (click)="imprimir()">
+        <mat-icon>print</mat-icon> Imprimir
+      </button>
+      <button mat-stroked-button type="button" (click)="cancelar()">Cancelar</button>
+    </div>
+  </form>
+</mat-card>
+
+<div *ngIf="consultado" class="resultado-barra" fxLayout="row" fxLayoutAlign="space-between center">
+  <strong>{{ resultados.data.length }} cliente(s) en abandono</strong>
+  <div fxLayout="row" fxLayoutGap="8px">
+    <button mat-raised-button color="primary" type="button" (click)="generarReporte()">
+      <mat-icon>summarize</mat-icon> Generar Reporte
+    </button>
+    <button mat-stroked-button type="button" (click)="pdf()">
+      <mat-icon>picture_as_pdf</mat-icon> PDF
+    </button>
+  </div>
+</div>
+<div class="aviso-pedidos" *ngIf="consultado && !pedidosDisponibles">
+  El último pedido de cada cliente (alFAC_ENC_PED) aún no está disponible: falta el endpoint en el
+  backend. La columna se muestra vacía.
+</div>
+
+<div class="mat-elevation-z8 tabla-wrapper" [hidden]="!consultado">
   <mat-table [dataSource]="resultados" matSort>
-    <ng-container matColumnDef="cliente">
-      <mat-header-cell *matHeaderCellDef mat-sort-header
-        >Cliente</mat-header-cell
-      >
-      <mat-cell *matCellDef="let element">{{ element.cliente }}</mat-cell>
-    </ng-container>
     <ng-container matColumnDef="ruta">
       <mat-header-cell *matHeaderCellDef mat-sort-header>Ruta</mat-header-cell>
       <mat-cell *matCellDef="let element">{{ element.ruta }}</mat-cell>
     </ng-container>
+    <ng-container matColumnDef="rutaDescripcion">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Descripción Ruta</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.rutaDescripcion }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="cliente">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Cliente</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.cliente }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="nombre">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.nombre }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="dias">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Día de Visita</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.dias }}</mat-cell>
+    </ng-container>
     <ng-container matColumnDef="ultimaVisita">
-      <mat-header-cell *matHeaderCellDef mat-sort-header
-        >Ultima Visita</mat-header-cell
-      >
-      <mat-cell *matCellDef="let element">{{
-        element.ultimaVisita | date: "shortDate"
-      }}</mat-cell>
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Última Visita</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ fmtFecha(element.ultimaVisita) || "—" }}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="diasSinVisita">
-      <mat-header-cell *matHeaderCellDef mat-sort-header
-        >Dias sin Visita</mat-header-cell
-      >
-      <mat-cell *matCellDef="let element">{{ element.diasSinVisita }}</mat-cell>
+      <mat-header-cell *matHeaderCellDef mat-sort-header class="numero">Días sin Visita</mat-header-cell>
+      <mat-cell *matCellDef="let element" class="numero">
+        <span class="estado" [ngClass]="element.diasSinVisita === null ? 'error' : 'proceso'">
+          {{ textoDiasSinVisita(element) }}
+        </span>
+      </mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="ultimoPedido">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Último Pedido</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ fmtFecha(element.ultimoPedido) }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="montoUltimoPedido">
+      <mat-header-cell *matHeaderCellDef mat-sort-header class="numero">Monto Último Pedido</mat-header-cell>
+      <mat-cell *matCellDef="let element" class="numero">{{ fmtMonto(element.montoUltimoPedido) }}</mat-cell>
     </ng-container>
 
     <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
     <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
   </mat-table>
-  <mat-paginator
-    [pageSizeOptions]="[10, 25, 75, 100]"
-    showFirstLastButtons
-  ></mat-paginator>
+  <div class="vacio" *ngIf="resultados.data.length === 0">
+    No hay clientes en abandono para los filtros indicados.
+  </div>
+  <mat-paginator [pageSizeOptions]="[25, 50, 100]" showFirstLastButtons></mat-paginator>
 </div>

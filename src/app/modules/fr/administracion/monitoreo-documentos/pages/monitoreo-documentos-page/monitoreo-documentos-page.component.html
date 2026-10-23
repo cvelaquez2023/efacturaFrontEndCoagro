@@ -1,97 +1,197 @@
 <h2>Monitoreo de Documentos</h2>
 
-<form
-  [formGroup]="filtroForm"
-  class="filtro-reporte"
-  fxLayout="row wrap"
-  fxLayoutGap="16px"
-  fxLayoutAlign="start center"
->
-  <mat-form-field appearance="outline">
-    <mat-label>Fecha Desde</mat-label>
-    <input formControlName="fechaDesde" matInput type="date" />
-  </mat-form-field>
-  <mat-form-field appearance="outline">
-    <mat-label>Fecha Hasta</mat-label>
-    <input formControlName="fechaHasta" matInput type="date" />
-  </mat-form-field>
-  <mat-form-field appearance="outline">
-    <mat-label>Ruta</mat-label>
-    <input formControlName="ruta" matInput />
-  </mat-form-field>
-  <mat-form-field appearance="outline">
-    <mat-label>HandHeld</mat-label>
-    <input formControlName="handheld" matInput />
-  </mat-form-field>
-  <mat-form-field appearance="outline">
-    <mat-label>Agente</mat-label>
-    <input formControlName="agente" matInput />
-  </mat-form-field>
-  <button mat-raised-button color="warn" (click)="refrescar()">
-    <mat-icon>refresh</mat-icon>Refrescar
-  </button>
-  <button mat-icon-button matTooltip="Exportar a Excel">
-    <mat-icon>grid_on</mat-icon>
-  </button>
-  <button mat-icon-button matTooltip="Imprimir">
-    <mat-icon>print</mat-icon>
-  </button>
-</form>
+<mat-card class="filtro-card">
+  <mat-card-subtitle class="filtro-titulo">Filtro Datos</mat-card-subtitle>
+  <form [formGroup]="filtroForm" fxLayout="row wrap" fxLayoutGap="24px">
+    <div fxLayout="column" fxFlex="1 1 520px">
+      <div fxLayout="row" fxLayoutGap="12px">
+        <mat-form-field appearance="outline" fxFlex="50">
+          <mat-label>Fecha Inicio</mat-label>
+          <input formControlName="fechaInicio" matInput type="date" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" fxFlex="50">
+          <mat-label>Fecha Fin</mat-label>
+          <input formControlName="fechaFin" matInput type="date" />
+        </mat-form-field>
+      </div>
+      <div fxLayout="row" fxLayoutGap="12px">
+        <mat-form-field appearance="outline" fxFlex="35">
+          <mat-label>Ruta</mat-label>
+          <input
+            formControlName="ruta"
+            matInput
+            (blur)="sincronizarNombre('ruta')"
+            (keydown.f1)="$event.preventDefault(); buscarRuta()"
+          />
+          <button mat-icon-button matSuffix type="button" (click)="buscarRuta()" matTooltip="Buscar (F1)">
+            <mat-icon>search</mat-icon>
+          </button>
+        </mat-form-field>
+        <mat-form-field appearance="outline" fxFlex="65">
+          <mat-label>Descripción</mat-label>
+          <input formControlName="rutaNombre" matInput />
+        </mat-form-field>
+      </div>
+      <div fxLayout="row" fxLayoutGap="12px">
+        <mat-form-field appearance="outline" fxFlex="35">
+          <mat-label>HandHeld</mat-label>
+          <input
+            formControlName="handheld"
+            matInput
+            (blur)="sincronizarNombre('handheld')"
+            (keydown.f1)="$event.preventDefault(); buscarHandheld()"
+          />
+          <button mat-icon-button matSuffix type="button" (click)="buscarHandheld()" matTooltip="Buscar (F1)">
+            <mat-icon>search</mat-icon>
+          </button>
+        </mat-form-field>
+        <mat-form-field appearance="outline" fxFlex="65">
+          <mat-label>Descripción</mat-label>
+          <input formControlName="handheldNombre" matInput />
+        </mat-form-field>
+      </div>
+      <div fxLayout="row" fxLayoutGap="12px">
+        <mat-form-field appearance="outline" fxFlex="35">
+          <mat-label>Agente</mat-label>
+          <input
+            formControlName="agente"
+            matInput
+            (blur)="sincronizarNombre('agente')"
+            (keydown.f1)="$event.preventDefault(); buscarAgente()"
+          />
+          <button mat-icon-button matSuffix type="button" (click)="buscarAgente()" matTooltip="Buscar (F1)">
+            <mat-icon>search</mat-icon>
+          </button>
+        </mat-form-field>
+        <mat-form-field appearance="outline" fxFlex="65">
+          <mat-label>Nombre</mat-label>
+          <input formControlName="agenteNombre" matInput />
+        </mat-form-field>
+      </div>
+      <div fxLayout="row">
+        <mat-form-field appearance="outline" fxFlex="35">
+          <mat-label>Top</mat-label>
+          <input formControlName="top" matInput type="number" min="1" />
+        </mat-form-field>
+      </div>
+    </div>
 
-<div class="mat-elevation-z8">
-  <mat-table [dataSource]="resultados" matSort>
-    <ng-container matColumnDef="ruta">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Ruta</mat-header-cell>
-      <mat-cell *matCellDef="let element">{{ element.ruta }}</mat-cell>
-    </ng-container>
-    <ng-container matColumnDef="handheld">
-      <mat-header-cell *matHeaderCellDef mat-sort-header
-        >HandHeld</mat-header-cell
+    <div fxLayout="column" fxLayoutGap="12px" fxLayoutAlign="start start">
+      <button
+        mat-raised-button
+        color="primary"
+        type="button"
+        class="accion"
+        [disabled]="cargando"
+        (click)="refrescar()"
       >
-      <mat-cell *matCellDef="let element">{{ element.handheld }}</mat-cell>
-    </ng-container>
-    <ng-container matColumnDef="agente">
-      <mat-header-cell *matHeaderCellDef mat-sort-header
-        >Agente</mat-header-cell
-      >
-      <mat-cell *matCellDef="let element">{{ element.agente }}</mat-cell>
-    </ng-container>
-    <ng-container matColumnDef="tipoDocumento">
-      <mat-header-cell *matHeaderCellDef mat-sort-header
-        >Tipo Documento</mat-header-cell
-      >
-      <mat-cell *matCellDef="let element">{{ element.tipoDocumento }}</mat-cell>
-    </ng-container>
-    <ng-container matColumnDef="consecutivo">
-      <mat-header-cell *matHeaderCellDef mat-sort-header
-        >Consecutivo</mat-header-cell
-      >
-      <mat-cell *matCellDef="let element">{{ element.consecutivo }}</mat-cell>
-    </ng-container>
-    <ng-container matColumnDef="cliente">
-      <mat-header-cell *matHeaderCellDef mat-sort-header
-        >Cliente</mat-header-cell
-      >
-      <mat-cell *matCellDef="let element">{{ element.cliente }}</mat-cell>
-    </ng-container>
-    <ng-container matColumnDef="fecha">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Fecha</mat-header-cell>
-      <mat-cell *matCellDef="let element">{{
-        element.fecha | date: "short"
-      }}</mat-cell>
-    </ng-container>
-    <ng-container matColumnDef="estado">
-      <mat-header-cell *matHeaderCellDef mat-sort-header
-        >Estado</mat-header-cell
-      >
-      <mat-cell *matCellDef="let element">{{ element.estado }}</mat-cell>
-    </ng-container>
+        <mat-icon>refresh</mat-icon> Refrescar
+      </button>
+      <button mat-stroked-button type="button" class="accion" (click)="salir()">
+        <mat-icon>logout</mat-icon> Salir
+      </button>
+    </div>
+  </form>
+</mat-card>
 
-    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-    <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
-  </mat-table>
-  <mat-paginator
-    [pageSizeOptions]="[10, 25, 75, 100]"
-    showFirstLastButtons
-  ></mat-paginator>
+<div fxLayout="row" fxLayoutGap="12px" class="monitor">
+  <!-- Botones de la izquierda: mismo efecto que las pestañas -->
+  <mat-card class="panel-botones" fxFlex="170px">
+    <div fxLayout="column" fxLayoutGap="6px">
+      <button
+        *ngFor="let tab of tabs; let i = index"
+        mat-stroked-button
+        type="button"
+        class="boton-tipo"
+        [class.activo]="i === tabIndex"
+        (click)="seleccionarTab(i)"
+      >
+        <mat-icon>{{ tab.icono }}</mat-icon>
+        <span>{{ tab.titulo }}</span>
+      </button>
+    </div>
+  </mat-card>
+
+  <div fxFlex class="contenido">
+    <mat-tab-group
+      [selectedIndex]="tabIndex"
+      (selectedIndexChange)="seleccionarTab($event)"
+      animationDuration="0ms"
+    >
+      <mat-tab *ngFor="let tab of tabs">
+        <ng-template mat-tab-label>
+          {{ tab.titulo }}
+          <span class="contador" *ngIf="consultado && cantidad(tab.tipo)">
+            ({{ cantidad(tab.tipo) }})
+          </span>
+        </ng-template>
+      </mat-tab>
+    </mat-tab-group>
+
+    <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="barra">
+      <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="4px">
+        <button mat-icon-button type="button" [matMenuTriggerFor]="menuColumnas" matTooltip="Mostrar / ocultar columnas">
+          <mat-icon>view_column</mat-icon>
+        </button>
+        <button mat-icon-button type="button" (click)="exportarExcel()" matTooltip="Exportar a Excel">
+          <mat-icon>grid_on</mat-icon>
+        </button>
+        <button mat-icon-button type="button" (click)="imprimir()" matTooltip="Imprimir">
+          <mat-icon>print</mat-icon>
+        </button>
+        <span class="nota" [class.pendiente]="!tieneBackend">{{ tabActual.nota }}</span>
+      </div>
+      <mat-form-field appearance="standard" class="buscar">
+        <mat-label>Buscar</mat-label>
+        <input matInput (keyup)="applyFilter($event)" />
+        <mat-icon matSuffix>filter_list</mat-icon>
+      </mat-form-field>
+    </div>
+
+    <mat-menu #menuColumnas="matMenu">
+      <div class="menu-columnas" (click)="$event.stopPropagation()">
+        <mat-checkbox
+          *ngFor="let col of tabActual.columnas"
+          [checked]="esVisible(col)"
+          (change)="alternarColumna(col)"
+        >
+          {{ col.header }}
+        </mat-checkbox>
+      </div>
+    </mat-menu>
+
+    <div class="mat-elevation-z8 tabla-wrapper">
+      <mat-table [dataSource]="resultados" matSort>
+        <ng-container *ngFor="let col of tabActual.columnas" [matColumnDef]="col.key">
+          <mat-header-cell
+            *matHeaderCellDef
+            mat-sort-header
+            [class.numero]="col.formato === 'numero' || col.formato === 'monto'"
+          >{{ col.header }}</mat-header-cell>
+          <mat-cell
+            *matCellDef="let element"
+            [class.numero]="col.formato === 'numero' || col.formato === 'monto'"
+          >
+            {{ valor(element, col) }}
+          </mat-cell>
+        </ng-container>
+
+        <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+      </mat-table>
+
+      <div class="vacio" *ngIf="!cargando && resultados.filteredData.length === 0">
+        <ng-container *ngIf="tieneBackend; else pendiente">
+          {{ consultado ? "Sin registros para los filtros indicados." : "Presione Refrescar para consultar." }}
+        </ng-container>
+        <ng-template #pendiente>
+          <mat-icon>hourglass_empty</mat-icon>
+          Sin datos — pendiente backend. Las columnas ya están listas para cuando exista el endpoint de
+          {{ tabActual.titulo | lowercase }}.
+        </ng-template>
+      </div>
+
+      <mat-paginator [pageSizeOptions]="[25, 50, 100, 250]" showFirstLastButtons></mat-paginator>
+    </div>
+  </div>
 </div>

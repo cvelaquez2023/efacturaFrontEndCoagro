@@ -4,8 +4,18 @@ import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { Observable, forkJoin, of } from "rxjs";
-import { catchError, switchMap } from "rxjs/operators";
+import { catchError, map, switchMap } from "rxjs/operators";
 import { SnotifyPosition, SnotifyService } from "ng-snotify";
+import { HandheldApiService } from "@app/modules/fr/administracion/handhelds/service/handheld-api.service";
+import { BodegaAsocRtApiService } from "@app/modules/fr/administracion/bodegas/service/bodega-asoc-rt-api.service";
+import { GrupoArticuloApiService } from "@app/modules/fr/administracion/grupos-articulos/service/grupo-articulo-api.service";
+import { ClienteAsocRtApiService } from "@app/modules/fr/administracion/clientes/service/cliente-asoc-rt-api.service";
+import { VendedorErpApiService } from "@app/modules/fr/administracion/agentes/service/vendedor-erp-api.service";
+import { COMPANIAS_DISPONIBLES } from "../../model/asignacion-ruta-mock-data";
+import {
+  abrirReporteAsignacionRuta,
+  IReporteClienteDia,
+} from "../../pdf/asignacion-ruta-pdf";
 import { MantenimientoAsignacionRutaComponent } from "../mantenimiento-asignacion-ruta/mantenimiento-asignacion-ruta.component";
 import { RutaAsignadaApiService } from "../../service/ruta-asignada-api.service";
 import { RutaClienteApiService } from "../../service/ruta-cliente-api.service";
@@ -17,6 +27,8 @@ import {
   ICreateRutaAsignadaModel,
   IAsignacionRutaFr,
   IResponseRutaAsignada,
+  DiaSemana,
+  NUMERO_DIA,
 } from "../../model/asignacion-ruta-model-interface";
 
 @Component({
@@ -31,7 +43,12 @@ export class AsignacionRutasPageComponent implements OnInit, AfterViewInit {
     private _rutaAsignadaApiService: RutaAsignadaApiService,
     private _rutaClienteApiService: RutaClienteApiService,
     private _rutaApiService: RutaApiService,
-    private _agenteAsocRtApiService: AgenteAsocRtApiService
+    private _agenteAsocRtApiService: AgenteAsocRtApiService,
+    private _handheldApiService: HandheldApiService,
+    private _bodegaAsocRtApiService: BodegaAsocRtApiService,
+    private _grupoArticuloApiService: GrupoArticuloApiService,
+    private _clienteAsocRtApiService: ClienteAsocRtApiService,
+    private _vendedorErpApiService: VendedorErpApiService
   ) {}
 
   listAsignaciones = new MatTableDataSource<IAsignacionRutaFr>();
@@ -223,6 +240,118 @@ export class AsignacionRutasPageComponent implements OnInit, AfterViewInit {
         },
         { text: "CANCELAR" },
       ],
+    });
+  }
+
+  /** Genera el PDF de la asignación (cabecera con nombres + clientes separados por día) y lo abre
+   *  en una pestaña nueva. La pestaña se abre aquí mismo, dentro del click, porque si se abre
+   *  después de las consultas al backend el navegador la bloquea como ventana emergente. Cada
+   *  catálogo cae a vacío si falla, para que el reporte salga igual (con solo los códigos). */
+  clickReporte(element: IAsignacionRutaFr): void {
+    const ventana = window.open("", "_blank");
+    ventana?.document.write("<p style='font-family:sans-serif'>Generando reporte...</p>");
+
+    const vacio = <T>(): Observable<IResponse<T[]>> =>
+      of({ success: false, errors: [], result: [] as T[] });
+    const nombreEn = <T>(
+      respuesta: IResponse<T[]>,
+      coincide: (item: T) => boolean,
+      nombre: (item: T) => string
+    ): string => {
+      const item = respuesta.success ? respuesta.result.find(coincide) : undefined;
+      return item ? nombre(item) : "";
+    };
+
+    const agenteNombre$ = element.agente
+      ? this._agenteAsocRtApiService.resolverVendedorDesdeCodigo(element.agente).pipe(
+          switchMap((vendedor) =>
+            this._vendedorErpApiService.getVendedoresErp(vendedor, 1, 100).pipe(
+              map((r) => (r.result || []).find((v) => v.VENDEDOR === vendedor)?.NOMBRE ?? "")
+            )
+          ),
+          catchError(() => of(""))
+        )
+      : of("");
+
+    forkJoin({
+      rutaClientes: this._rutaClienteApiService.getAllRutaCliente(element.ruta),
+      clientes: this._clienteAsocRtApiService
+        .getClientesConNombre()
+        .pipe(catchError(() => vacio<{ CODIGO: string; NOMBRE: string }>())),
+      handhelds: this._handheldApiService
+        .getHandhelds()
+        .pipe(catchError(() => vacio<{ HANDHELD: string; DESCRIPCION: string }>())),
+      bodegas: this._bodegaAsocRtApiService
+        .getBodegasConNombre()
+        .pipe(catchError(() => vacio<{ CODIGO: string; NOMBRE: string }>())),
+      grupos: this._grupoArticuloApiService
+        .getGruposArticulo()
+        .pipe(catchError(() => vacio<{ GRUPO_ARTICULO: string; DESCRIPCION: string }>())),
+      agenteNombre: agenteNombre$,
+    }).subscribe({
+      next: ({ rutaClientes, clientes, handhelds, bodegas, grupos, agenteNombre }) => {
+        const nombreCliente = new Map(
+          (clientes.success ? clientes.result : []).map((c) => [c.CODIGO, c.NOMBRE])
+        );
+        const clientesPorDia = new Map<DiaSemana, IReporteClienteDia[]>();
+        rutaClientes.forEach((rc) => {
+          const dia = NUMERO_DIA[rc.DIA];
+          if (!dia) return;
+          const lista = clientesPorDia.get(dia) ?? [];
+          lista.push({
+            cliente: rc.CLIENTE,
+            nombre: nombreCliente.get(rc.CLIENTE) ?? "",
+            orden: rc.ORDEN,
+          });
+          clientesPorDia.set(dia, lista);
+        });
+        clientesPorDia.forEach((lista) =>
+          lista.sort(
+            (a, b) =>
+              a.orden - b.orden ||
+              a.cliente.localeCompare(b.cliente, undefined, { numeric: true })
+          )
+        );
+
+        abrirReporteAsignacionRuta(
+          {
+            ruta: { codigo: element.ruta, nombre: element.descripcion },
+            activa: element.activa,
+            compania: {
+              codigo: element.compania,
+              nombre:
+                COMPANIAS_DISPONIBLES.find((c) => c.codigo === element.compania)
+                  ?.nombre ?? "",
+            },
+            agente: { codigo: element.agente, nombre: agenteNombre },
+            handheld: {
+              codigo: element.handheld,
+              nombre: nombreEn(handhelds, (h) => h.HANDHELD === element.handheld, (h) => h.DESCRIPCION),
+            },
+            bodega: {
+              codigo: element.bodega,
+              nombre: nombreEn(bodegas, (b) => b.CODIGO === element.bodega, (b) => b.NOMBRE),
+            },
+            grupoArticulo: {
+              codigo: element.grupoArticulo,
+              nombre: nombreEn(
+                grupos,
+                (g) => g.GRUPO_ARTICULO === element.grupoArticulo,
+                (g) => g.DESCRIPCION
+              ),
+            },
+            clientesPorDia,
+          },
+          ventana
+        );
+      },
+      error: () => {
+        ventana?.close();
+        this._snotifyService.error(
+          "No fue posible generar el reporte de la asignación de ruta",
+          { position: SnotifyPosition.rightTop }
+        );
+      },
     });
   }
 
