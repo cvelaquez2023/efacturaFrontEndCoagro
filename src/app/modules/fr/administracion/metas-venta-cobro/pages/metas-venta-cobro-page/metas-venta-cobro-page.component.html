@@ -1,32 +1,33 @@
-<h2>Metas de Venta y Cobro</h2>
+<div class="fr-page">
+<h2 class="fr-title">Metas de Venta y Cobro</h2>
 
-<div class="mat-elevation-z8">
-  <mat-table [dataSource]="listMetas" matSort>
+<div class="fr-table-wrap">
+  <table mat-table [dataSource]="listMetas" matSort>
     <ng-container matColumnDef="agente">
-      <mat-header-cell *matHeaderCellDef mat-sort-header
-        >Agente</mat-header-cell
+      <th mat-header-cell *matHeaderCellDef mat-sort-header
+        >Agente</th
       >
-      <mat-cell *matCellDef="let element">{{ element.agente }}</mat-cell>
+      <td mat-cell *matCellDef="let element">{{ element.agente }}</td>
     </ng-container>
     <ng-container matColumnDef="ruta">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Ruta</mat-header-cell>
-      <mat-cell *matCellDef="let element">{{ element.ruta }}</mat-cell>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Ruta</th>
+      <td mat-cell *matCellDef="let element">{{ element.ruta }}</td>
     </ng-container>
     <ng-container matColumnDef="mes">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Mes</mat-header-cell>
-      <mat-cell *matCellDef="let element">{{ element.mes }}</mat-cell>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Mes</th>
+      <td mat-cell *matCellDef="let element">{{ element.mes }}</td>
     </ng-container>
     <ng-container matColumnDef="metaVenta">
-      <mat-header-cell *matHeaderCellDef mat-sort-header
-        >Meta de Venta</mat-header-cell
+      <th mat-header-cell class="fr-num" *matHeaderCellDef mat-sort-header
+        >Meta de Venta</th
       >
-      <mat-cell *matCellDef="let element">{{
+      <td mat-cell class="fr-num" *matCellDef="let element">{{
         element.metaVenta | currency: "USD"
-      }}</mat-cell>
+      }}</td>
     </ng-container>
     <ng-container matColumnDef="avanceVenta">
-      <mat-header-cell *matHeaderCellDef>Avance Venta</mat-header-cell>
-      <mat-cell *matCellDef="let element">
+      <th mat-header-cell *matHeaderCellDef>Avance Venta</th>
+      <td mat-cell *matCellDef="let element" class="avance-cell">
         <mat-progress-bar
           mode="determinate"
           [value]="porcentaje(element.ventaActual, element.metaVenta)"
@@ -36,19 +37,19 @@
             porcentaje(element.ventaActual, element.metaVenta)
           }}%)</span
         >
-      </mat-cell>
+      </td>
     </ng-container>
     <ng-container matColumnDef="metaCobro">
-      <mat-header-cell *matHeaderCellDef mat-sort-header
-        >Meta de Cobro</mat-header-cell
+      <th mat-header-cell class="fr-num" *matHeaderCellDef mat-sort-header
+        >Meta de Cobro</th
       >
-      <mat-cell *matCellDef="let element">{{
+      <td mat-cell class="fr-num" *matCellDef="let element">{{
         element.metaCobro | currency: "USD"
-      }}</mat-cell>
+      }}</td>
     </ng-container>
     <ng-container matColumnDef="avanceCobro">
-      <mat-header-cell *matHeaderCellDef>Avance Cobro</mat-header-cell>
-      <mat-cell *matCellDef="let element">
+      <th mat-header-cell *matHeaderCellDef>Avance Cobro</th>
+      <td mat-cell *matCellDef="let element" class="avance-cell">
         <mat-progress-bar
           mode="determinate"
           [value]="porcentaje(element.cobroActual, element.metaCobro)"
@@ -58,14 +59,15 @@
             porcentaje(element.cobroActual, element.metaCobro)
           }}%)</span
         >
-      </mat-cell>
+      </td>
     </ng-container>
 
-    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-    <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
-  </mat-table>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
   <mat-paginator
     [pageSizeOptions]="[10, 25, 75, 100]"
     showFirstLastButtons
   ></mat-paginator>
+</div>
 </div>

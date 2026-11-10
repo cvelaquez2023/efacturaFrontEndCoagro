@@ -99,7 +99,7 @@ export class ArticulosPageComponent implements OnInit, AfterViewInit {
 
   clickEdit(element: IResponseArticuloFr): void {
     this._dialog
-      .open(AddArticuloFrComponent, { width: "40%", data: element })
+      .open(AddArticuloFrComponent, { width: "640px", maxWidth: "96vw", data: element })
       .afterClosed()
       .subscribe((val) => {
         if (val === "update") {

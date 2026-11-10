@@ -1,11 +1,13 @@
-<h2>Cargar Artículos</h2>
-<p class="subtitulo">
+<div class="fr-page">
+<h2 class="fr-title">Cargar Artículos</h2>
+<p class="fr-help">
   Seleccione los artículos ya existentes en el ERP que desea habilitar en el
   módulo de rutas.
 </p>
 
-<div class="row">
-  <div class="col-12 col-md-70">
+<div class="fr-card">
+<div class="row g-3 align-items-center">
+  <div class="col-12 col-md-8">
     <mat-form-field class="full-with" appearance="fill">
       <mat-label>Buscar artículo</mat-label>
       <input
@@ -15,11 +17,12 @@
       />
     </mat-form-field>
   </div>
-  <div class="col-12 col-md-30 seleccionados-wrapper">
+  <div class="col-12 col-md-4 seleccionados-wrapper">
     <span class="seleccionados-info"
       >{{ selectedArticulos.size }} seleccionado(s)</span
     >
   </div>
+</div>
 </div>
 
 <div *ngIf="cargando" class="spinner-wrapper">
@@ -29,34 +32,34 @@
   ></mat-progress-spinner>
 </div>
 
-<div *ngIf="!cargando" class="mat-elevation-z8 grid-wrapper">
-  <mat-table [dataSource]="articulosErp">
+<div *ngIf="!cargando" class="fr-table-wrap grid-wrapper">
+  <table mat-table [dataSource]="articulosErp">
     <ng-container matColumnDef="seleccionado">
-      <mat-header-cell *matHeaderCellDef class="check-cell"></mat-header-cell>
-      <mat-cell *matCellDef="let element" class="check-cell">
+      <th mat-header-cell *matHeaderCellDef class="fr-col-actions"></th>
+      <td mat-cell *matCellDef="let element" class="fr-col-actions">
         <mat-checkbox
           [checked]="isSelected(element.ARTICULO)"
           (change)="toggleArticulo(element, $event.checked)"
         ></mat-checkbox>
-      </mat-cell>
+      </td>
     </ng-container>
     <ng-container matColumnDef="codigo">
-      <mat-header-cell *matHeaderCellDef>Código</mat-header-cell>
-      <mat-cell *matCellDef="let element">{{ element.ARTICULO }}</mat-cell>
+      <th mat-header-cell *matHeaderCellDef>Código</th>
+      <td mat-cell *matCellDef="let element">{{ element.ARTICULO }}</td>
     </ng-container>
     <ng-container matColumnDef="descripcion">
-      <mat-header-cell *matHeaderCellDef>Descripción</mat-header-cell>
-      <mat-cell *matCellDef="let element">{{ element.DESCRIPCION }}</mat-cell>
+      <th mat-header-cell *matHeaderCellDef>Descripción</th>
+      <td mat-cell *matCellDef="let element">{{ element.DESCRIPCION }}</td>
     </ng-container>
 
-    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-    <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
     <tr class="mat-row" *matNoDataRow>
-      <td class="mat-cell sin-datos" [attr.colspan]="displayedColumns.length">
+      <td class="mat-cell fr-empty" [attr.colspan]="displayedColumns.length">
         No hay artículos que coincidan con la búsqueda
       </td>
     </tr>
-  </mat-table>
+  </table>
   <mat-paginator
     [length]="total"
     [pageIndex]="page - 1"
@@ -67,7 +70,7 @@
   ></mat-paginator>
 </div>
 
-<div class="acciones-wrapper">
+<div class="fr-card acciones-wrapper">
   <mat-form-field appearance="outline" class="bodega-select">
     <mat-label>Bodega</mat-label>
     <mat-select
@@ -101,4 +104,5 @@
     <mat-icon>cloud_upload</mat-icon>
     Cargar ({{ selectedArticulos.size }})
   </button>
+</div>
 </div>

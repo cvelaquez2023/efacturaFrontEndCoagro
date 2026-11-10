@@ -151,7 +151,7 @@ export class AddRutaComponent {
     }
     this._dialog
       .open(F1SelectorComponent, {
-        width: "40%",
+        width: "640px", maxWidth: "96vw",
         data: {
           titulo: "Seleccionar Compañía",
           items: COMPANIAS_DISPONIBLES,
@@ -210,7 +210,7 @@ export class AddRutaComponent {
   abrirPickerNcf(fila: ICompaniaConsecutivoRuta): void {
     this._dialog
       .open(F1SelectorComponent, {
-        width: "40%",
+        width: "640px", maxWidth: "96vw",
         data: {
           titulo: "Seleccionar NCF",
           items: NCF_DISPONIBLES,

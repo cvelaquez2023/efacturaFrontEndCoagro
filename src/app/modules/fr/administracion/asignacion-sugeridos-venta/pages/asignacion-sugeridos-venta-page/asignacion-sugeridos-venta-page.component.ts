@@ -50,7 +50,7 @@ export class AsignacionSugeridosVentaPageComponent
 
   openDialog(): void {
     this._dialog
-      .open(DetalleAsignacionSugeridoComponent, { width: "50%" })
+      .open(DetalleAsignacionSugeridoComponent, { width: "800px", maxWidth: "96vw" })
       .afterClosed()
       .subscribe((result: IAsignacionSugeridoFr) => {
         if (result) {
@@ -65,7 +65,7 @@ export class AsignacionSugeridosVentaPageComponent
 
   clickEdit(element: IAsignacionSugeridoFr): void {
     this._dialog
-      .open(DetalleAsignacionSugeridoComponent, { width: "50%", data: element })
+      .open(DetalleAsignacionSugeridoComponent, { width: "800px", maxWidth: "96vw", data: element })
       .afterClosed()
       .subscribe((result: IAsignacionSugeridoFr) => {
         if (result) {

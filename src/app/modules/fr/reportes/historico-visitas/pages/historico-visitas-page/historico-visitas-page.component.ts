@@ -26,6 +26,11 @@ import {
   IColumnaPdf,
   ISeccionPdf,
 } from "../../../shared/reporte-pdf";
+import {
+  abrirReporteRuteroPdf,
+  fmtMonto,
+  IRecuadroPdf,
+} from "../../../shared/reporte-pdf-rutero";
 
 interface IHistoricoVisita {
   agente: string;
@@ -194,6 +199,103 @@ export class HistoricoVisitasPageComponent implements OnInit, AfterViewInit {
     });
     this.resultados.data = [];
     this.consultado = false;
+  }
+
+  /** Reporte con el formato de Softland FR: resumen general y por agente, y un recuadro por
+   *  agente con sus visitas. */
+  generarReporte(): void {
+    const f = this.filtroForm.value;
+    const filas = this.resultados.filteredData;
+    const grupos = new Map<string, IHistoricoVisita[]>();
+    filas.forEach((v) => grupos.set(v.agente, [...(grupos.get(v.agente) ?? []), v]));
+    const titulo = (agente: string, lista: IHistoricoVisita[]) =>
+      agente
+        ? `Agente ${agente}${lista[0].agenteNombre ? " - " + lista[0].agenteNombre : ""}`
+        : "Ruta sin agente asignado";
+    const promedio = (lista: IHistoricoVisita[]) => {
+      const con = lista.filter((v) => v.duracion != null);
+      return con.length
+        ? fmtMonto(con.reduce((t, v) => t + (v.duracion ?? 0), 0) / con.length)
+        : "";
+    };
+    const porAgente = Array.from(grupos.entries()).map(([agente, lista]) => ({
+      agente: titulo(agente, lista),
+      visitas: lista.length,
+      clientes: new Set(lista.map((v) => v.cliente)).size,
+      promedio: promedio(lista),
+    }));
+    const resumen: [string, string][] = [
+      ["Visitas :", String(filas.length)],
+      ["Agentes :", String(grupos.size)],
+      ["Clientes Visitados :", String(new Set(filas.map((v) => v.cliente)).size)],
+      ["Duración Promedio (min) :", promedio(filas)],
+    ];
+    const detalle = Array.from(grupos.entries()).map(
+      ([agente, lista]): IRecuadroPdf[] => [
+        {
+          titulo: titulo(agente, lista),
+          columnas: [
+            { header: "Ruta", valor: (v: IHistoricoVisita) => v.ruta },
+            { header: "Cliente", valor: (v: IHistoricoVisita) => `(${v.cliente}) ${v.clienteNombre}`, width: "*" },
+            { header: "Fecha", valor: (v: IHistoricoVisita) => fmtFecha(v.inicio) },
+            { header: "Inicio", valor: (v: IHistoricoVisita) => fmtHora(v.inicio) },
+            { header: "Fin", valor: (v: IHistoricoVisita) => fmtHora(v.fin) },
+            { header: "Min.", valor: (v: IHistoricoVisita) => v.duracion, alignment: "right" },
+            { header: "Razón", valor: (v: IHistoricoVisita) => v.razon },
+            { header: "Notas", valor: (v: IHistoricoVisita) => v.notas, width: 120 },
+          ],
+          filas: lista,
+          total: String(lista.length),
+        },
+      ]
+    );
+    abrirReporteRuteroPdf({
+      titulo: "Reporte de Histórico de Visitas",
+      paginas: [
+        {
+          encabezado: [
+            `Fechas de visita: ${fmtFecha(f.desde + "T00:00")} al ${fmtFecha(f.hasta + "T00:00")}`,
+            `Agentes: ${f.agenteDesde || "(inicio)"} a ${f.agenteHasta || "(fin)"}`,
+          ],
+          bloques: [
+            [
+              {
+                titulo: "Resumen",
+                cebra: true,
+                columnas: [
+                  { header: "Descripción", valor: (r: [string, string]) => r[0], width: "*" },
+                  { header: "Valor", valor: (r: [string, string]) => r[1], alignment: "right", width: 70 },
+                ],
+                filas: resumen,
+              },
+              {
+                titulo: "Resumen por Agente",
+                columnas: [
+                  { header: "Agente", valor: (r: typeof porAgente[number]) => r.agente, width: "*" },
+                  { header: "Visitas", valor: (r: typeof porAgente[number]) => r.visitas, alignment: "right" },
+                  { header: "Clientes", valor: (r: typeof porAgente[number]) => r.clientes, alignment: "right" },
+                  { header: "Prom. min.", valor: (r: typeof porAgente[number]) => r.promedio, alignment: "right" },
+                ],
+                filas: porAgente,
+                total: String(porAgente.length),
+              },
+            ],
+            ...(detalle.length
+              ? detalle
+              : [
+                  [
+                    {
+                      titulo: "Visitas",
+                      columnas: [{ header: "Agente", valor: () => "", width: "*" }],
+                      filas: [],
+                      vacio: "Sin visitas para los filtros indicados.",
+                    },
+                  ],
+                ]),
+          ],
+        },
+      ],
+    });
   }
 
   /** PDF agrupado por agente, como el reporte de Softland. */

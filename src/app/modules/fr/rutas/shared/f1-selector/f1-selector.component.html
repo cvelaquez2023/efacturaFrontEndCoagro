@@ -1,3 +1,4 @@
+<div class="fr-page fr-dialog">
 <h2 mat-dialog-title>
   <mat-icon class="f1-title-icon">search</mat-icon>
   {{ data.titulo }}
@@ -14,6 +15,7 @@
     <mat-icon matSuffix>filter_list</mat-icon>
   </mat-form-field>
 
+  <div class="fr-table-wrap f1-wrap">
   <table mat-table [dataSource]="dataSource" class="f1-table">
     <ng-container matColumnDef="codigo">
       <th mat-header-cell *matHeaderCellDef>
@@ -36,10 +38,12 @@
       class="f1-row"
     ></tr>
   </table>
+  </div>
   <p *ngIf="dataSource.filteredData.length === 0" class="f1-empty">
     No hay registros que coincidan con el filtro "{{ input.value }}"
   </p>
 </div>
 <div mat-dialog-actions [align]="'end'">
   <button mat-raised-button color="basic" mat-dialog-close>Cancelar</button>
+</div>
 </div>

@@ -99,7 +99,7 @@ export class AprobarDevolucionPageComponent implements OnInit, AfterViewInit {
 
   verDetalle(element: IDevolucionFr): void {
     this._dialog.open(DetalleAprobarDevolucionComponent, {
-      width: "45%",
+      width: "720px", maxWidth: "96vw",
       data: element,
     });
   }

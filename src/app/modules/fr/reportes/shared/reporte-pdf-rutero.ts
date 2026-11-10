@@ -1,17 +1,22 @@
 import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from "pdfmake/build/vfs_fonts";
 import { Content, TableCell, TDocumentDefinitions } from "pdfmake/interfaces";
-import { formatDate } from "@angular/common";
 import { IColumnaPdf } from "./reporte-pdf";
+import {
+  anchoUtilPdf,
+  encabezadoPdfFr,
+  estilosPdfFr,
+  layoutTablaPdfFr,
+  PDF_COLOR_FONDO,
+  PDF_COLOR_PRIMARIO,
+  piePdfFr,
+} from "./pdf-tema-fr";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
 (pdfMake as any).vfs = (pdfFonts as any).pdfMake.vfs;
 
-const GRIS_BARRA = "#9e9e9e";
-const GRIS_FILA = "#e6e6e6";
-
-/** Recuadro con título centrado en mayúsculas y barra gris de encabezados (estilo de los
- *  reportes de Softland FR: "RESUMEN DEL DÍA", "VISITAS SIN VENTAS", ...). */
+/** Recuadro con título y tabla (p. ej. "Resumen del Día", "Visitas sin Ventas", ...).
+ *  Usa el mismo tema azul que el reporte de Asignación de Ruta. */
 export interface IRecuadroPdf {
   titulo: string;
   columnas: IColumnaPdf[];
@@ -19,7 +24,7 @@ export interface IRecuadroPdf {
   /** Texto de la fila "Total:" al pie (p. ej. la cantidad de filas). */
   total?: string;
   vacio?: string;
-  /** Alterna gris/blanco en las filas (como el resumen del ejemplo). */
+  /** Se mantiene por compatibilidad: todas las tablas ya llevan filas alternas. */
   cebra?: boolean;
 }
 
@@ -27,7 +32,7 @@ export interface IRecuadroPdf {
 export type FilaBloquesPdf = IRecuadroPdf[];
 
 export interface IPaginaRuteroPdf {
-  /** Líneas del encabezado izquierdo (fechas, ruta, moneda...). */
+  /** Líneas del encabezado (fechas, ruta, moneda...). */
   encabezado: string[];
   bloques: FilaBloquesPdf[];
 }
@@ -50,20 +55,20 @@ export const fmtMonto = (valor: number | null | undefined): string =>
 export const fmtPorcentaje = (valor: number | null | undefined): string =>
   valor == null || !isFinite(valor) ? "" : `${fmtMonto(valor)}%`;
 
+const MARGEN = 30;
+
 const recuadro = (r: IRecuadroPdf): Content => {
   const header: TableCell[] = r.columnas.map((c) => ({
     text: c.header,
-    bold: true,
-    fillColor: GRIS_BARRA,
+    style: "th",
     alignment: c.alignment ?? "left",
   }));
-  const body: TableCell[][] = r.filas.map((fila, i) =>
+  const body: TableCell[][] = r.filas.map((fila) =>
     r.columnas.map((c) => {
       const v = c.valor(fila);
       return {
         text: v == null ? "" : String(v),
         alignment: c.alignment ?? "left",
-        fillColor: r.cebra && i % 2 === 0 ? GRIS_FILA : undefined,
       };
     })
   );
@@ -72,32 +77,39 @@ const recuadro = (r: IRecuadroPdf): Content => {
       {
         text: r.vacio ?? "Sin registros.",
         italics: true,
-        color: "#666",
+        color: "#888",
         colSpan: r.columnas.length,
       },
       ...r.columnas.slice(1).map((): TableCell => ""),
     ]);
   }
   if (r.total != null) {
-    body.push([
-      { text: "Total:", bold: true },
-      {
-        text: r.total,
+    const filaTotal: TableCell[] = [
+      { text: "Total:", bold: true, color: PDF_COLOR_PRIMARIO, fillColor: PDF_COLOR_FONDO },
+    ];
+    if (r.columnas.length > 1) {
+      filaTotal.push(
+        {
+          text: r.total,
+          bold: true,
+          colSpan: r.columnas.length - 1,
+          fillColor: PDF_COLOR_FONDO,
+        },
+        ...r.columnas.slice(2).map((): TableCell => "")
+      );
+    } else {
+      filaTotal[0] = {
+        text: `Total: ${r.total}`,
         bold: true,
-        colSpan: Math.max(r.columnas.length - 1, 1),
-      },
-      ...r.columnas.slice(2).map((): TableCell => ""),
-    ]);
+        color: PDF_COLOR_PRIMARIO,
+        fillColor: PDF_COLOR_FONDO,
+      };
+    }
+    body.push(filaTotal);
   }
   return {
     stack: [
-      {
-        text: r.titulo.toUpperCase(),
-        bold: true,
-        alignment: "center",
-        characterSpacing: 1,
-        margin: [0, 0, 0, 2],
-      },
+      { text: r.titulo, style: "seccion" },
       {
         table: {
           headerRows: 1,
@@ -105,12 +117,7 @@ const recuadro = (r: IRecuadroPdf): Content => {
           widths: r.columnas.map((c) => c.width ?? "auto"),
           body: [header, ...body],
         },
-        layout: {
-          hLineWidth: (i: number) => (i === 1 ? 0.5 : 0),
-          vLineWidth: () => 0,
-          paddingTop: () => 1,
-          paddingBottom: () => 1,
-        },
+        layout: layoutTablaPdfFr,
       },
     ],
     margin: [0, 0, 0, 12],
@@ -122,44 +129,35 @@ const filaBloques = (fila: FilaBloquesPdf): Content =>
     ? recuadro(fila[0])
     : { columns: fila.map(recuadro), columnGap: 18 };
 
-/** Abre un reporte con el formato de los reportes de Softland FR: encabezado a la izquierda,
- *  Fecha/Hora/Página a la derecha y recuadros con barra gris. `ventana` igual que abrirReportePdf. */
+/** Abre un reporte "Generar Reporte" del módulo FR (encabezado + recuadros) con el tema azul
+ *  común. `ventana` igual que abrirReportePdf. */
 export const abrirReporteRuteroPdf = (
   reporte: IReporteRuteroPdf,
   ventana: Window | null = null
 ): void => {
-  const ahora = new Date();
+  const horizontal = reporte.horizontal !== false;
+  const ancho = anchoUtilPdf(horizontal, MARGEN, MARGEN);
   const content: Content[] = [];
   reporte.paginas.forEach((pagina, i) => {
-    content.push({
-      stack: [
-        { text: reporte.titulo, fontSize: 14, bold: true },
-        ...pagina.encabezado.map((l): Content => ({ text: l, fontSize: 11 })),
-      ],
-      margin: [0, 0, 150, 12],
-      pageBreak: i > 0 ? "before" : undefined,
-    });
+    content.push(
+      ...encabezadoPdfFr(
+        reporte.titulo,
+        ancho,
+        pagina.encabezado,
+        i > 0 ? "before" : undefined
+      )
+    );
     pagina.bloques.forEach((f) => content.push(filaBloques(f)));
   });
 
   const docDefinition: TDocumentDefinitions = {
     pageSize: "LETTER",
-    pageOrientation: reporte.horizontal === false ? "portrait" : "landscape",
-    pageMargins: [30, 30, 30, 30],
+    pageOrientation: horizontal ? "landscape" : "portrait",
+    pageMargins: [MARGEN, MARGEN, MARGEN, 40],
     info: { title: reporte.titulo },
     defaultStyle: { font: "Roboto", fontSize: 8 },
-    header: (pagina: number, total: number): Content => ({
-      table: {
-        body: [
-          [{ text: "Fecha :", bold: true }, formatDate(ahora, "dd/MM/yyyy", "en-US")],
-          [{ text: "Hora :", bold: true }, formatDate(ahora, "h:mm a", "en-US")],
-          [{ text: "Página :", bold: true }, `${pagina} de ${total}`],
-        ],
-      },
-      layout: "noBorders",
-      fontSize: 9,
-      absolutePosition: { x: reporte.horizontal === false ? 470 : 630, y: 26 },
-    }),
+    styles: estilosPdfFr,
+    footer: piePdfFr(MARGEN, MARGEN),
     content,
   };
   pdfMake.createPdf(docDefinition).open({}, ventana);

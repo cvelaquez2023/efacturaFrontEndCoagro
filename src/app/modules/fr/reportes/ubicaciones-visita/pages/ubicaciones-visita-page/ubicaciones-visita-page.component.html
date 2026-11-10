@@ -1,6 +1,9 @@
-<h2>Reporte de Ubicaciones por Visita</h2>
+<div class="fr-page">
+<h2 class="fr-title">Reporte de Ubicaciones por Visita</h2>
 
-<mat-card class="reporte-filtro">
+<div class="row g-3 mb-3">
+<div class="col-12 col-xxl-5">
+<mat-card class="reporte-filtro h-100 mb-0">
   <div class="reporte-descripcion">
     Este reporte muestra las ubicaciones donde fueron efectuadas las visitas y las compara con las
     ubicaciones registradas a los clientes, para determinar si la visita está dentro de la
@@ -22,20 +25,22 @@
       [hasta]="filtroForm.get('razonHasta')"
     ></app-rango-f1>
 
-    <div fxLayout="row wrap" fxLayoutGap="12px">
-      <fieldset class="grupo" fxFlex="1 1 200px">
+    <div class="row g-3 mb-3">
+      <div class="col-12 col-md-5">
+      <fieldset class="grupo h-100 mb-0">
         <legend>Estado Visita</legend>
-        <div fxLayout="column" fxLayoutGap="8px" class="estados">
-          <mat-checkbox formControlName="dentroGps">Dentro GPS</mat-checkbox>
-          <mat-checkbox formControlName="fueraGps">Fuera GPS</mat-checkbox>
+        <div class="estados d-flex flex-column gap-2">
+          <mat-checkbox formControlName="dentroGps" (change)="cambioEstado('dentroGps')">Dentro GPS</mat-checkbox>
+          <mat-checkbox formControlName="fueraGps" (change)="cambioEstado('fueraGps')">Fuera GPS</mat-checkbox>
         </div>
         <mat-form-field appearance="outline" class="distancia">
           <mat-label>Distancia permitida (m)</mat-label>
           <input formControlName="distancia" matInput type="number" min="1" />
         </mat-form-field>
       </fieldset>
-
-      <fieldset class="grupo" fxFlex="1 1 300px">
+      </div>
+      <div class="col-12 col-md-7">
+      <fieldset class="grupo h-100 mb-0">
         <legend>Fecha</legend>
         <mat-form-field appearance="outline" class="full">
           <mat-label>Desde</mat-label>
@@ -46,9 +51,10 @@
           <input formControlName="hasta" matInput type="date" />
         </mat-form-field>
       </fieldset>
+      </div>
     </div>
 
-    <div class="acciones" fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
+    <div class="acciones">
       <button mat-raised-button color="primary" type="button" (click)="imprimir()">
         <mat-icon>print</mat-icon> Imprimir
       </button>
@@ -56,78 +62,114 @@
     </div>
   </form>
 </mat-card>
+</div>
+<div class="col-12 col-xxl-7 mapa-col">
+  <app-mapa-visitas
+    [puntos]="resultados.data"
+    [radio]="filtroForm.value.distancia"
+    (refrescar)="refrescarEnVivo()"
+  ></app-mapa-visitas>
+</div>
+</div>
 
-<div *ngIf="consultado" class="resultado-barra" fxLayout="row wrap" fxLayoutAlign="space-between center">
-  <div fxLayout="row wrap" fxLayoutGap="8px" fxLayoutAlign="start center">
+<div *ngIf="consultado && ubicacionesClienteNoDisponibles" class="aviso-ubicaciones" role="status">
+  <mat-icon>info</mat-icon>
+  No se pudo leer la ubicación registrada de los clientes (CLIENTE_UBICACION, /fr/clienteUbicacion):
+  las visitas se muestran como "Sin ubicación de cliente".
+</div>
+
+<!-- Llamada de atención: visitas hechas fuera del radio permitido del cliente -->
+<div *ngIf="consultado && visitasFuera.length" class="alerta-fuera" role="alert">
+  <mat-icon class="alerta-icono">warning</mat-icon>
+  <div class="alerta-texto">
+    <strong>{{ visitasFuera.length }} visita(s) fuera del rango de {{ filtroForm.value.distancia }} m</strong>
+    <span>Rutas: {{ rutasFuera }}. Se marcan en rojo en la tabla y con alarma en el mapa.</span>
+  </div>
+  <button mat-stroked-button type="button" class="alerta-boton" (click)="verSoloFuera()"
+          *ngIf="!filtroForm.value.fueraGps">
+    Ver solo fuera
+  </button>
+</div>
+
+<div *ngIf="consultado" class="resultado-barra">
+  <div class="resultado-acciones">
     <strong>{{ resultados.data.length }} visita(s)</strong>
     <span class="estado ok">Dentro GPS: {{ cantidad("Dentro GPS") }}</span>
     <span class="estado error">Fuera GPS: {{ cantidad("Fuera GPS") }}</span>
     <span class="estado neutro">Sin GPS en visita: {{ cantidad("Sin GPS en visita") }}</span>
     <span class="estado neutro">Sin ubicación de cliente: {{ cantidad("Sin ubicación de cliente") }}</span>
   </div>
-  <button mat-stroked-button type="button" (click)="pdf()">
-    <mat-icon>picture_as_pdf</mat-icon> PDF
-  </button>
+  <div class="resultado-acciones">
+    <button mat-raised-button color="primary" type="button" (click)="generarReporte()">
+      <mat-icon>summarize</mat-icon> Generar Reporte
+    </button>
+    <button mat-stroked-button type="button" (click)="pdf()">
+      <mat-icon>picture_as_pdf</mat-icon> PDF
+    </button>
+  </div>
 </div>
 
-<div class="mat-elevation-z8 tabla-wrapper" [hidden]="!consultado">
-  <mat-table [dataSource]="resultados" matSort>
+<div class="fr-table-wrap tabla-wrapper" [hidden]="!consultado">
+  <table mat-table [dataSource]="resultados" matSort>
     <ng-container matColumnDef="ruta">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Ruta</mat-header-cell>
-      <mat-cell *matCellDef="let u">{{ u.ruta }}</mat-cell>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Ruta</th>
+      <td mat-cell *matCellDef="let u">{{ u.ruta }}</td>
     </ng-container>
     <ng-container matColumnDef="cliente">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Cliente</mat-header-cell>
-      <mat-cell *matCellDef="let u">{{ u.cliente }}</mat-cell>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Cliente</th>
+      <td mat-cell *matCellDef="let u">{{ u.cliente }}</td>
     </ng-container>
     <ng-container matColumnDef="nombre">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</mat-header-cell>
-      <mat-cell *matCellDef="let u">{{ u.nombre }}</mat-cell>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
+      <td mat-cell *matCellDef="let u">{{ u.nombre }}</td>
     </ng-container>
     <ng-container matColumnDef="fecha">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Fecha</mat-header-cell>
-      <mat-cell *matCellDef="let u">{{ fmtFecha(u.inicio) }}</mat-cell>
+      <th mat-header-cell class="fr-center" *matHeaderCellDef mat-sort-header>Fecha</th>
+      <td mat-cell class="fr-center" *matCellDef="let u">{{ fmtFecha(u.inicio) }}</td>
     </ng-container>
     <ng-container matColumnDef="hora">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Hora</mat-header-cell>
-      <mat-cell *matCellDef="let u">{{ fmtHora(u.inicio) }}</mat-cell>
+      <th mat-header-cell class="fr-center" *matHeaderCellDef mat-sort-header>Hora</th>
+      <td mat-cell class="fr-center" *matCellDef="let u">{{ fmtHora(u.inicio) }}</td>
     </ng-container>
     <ng-container matColumnDef="razon">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Razón</mat-header-cell>
-      <mat-cell *matCellDef="let u">{{ u.razon }}</mat-cell>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Razón</th>
+      <td mat-cell *matCellDef="let u">{{ u.razon }}</td>
     </ng-container>
     <ng-container matColumnDef="ubicacionVisita">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Ubicación Visita</mat-header-cell>
-      <mat-cell *matCellDef="let u">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Ubicación Visita</th>
+      <td mat-cell *matCellDef="let u">
         <a *ngIf="u.latVisita !== null && u.lonVisita !== null; else sinDato"
            [href]="mapa(u.latVisita, u.lonVisita)" target="_blank" rel="noopener">
           {{ coords(u.latVisita, u.lonVisita) }}
         </a>
-      </mat-cell>
+      </td>
     </ng-container>
     <ng-container matColumnDef="ubicacionCliente">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Ubicación Cliente</mat-header-cell>
-      <mat-cell *matCellDef="let u">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Ubicación Cliente</th>
+      <td mat-cell *matCellDef="let u">
         <a *ngIf="u.latCliente !== null && u.lonCliente !== null; else sinDato"
            [href]="mapa(u.latCliente, u.lonCliente)" target="_blank" rel="noopener">
           {{ coords(u.latCliente, u.lonCliente) }}
         </a>
-      </mat-cell>
+      </td>
     </ng-container>
     <ng-container matColumnDef="distancia">
-      <mat-header-cell *matHeaderCellDef mat-sort-header class="numero">Distancia (m)</mat-header-cell>
-      <mat-cell *matCellDef="let u" class="numero">{{ u.distancia ?? "—" }}</mat-cell>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header class="numero">Distancia (m)</th>
+      <td mat-cell *matCellDef="let u" class="numero" [class.texto-fuera]="u.estado === 'Fuera GPS'">{{ u.distancia ?? "—" }}</td>
     </ng-container>
     <ng-container matColumnDef="estado">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Estado</mat-header-cell>
-      <mat-cell *matCellDef="let u">
-        <span class="estado" [ngClass]="claseEstado(u.estado)">{{ u.estado }}</span>
-      </mat-cell>
+      <th mat-header-cell class="fr-center" *matHeaderCellDef mat-sort-header>Estado</th>
+      <td mat-cell class="fr-center" *matCellDef="let u">
+        <span class="estado" [ngClass]="claseEstado(u.estado)">
+          <mat-icon *ngIf="u.estado === 'Fuera GPS'" class="icono-alerta">warning</mat-icon>{{ u.estado }}
+        </span>
+      </td>
     </ng-container>
 
-    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-    <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
-  </mat-table>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"
+        [class.fila-fuera]="row.estado === 'Fuera GPS'"></tr>
+  </table>
   <div class="vacio" *ngIf="resultados.data.length === 0">
     No hay visitas para los filtros indicados.
   </div>
@@ -135,3 +177,4 @@
 </div>
 
 <ng-template #sinDato><span class="sin-dato">—</span></ng-template>
+</div>
