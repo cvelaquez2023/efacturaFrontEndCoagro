@@ -9,6 +9,7 @@ import { IResponseVendedorErp } from "../../administracion/agentes/model/agente-
 import { IResponseRutaCliente } from "../../rutas/asignacion-rutas/model/asignacion-ruta-model-interface";
 import {
   IAgenteReporte,
+  IClienteUbicacion,
   IFiltroReporteVisita,
   IPedidoReporte,
   IReporteVisita,
@@ -23,6 +24,9 @@ const URL_PEDIDOS = environment.host + "/fr/pedido";
 const URL_RUTA_ASIGNADA = environment.host + "/fr/rutaAsignadaRt";
 const URL_RUTA_CLIENTE = environment.host + "/fr/rutaCliente";
 const URL_HANDHELD = environment.host + "/fr/handheldRt";
+/** erpadmin.CLIENTE_UBICACION: punto del cliente que guardó la handheld la primera vez que tomó
+ *  sus coordenadas (llave RUTA + CLIENTE). */
+const URL_CLIENTE_UBICACION = environment.host + "/fr/clienteUbicacion";
 const URL_AGENTE_ASOC = environment.host + "/fr/agenteAsocRt";
 const URL_VENDEDOR_ERP = environment.host + "/fr/vendedorErp";
 
@@ -134,6 +138,12 @@ export class ReportesFrApiService {
   /** Todo RUTA_CLIENTE (ruta, cliente, día 1=Lunes..7=Domingo, orden). */
   getRutaClientes(): Observable<IResponseRutaCliente[]> {
     return this._todasLasPaginas<IResponseRutaCliente>(URL_RUTA_CLIENTE);
+  }
+
+  /** Todas las ubicaciones registradas de clientes (CLIENTE_UBICACION). Acepta respuesta
+   *  paginada o lista simple. */
+  getClienteUbicaciones(): Observable<IClienteUbicacion[]> {
+    return this._todasLasPaginas<IClienteUbicacion>(URL_CLIENTE_UBICACION);
   }
 
   getHandhelds(): Observable<IResponseHandheld[]> {

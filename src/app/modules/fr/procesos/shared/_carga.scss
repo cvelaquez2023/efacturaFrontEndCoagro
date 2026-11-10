@@ -1,0 +1,97 @@
+// Estilos comunes de las pantallas de carga (Carga al ERP / Carga a HandHeld).
+.carga-progreso {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  color: #616161;
+}
+
+.titulo-con-total {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.total-chip {
+  padding: 2px 10px;
+  border-radius: 12px;
+  background: #fdecea;
+  color: #b71c1c;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.estado {
+  display: inline-block;
+  min-width: 78px;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.estado-ok {
+  background: #e8f5e9;
+  color: #1b5e20;
+}
+
+.estado-error {
+  background: #ffebee;
+  color: #b71c1c;
+}
+
+.kpi-ok {
+  border-left-color: #2e7d32 !important;
+
+  .fr-kpi-value {
+    color: #1b5e20 !important;
+  }
+}
+
+.sub {
+  color: #757575;
+}
+
+// Mensajes largos: que bajen de línea en vez de ensanchar la tabla
+.col-mensaje {
+  white-space: normal;
+  min-width: 220px;
+}
+
+.lista-tablas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 8px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    font-size: 13.5px;
+  }
+
+  mat-icon {
+    flex: 0 0 auto;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: #b71c1c;
+  }
+}
+
+.mensaje-error {
+  margin: 12px 0;
+  padding: 10px 14px;
+  border-left: 4px solid #c62828;
+  border-radius: 6px;
+  background: #ffebee;
+  color: #b71c1c;
+}

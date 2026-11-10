@@ -1,103 +1,102 @@
-<h2>Carga de Datos a HandHeld</h2>
+<div class="fr-page">
+  <h2 class="fr-title">Carga de Datos a HandHeld</h2>
 
-<mat-tab-group mat-align-tabs="center">
-  <mat-tab label="Proceso">
-    <form
-      [formGroup]="procesoForm"
-      fxLayout="row wrap"
-      fxLayoutGap="16px"
-      fxLayoutAlign="start center"
-    >
-      <mat-form-field appearance="outline">
-        <mat-label>Fecha de Visita</mat-label>
-        <input formControlName="fechaVisita" matInput type="date" />
-      </mat-form-field>
-      <mat-checkbox formControlName="cargaParcial">Carga Parcial</mat-checkbox>
-      <mat-form-field
-        appearance="outline"
-        *ngIf="procesoForm.get('cargaParcial')?.value"
-      >
-        <mat-label>Ruta</mat-label>
-        <input formControlName="ruta" matInput placeholder="Codigo de ruta" />
-      </mat-form-field>
-      <div
-        *ngIf="procesoForm.get('cargaParcial')?.value"
-        fxLayout="row wrap"
-        fxLayoutGap="8px"
-      >
-        <mat-checkbox formControlName="actualizarExistencias"
-          >Actualizar Existencias</mat-checkbox
-        >
-        <mat-checkbox formControlName="actualizarPendientesCobro"
-          >Actualizar Pendientes de Cobro</mat-checkbox
-        >
-        <mat-checkbox formControlName="cargaClientesNuevos"
-          >Carga de Clientes Nuevos</mat-checkbox
-        >
+  <mat-tab-group mat-align-tabs="center" animationDuration="0ms">
+    <!-- ================= PROCESO ================= -->
+    <mat-tab label="Proceso">
+      <div class="fr-card mt-3">
+        <p class="fr-help mb-3">
+          Regenera, a partir de SoftlandERP, todos los datos que bajan las handhelds. Las rutas
+          activas y sus clientes se toman de <b>Asignación de Rutas</b> y la fecha de visita se
+          calcula automáticamente. Al terminar, cada handheld recibe los datos en su próxima
+          sincronización.
+        </p>
+
+        <h3 class="fr-card-title">Datos que se cargan</h3>
+        <ul class="lista-tablas mb-3">
+          <li *ngFor="let d of datosCargados">
+            <mat-icon>check_circle</mat-icon><span>{{ d }}</span>
+          </li>
+        </ul>
+
+        <div class="fr-actions justify-content-end">
+          <button
+            mat-raised-button
+            color="warn"
+            type="button"
+            (click)="confirmarCarga()"
+            [disabled]="ejecutando"
+          >
+            <mat-icon>cloud_upload</mat-icon> Cargar a HandHelds
+          </button>
+        </div>
+
+        <div *ngIf="ejecutando" class="carga-progreso">
+          <mat-spinner diameter="28"></mat-spinner>
+          <span>Preparando los datos de las handhelds, puede tardar unos minutos…</span>
+        </div>
       </div>
-      <button mat-raised-button color="warn" (click)="ejecutarCarga()">
-        <mat-icon>cloud_upload</mat-icon>Cargar
-      </button>
-    </form>
-    <p *ngIf="procesoFinalizado" class="mensaje-exito">
-      Proceso finalizado correctamente. Bitacora disponible en el tab Bitacoras.
-    </p>
-  </mat-tab>
 
-  <mat-tab label="Configuracion">
-    <div class="mat-elevation-z8">
-      <mat-table [dataSource]="tareas">
-        <ng-container matColumnDef="nombre">
-          <mat-header-cell *matHeaderCellDef>Nombre</mat-header-cell>
-          <mat-cell *matCellDef="let element">{{ element.nombre }}</mat-cell>
-        </ng-container>
-        <ng-container matColumnDef="tipoCarga">
-          <mat-header-cell *matHeaderCellDef>Tipo de Carga</mat-header-cell>
-          <mat-cell *matCellDef="let element">{{ element.tipoCarga }}</mat-cell>
-        </ng-container>
-        <ng-container matColumnDef="ultimaEjecucion">
-          <mat-header-cell *matHeaderCellDef>Ultima Ejecucion</mat-header-cell>
-          <mat-cell *matCellDef="let element">{{
-            element.ultimaEjecucion | date: "short"
-          }}</mat-cell>
-        </ng-container>
-        <ng-container matColumnDef="proximaEjecucion">
-          <mat-header-cell *matHeaderCellDef>Proxima Ejecucion</mat-header-cell>
-          <mat-cell *matCellDef="let element">{{
-            element.proximaEjecucion | date: "short"
-          }}</mat-cell>
-        </ng-container>
-        <mat-header-row *matHeaderRowDef="tareasColumns"></mat-header-row>
-        <mat-row *matRowDef="let row; columns: tareasColumns"></mat-row>
-      </mat-table>
-    </div>
-    <div class="search-div" fxLayout="row" fxLayoutAlign="end end">
-      <button mat-raised-button color="warn">
-        <mat-icon>add</mat-icon>Crear Tarea
-      </button>
-    </div>
-  </mat-tab>
+      <p *ngIf="ultimaEjecucion && !ejecutando && ultimaEjecucion.exito" class="mensaje-exito">
+        Proceso finalizado correctamente el {{ ultimaEjecucion.inicio | date: "dd/MM/yyyy h:mm a" }}
+        ({{ ultimaEjecucion.duracionSeg | number: "1.1-1" }} s). Las handhelds ya pueden sincronizar.
+      </p>
+      <p *ngIf="ultimaEjecucion && !ejecutando && !ultimaEjecucion.exito" class="mensaje-error">
+        La última carga falló: {{ ultimaEjecucion.mensaje }}
+      </p>
+    </mat-tab>
 
-  <mat-tab label="Bitacoras">
-    <div class="mat-elevation-z8">
-      <mat-table [dataSource]="bitacora">
-        <ng-container matColumnDef="fecha">
-          <mat-header-cell *matHeaderCellDef>Fecha</mat-header-cell>
-          <mat-cell *matCellDef="let element">{{
-            element.fecha | date: "short"
-          }}</mat-cell>
-        </ng-container>
-        <ng-container matColumnDef="estado">
-          <mat-header-cell *matHeaderCellDef>Estado</mat-header-cell>
-          <mat-cell *matCellDef="let element">{{ element.estado }}</mat-cell>
-        </ng-container>
-        <ng-container matColumnDef="archivo">
-          <mat-header-cell *matHeaderCellDef>Archivo</mat-header-cell>
-          <mat-cell *matCellDef="let element">{{ element.archivo }}</mat-cell>
-        </ng-container>
-        <mat-header-row *matHeaderRowDef="bitacoraColumns"></mat-header-row>
-        <mat-row *matRowDef="let row; columns: bitacoraColumns"></mat-row>
-      </mat-table>
-    </div>
-  </mat-tab>
-</mat-tab-group>
+    <!-- ================= CONFIGURACIÓN ================= -->
+    <mat-tab label="Configuración">
+      <div class="fr-card mt-3">
+        <h3 class="fr-card-title">Tareas programadas</h3>
+        <p class="fr-help mb-0">
+          Pendiente backend: todavía no existe un endpoint para programar la carga automática a
+          las handhelds. Por ahora la carga se ejecuta manualmente desde la pestaña <b>Proceso</b>.
+        </p>
+      </div>
+    </mat-tab>
+
+    <!-- ================= BITÁCORAS ================= -->
+    <mat-tab label="Bitácoras">
+      <div class="fr-card mt-3">
+        <h3 class="fr-card-title">Ejecuciones de esta sesión</h3>
+        <p class="fr-help">
+          El procedimiento no guarda bitácora en la base de datos; aquí se muestran las cargas
+          hechas desde este navegador.
+        </p>
+        <div class="fr-table-wrap">
+          <table mat-table [dataSource]="ejecuciones">
+            <ng-container matColumnDef="inicio">
+              <th mat-header-cell *matHeaderCellDef class="fr-center">Fecha</th>
+              <td mat-cell *matCellDef="let e" class="fr-center">{{ e.inicio | date: "dd/MM/yyyy h:mm a" }}</td>
+            </ng-container>
+            <ng-container matColumnDef="estado">
+              <th mat-header-cell *matHeaderCellDef class="fr-center">Estado</th>
+              <td mat-cell *matCellDef="let e" class="fr-center">
+                <span class="estado" [class.estado-ok]="e.exito" [class.estado-error]="!e.exito">
+                  {{ e.exito ? "Exitosa" : "Con errores" }}
+                </span>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="duracion">
+              <th mat-header-cell *matHeaderCellDef class="fr-num">Duración</th>
+              <td mat-cell *matCellDef="let e" class="fr-num">{{ e.duracionSeg | number: "1.1-1" }} s</td>
+            </ng-container>
+            <ng-container matColumnDef="mensaje">
+              <th mat-header-cell *matHeaderCellDef>Detalle</th>
+              <td mat-cell *matCellDef="let e" class="col-mensaje">{{ e.mensaje }}</td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="ejecucionesColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: ejecucionesColumns"></tr>
+            <tr class="mat-row" *matNoDataRow>
+              <td class="mat-cell fr-empty" [attr.colspan]="ejecucionesColumns.length">
+                Aún no se ha ejecutado la carga en esta sesión.
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

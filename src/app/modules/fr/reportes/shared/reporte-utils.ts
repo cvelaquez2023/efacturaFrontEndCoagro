@@ -125,6 +125,7 @@ export const abrirSelectorF1 = (
   dialog
     .open(F1SelectorComponent, {
       width: "640px",
+      maxWidth: "96vw",
       data: { titulo, items },
     })
     .afterClosed()

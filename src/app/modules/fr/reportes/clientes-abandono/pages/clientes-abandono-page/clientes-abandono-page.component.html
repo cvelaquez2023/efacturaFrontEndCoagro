@@ -1,4 +1,5 @@
-<h2>Reporte de Clientes en Abandono</h2>
+<div class="fr-page">
+<h2 class="fr-title">Reporte de Clientes en Abandono</h2>
 
 <mat-card class="reporte-filtro">
   <div class="reporte-descripcion">
@@ -23,14 +24,14 @@
 
     <fieldset class="grupo">
       <legend>Días en Abandono</legend>
-      <mat-form-field appearance="outline" fxFlex="1 1 220px">
+      <mat-form-field appearance="outline" class="campo-corto">
         <mat-label>Cantidad</mat-label>
         <input formControlName="dias" matInput type="number" min="0" />
         <mat-error>Obligatorio, mayor o igual a cero</mat-error>
       </mat-form-field>
     </fieldset>
 
-    <div class="acciones" fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
+    <div class="acciones">
       <button mat-raised-button color="primary" type="button" (click)="imprimir()">
         <mat-icon>print</mat-icon> Imprimir
       </button>
@@ -39,9 +40,9 @@
   </form>
 </mat-card>
 
-<div *ngIf="consultado" class="resultado-barra" fxLayout="row" fxLayoutAlign="space-between center">
+<div *ngIf="consultado" class="resultado-barra">
   <strong>{{ resultados.data.length }} cliente(s) en abandono</strong>
-  <div fxLayout="row" fxLayoutGap="8px">
+  <div class="resultado-acciones">
     <button mat-raised-button color="primary" type="button" (click)="generarReporte()">
       <mat-icon>summarize</mat-icon> Generar Reporte
     </button>
@@ -55,54 +56,55 @@
   backend. La columna se muestra vacía.
 </div>
 
-<div class="mat-elevation-z8 tabla-wrapper" [hidden]="!consultado">
-  <mat-table [dataSource]="resultados" matSort>
+<div class="fr-table-wrap tabla-wrapper" [hidden]="!consultado">
+  <table mat-table [dataSource]="resultados" matSort>
     <ng-container matColumnDef="ruta">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Ruta</mat-header-cell>
-      <mat-cell *matCellDef="let element">{{ element.ruta }}</mat-cell>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Ruta</th>
+      <td mat-cell *matCellDef="let element">{{ element.ruta }}</td>
     </ng-container>
     <ng-container matColumnDef="rutaDescripcion">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Descripción Ruta</mat-header-cell>
-      <mat-cell *matCellDef="let element">{{ element.rutaDescripcion }}</mat-cell>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Descripción Ruta</th>
+      <td mat-cell *matCellDef="let element">{{ element.rutaDescripcion }}</td>
     </ng-container>
     <ng-container matColumnDef="cliente">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Cliente</mat-header-cell>
-      <mat-cell *matCellDef="let element">{{ element.cliente }}</mat-cell>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Cliente</th>
+      <td mat-cell *matCellDef="let element">{{ element.cliente }}</td>
     </ng-container>
     <ng-container matColumnDef="nombre">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</mat-header-cell>
-      <mat-cell *matCellDef="let element">{{ element.nombre }}</mat-cell>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
+      <td mat-cell *matCellDef="let element">{{ element.nombre }}</td>
     </ng-container>
     <ng-container matColumnDef="dias">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Día de Visita</mat-header-cell>
-      <mat-cell *matCellDef="let element">{{ element.dias }}</mat-cell>
+      <th mat-header-cell class="fr-center" *matHeaderCellDef mat-sort-header>Día de Visita</th>
+      <td mat-cell class="fr-center" *matCellDef="let element">{{ element.dias }}</td>
     </ng-container>
     <ng-container matColumnDef="ultimaVisita">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Última Visita</mat-header-cell>
-      <mat-cell *matCellDef="let element">{{ fmtFecha(element.ultimaVisita) || "—" }}</mat-cell>
+      <th mat-header-cell class="fr-center" *matHeaderCellDef mat-sort-header>Última Visita</th>
+      <td mat-cell class="fr-center" *matCellDef="let element">{{ fmtFecha(element.ultimaVisita) || "—" }}</td>
     </ng-container>
     <ng-container matColumnDef="diasSinVisita">
-      <mat-header-cell *matHeaderCellDef mat-sort-header class="numero">Días sin Visita</mat-header-cell>
-      <mat-cell *matCellDef="let element" class="numero">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header class="numero">Días sin Visita</th>
+      <td mat-cell *matCellDef="let element" class="numero">
         <span class="estado" [ngClass]="element.diasSinVisita === null ? 'error' : 'proceso'">
           {{ textoDiasSinVisita(element) }}
         </span>
-      </mat-cell>
+      </td>
     </ng-container>
     <ng-container matColumnDef="ultimoPedido">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Último Pedido</mat-header-cell>
-      <mat-cell *matCellDef="let element">{{ fmtFecha(element.ultimoPedido) }}</mat-cell>
+      <th mat-header-cell class="fr-center" *matHeaderCellDef mat-sort-header>Último Pedido</th>
+      <td mat-cell class="fr-center" *matCellDef="let element">{{ fmtFecha(element.ultimoPedido) }}</td>
     </ng-container>
     <ng-container matColumnDef="montoUltimoPedido">
-      <mat-header-cell *matHeaderCellDef mat-sort-header class="numero">Monto Último Pedido</mat-header-cell>
-      <mat-cell *matCellDef="let element" class="numero">{{ fmtMonto(element.montoUltimoPedido) }}</mat-cell>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header class="numero">Monto Último Pedido</th>
+      <td mat-cell *matCellDef="let element" class="numero">{{ fmtMonto(element.montoUltimoPedido) }}</td>
     </ng-container>
 
-    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-    <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
-  </mat-table>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
   <div class="vacio" *ngIf="resultados.data.length === 0">
     No hay clientes en abandono para los filtros indicados.
   </div>
   <mat-paginator [pageSizeOptions]="[25, 50, 100]" showFirstLastButtons></mat-paginator>
+</div>
 </div>

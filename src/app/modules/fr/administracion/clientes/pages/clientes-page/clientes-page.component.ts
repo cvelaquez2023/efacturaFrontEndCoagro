@@ -55,7 +55,7 @@ export class ClientesPageComponent implements OnInit, AfterViewInit {
 
   clickEdit(element: IResponseClienteConAsoc): void {
     this._dialog
-      .open(AddClienteFrComponent, { width: "40%", data: element })
+      .open(AddClienteFrComponent, { width: "640px", maxWidth: "96vw", data: element })
       .afterClosed()
       .subscribe((val) => {
         if (val === "update") {

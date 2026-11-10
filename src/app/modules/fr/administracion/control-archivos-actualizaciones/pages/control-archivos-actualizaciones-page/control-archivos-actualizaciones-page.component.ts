@@ -63,7 +63,7 @@ export class ControlArchivosActualizacionesPageComponent
 
   openDialog(): void {
     this._dialog
-      .open(AddActualizacionComponent, { width: "40%" })
+      .open(AddActualizacionComponent, { width: "640px", maxWidth: "96vw" })
       .afterClosed()
       .subscribe((result: IActualizacionFr) => {
         if (result) {

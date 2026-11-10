@@ -1,31 +1,49 @@
 // Estilo común de las pantallas de filtro de los reportes de FR (imitan la ventana de filtro de
 // Softland: texto descriptivo, grupos de parámetros, botones Imprimir / Cancelar).
+// Colores y tablas siguen el tema claro rojo/blanco de fr-theme.scss.
+
+$fr-red: #c62828;
+$fr-red-dark: #8e0000;
+$fr-border: #e0e0e0;
 
 .reporte-filtro {
-  max-width: 760px;
+  max-width: 820px;
   margin-bottom: 16px;
+  border: 1px solid $fr-border;
+  border-radius: 8px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+
+  @media (max-width: 575.98px) {
+    padding: 12px !important;
+  }
 }
 
 .reporte-descripcion {
-  background: #f5f7fb;
-  border: 1px solid #dde3ee;
-  border-radius: 4px;
+  background: #fafafa;
+  border: 1px solid $fr-border;
+  border-left: 4px solid $fr-red;
+  border-radius: 6px;
   padding: 10px 14px;
   margin-bottom: 14px;
-  color: #333;
+  color: #5f6368;
+  font-size: 13.5px;
 }
 
 .grupo {
-  border: 1px solid #dde3ee;
-  border-radius: 4px;
+  border: 1px solid $fr-border;
+  border-radius: 6px;
   padding: 8px 14px 0;
-  margin-bottom: 12px;
+  margin: 0 0 12px;
+  min-width: 0;
 
   legend,
   .grupo-titulo {
+    float: none;
+    width: auto;
     font-weight: 600;
-    color: #1f3864;
+    color: $fr-red-dark;
     padding: 0 4px;
+    margin: 0;
     font-size: 13px;
   }
 }
@@ -33,19 +51,42 @@
 .rango-etiqueta {
   width: 60px;
   padding-top: 18px;
-  color: #444;
+  color: #5f6368;
 }
 
 .acciones {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px 16px;
   padding: 4px 0 8px;
 
   button {
     min-width: 120px;
   }
+
+  @media (max-width: 575.98px) {
+    button {
+      flex: 1 1 100%;
+    }
+  }
 }
 
+// Barra de resultado: total a la izquierda, botones a la derecha; se apila en teléfono
 .resultado-barra {
-  padding: 4px 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  padding: 4px 0 12px;
+}
+
+.resultado-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
 }
 
 .tabla-wrapper {
@@ -55,26 +96,30 @@
 .vacio {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   padding: 24px;
-  color: #666;
+  color: #5f6368;
 
   &.pendiente {
     color: #b71c1c;
   }
 }
 
+// Columnas numéricas: alineadas a la derecha en encabezado y celda (ver fr-theme .numero)
 .mat-cell.numero,
 .mat-header-cell.numero {
-  justify-content: flex-end;
-  padding-right: 16px;
+  text-align: right;
+  white-space: nowrap;
 }
 
 .estado {
+  display: inline-block;
   border-radius: 12px;
   padding: 2px 10px;
   font-size: 12px;
   font-weight: 500;
+  white-space: nowrap;
 
   &.ok {
     background: #e8f5e9;
@@ -102,4 +147,9 @@
   background: #fff8e1;
   font-size: 13px;
   color: #5d4037;
+}
+
+.campo-corto {
+  width: 100%;
+  max-width: 280px;
 }

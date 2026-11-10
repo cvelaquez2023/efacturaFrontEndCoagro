@@ -40,6 +40,17 @@ html,
 body {
 	height: 100%;
 }
+// El sitio es solo claro: le indica al navegador que no aplique modo oscuro automático
+:root {
+	color-scheme: only light;
+}
+body {
+	background-color: #fff;
+	color: rgba(0, 0, 0, 0.87);
+}
+
+// Bootstrap (grid + utilidades) y tema claro, solo dentro de Facturación de Rutas (.fr-page)
+@import './app/modules/fr/fr-theme';
 body {
 	margin: 0;
 	font-family: Roboto, 'Helvetica Neue', sans-serif;
@@ -202,4 +213,49 @@ mat-paginator {
 }
 .mat-select-value {
 	color:rgba(0, 0, 0, 0.6);
+}
+
+/* Paginador: selector "Registros por página" compacto y en una sola línea
+   (anula el subrayado relativo y el width:100% de los form-fields) */
+.mat-paginator-container {
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	row-gap: 4px;
+}
+.mat-paginator-page-size {
+	align-items: center !important;
+	margin-right: 16px;
+
+	.mat-paginator-page-size-label {
+		white-space: nowrap;
+		margin: 0 8px 0 0;
+	}
+
+	.mat-paginator-page-size-select.mat-form-field {
+		width: 72px !important;
+		margin: 0 !important;
+	}
+
+	.mat-form-field-wrapper {
+		padding-bottom: 0 !important;
+	}
+
+	.mat-form-field-infix {
+		width: auto !important;
+		padding: 6px 0 !important;
+		border-top: 0 !important;
+	}
+
+	.mat-form-field-underline {
+		position: absolute !important;
+		bottom: 0 !important;
+	}
+
+	.mat-form-field-subscript-wrapper {
+		display: none !important;
+	}
+}
+.mat-paginator-range-label {
+	white-space: nowrap;
+	margin: 0 16px 0 8px !important;
 }

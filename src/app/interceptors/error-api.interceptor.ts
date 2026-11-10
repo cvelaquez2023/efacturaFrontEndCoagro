@@ -6,12 +6,17 @@ import {
   HttpEvent,
   HttpInterceptor,
   HttpErrorResponse,
+  HttpContextToken,
 } from "@angular/common/http";
 import { catchError, finalize, Observable, throwError, timeout } from "rxjs";
 import { SnotifyPosition, SnotifyService } from "ng-snotify";
 import { NgxUiLoaderService } from "ngx-ui-loader";
 
 const REQUEST_TIMEOUT_MS = 20000;
+
+/** Tiempo máximo de espera de una petición; los procesos largos (cargas FR) lo amplían con
+ *  `new HttpContext().set(TIEMPO_ESPERA_HTTP, ms)`. */
+export const TIEMPO_ESPERA_HTTP = new HttpContextToken<number>(() => REQUEST_TIMEOUT_MS);
 
 @Injectable()
 export class ErrorApiInterceptor implements HttpInterceptor {
@@ -27,7 +32,7 @@ export class ErrorApiInterceptor implements HttpInterceptor {
     this._ngxService.start();
 
     return next.handle(request).pipe(
-      timeout(REQUEST_TIMEOUT_MS),
+      timeout(request.context.get(TIEMPO_ESPERA_HTTP)),
       finalize(() => {
         this._ngxService.stop();
       }),

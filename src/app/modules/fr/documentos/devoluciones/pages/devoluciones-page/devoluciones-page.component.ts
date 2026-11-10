@@ -94,7 +94,7 @@ export class DevolucionesPageComponent implements OnInit, AfterViewInit {
 
   clickEdit(element: IDevolucionFr): void {
     this._dialog
-      .open(DefinirLoteDevolucionComponent, { width: "45%", data: element })
+      .open(DefinirLoteDevolucionComponent, { width: "720px", maxWidth: "96vw", data: element })
       .afterClosed()
       .subscribe((result: IDevolucionFr) => {
         if (result) {

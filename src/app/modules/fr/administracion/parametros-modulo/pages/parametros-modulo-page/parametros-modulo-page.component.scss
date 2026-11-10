@@ -1,12 +1,8 @@
 @use '../../../../../../shared/styles/colors.scss';
 
-.parametros-container {
-	padding: 8px 16px 24px;
-}
-
 .aviso-creacion {
 	background-color: #fdecea;
-	border-left: 4px solid #b71c1c;
+	border-left: 4px solid #c62828;
 	color: #b71c1c;
 	padding: 10px 14px;
 	border-radius: 4px;
@@ -27,7 +23,11 @@
 }
 
 .tab-content {
-	padding: 20px 8px;
+	padding: 20px 16px;
+
+	@media (max-width: 575.98px) {
+		padding: 16px 8px;
+	}
 }
 
 .checkbox-grid {
@@ -51,55 +51,9 @@
 	}
 }
 
-// Grilla estilo Bootstrap (12 columnas), misma lógica usada en los diálogos de
-// Grupo de Artículo/Agente/Bodega: columnas angostas para valores cortos (códigos,
-// números) y anchas para valores largos (nombres, direcciones, textos libres).
-$gutter: 12px;
-
-.fields-section {
-	.row {
-		display: flex;
-		flex-wrap: wrap;
-		margin-left: -$gutter;
-		margin-right: -$gutter;
-		row-gap: 4px;
-	}
-
-	[class^='col-'],
-	[class*=' col-'] {
-		padding-left: $gutter;
-		padding-right: $gutter;
-		// Margen superior para que la etiqueta flotante no se corte al enfocar el campo
-		margin-top: 8px;
-		box-sizing: border-box;
-		min-width: 0;
-
-		mat-form-field {
-			width: 100%;
-		}
-	}
-
-	.col-12 {
-		flex: 0 0 100%;
-		max-width: 100%;
-	}
-
-	@media (min-width: 768px) {
-		.col-md-30 {
-			flex: 0 0 30%;
-			max-width: 30%;
-		}
-
-		.col-md-50 {
-			flex: 0 0 50%;
-			max-width: 50%;
-		}
-
-		.col-md-70 {
-			flex: 0 0 70%;
-			max-width: 70%;
-		}
-	}
+// Grilla: Bootstrap (row g-3 / col-*) desde fr-theme.scss; colClass() en el .ts elige el ancho.
+.fields-section mat-form-field {
+	width: 100%;
 }
 
 .acciones {

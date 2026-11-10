@@ -1,0 +1,66 @@
+.cfg-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #b71c1c;
+}
+
+.cfg-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin-bottom: 16px;
+  padding: 10px 14px;
+  background: #fafafa;
+  border: 1px solid #e0e0e0;
+  border-left: 4px solid #d32f2f;
+  border-radius: 6px;
+}
+
+.cfg-header-item {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.cfg-grow {
+  flex: 1 1 200px;
+}
+
+.cfg-label {
+  font-size: 12px;
+  color: #757575;
+}
+
+.cfg-value {
+  font-weight: 500;
+  word-break: break-word;
+}
+
+.cfg-checks {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+// Que las etiquetas largas bajen de línea en teléfono en vez de desbordar el diálogo
+:host ::ng-deep .cfg-checks .mat-checkbox-layout {
+  white-space: normal;
+  align-items: flex-start;
+}
+
+:host ::ng-deep .cfg-checks .mat-checkbox-inner-container {
+  margin-top: 2px;
+}
+
+.cfg-tag {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 0 6px;
+  font-size: 11px;
+  line-height: 18px;
+  color: #616161;
+  background: #eeeeee;
+  border-radius: 9px;
+  white-space: nowrap;
+}

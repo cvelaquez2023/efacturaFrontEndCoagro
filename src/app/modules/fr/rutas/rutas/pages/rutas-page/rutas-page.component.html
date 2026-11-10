@@ -1,7 +1,8 @@
-<h2>Rutas</h2>
+<div class="fr-page">
+<h2 class="fr-title"><mat-icon>alt_route</mat-icon>Rutas</h2>
 
-<div class="search-div" fxLayout="row" fxLayoutAlign="space-between center">
-  <form class="buscar">
+<div class="fr-card fr-toolbar">
+  <form class="fr-search">
     <mat-form-field class="full-with" appearance="fill">
       <mat-icon matPrefix>search</mat-icon>
       <input
@@ -22,42 +23,42 @@
   </button>
 </div>
 
-<div class="rt-table-wrap mat-elevation-z8">
-  <mat-table [dataSource]="listRutas" matSort class="rt-table">
+<div class="fr-table-wrap">
+  <table mat-table [dataSource]="listRutas" matSort>
     <ng-container matColumnDef="ruta">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Ruta</mat-header-cell>
-      <mat-cell *matCellDef="let element">{{ element.RUTA }}</mat-cell>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Ruta</th>
+      <td mat-cell *matCellDef="let element">{{ element.RUTA }}</td>
     </ng-container>
     <ng-container matColumnDef="descripcion">
-      <mat-header-cell *matHeaderCellDef mat-sort-header
-        >Descripción</mat-header-cell
+      <th mat-header-cell *matHeaderCellDef mat-sort-header
+        >Descripción</th
       >
-      <mat-cell *matCellDef="let element">{{ element.DESCRIPCION }}</mat-cell>
+      <td mat-cell *matCellDef="let element">{{ element.DESCRIPCION }}</td>
     </ng-container>
     <ng-container matColumnDef="activa">
-      <mat-header-cell *matHeaderCellDef mat-sort-header
-        >Activa</mat-header-cell
+      <th mat-header-cell *matHeaderCellDef mat-sort-header
+        >Activa</th
       >
-      <mat-cell *matCellDef="let element">
+      <td mat-cell *matCellDef="let element">
         <mat-icon [color]="element.ACTIVA === 'S' ? 'primary' : 'warn'">{{
           element.ACTIVA === "S" ? "check_circle" : "cancel"
         }}</mat-icon>
         {{ element.ACTIVA === "S" ? "Ruta Activa" : "Ruta Inactiva" }}
-      </mat-cell>
+      </td>
     </ng-container>
     <ng-container matColumnDef="periodicidad">
-      <mat-header-cell *matHeaderCellDef mat-sort-header
-        >Periodicidad</mat-header-cell
+      <th mat-header-cell *matHeaderCellDef mat-sort-header
+        >Periodicidad</th
       >
-      <mat-cell *matCellDef="let element">{{
+      <td mat-cell *matCellDef="let element">{{
         element.PERIODICIDAD === "D"
           ? "Periodicidad Diaria"
           : "Periodicidad Semanal"
-      }}</mat-cell>
+      }}</td>
     </ng-container>
     <ng-container matColumnDef="actions">
-      <mat-header-cell *matHeaderCellDef></mat-header-cell>
-      <mat-cell *matCellDef="let element" class="actions-cell">
+      <th mat-header-cell *matHeaderCellDef class="fr-col-actions">Acciones</th>
+      <td mat-cell *matCellDef="let element" class="fr-col-actions">
         <button
           mat-icon-button
           color="primary"
@@ -74,25 +75,26 @@
         >
           <mat-icon>delete</mat-icon>
         </button>
-      </mat-cell>
+      </td>
     </ng-container>
 
-    <mat-header-row
+    <tr mat-header-row
       *matHeaderRowDef="displayedColumns"
       class="rt-header-row"
-    ></mat-header-row>
-    <mat-row
+    ></tr>
+    <tr mat-row
       *matRowDef="let row; columns: displayedColumns"
       class="rt-row"
-    ></mat-row>
+    ></tr>
     <tr class="mat-row" *matNoDataRow>
-      <td class="mat-cell" colspan="5">
+      <td class="mat-cell fr-empty" [attr.colspan]="displayedColumns.length">
         No hay datos que coincidan con el filtro "{{ input.value }}"
       </td>
     </tr>
-  </mat-table>
+  </table>
   <mat-paginator
     [pageSizeOptions]="[10, 25, 75, 100]"
     showFirstLastButtons
   ></mat-paginator>
+</div>
 </div>

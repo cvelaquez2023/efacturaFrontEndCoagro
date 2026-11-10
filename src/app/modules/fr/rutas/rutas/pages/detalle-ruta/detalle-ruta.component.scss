@@ -3,8 +3,7 @@
 	margin-right: 6px;
 }
 .dr-content {
-	min-width: 70vw;
-	max-width: 90vw;
+	max-width: 100%;
 }
 
 /* Ruta Asignada / Asignación de Agente / Actividad de la Ruta */
@@ -131,7 +130,6 @@
 
 /* Consecutivos por compañía */
 .dr-table-wrap {
-	overflow-x: auto;
 	max-height: 32vh;
 	border-radius: 4px;
 }
@@ -142,15 +140,7 @@
 .dr-table th.mat-header-cell {
 	position: sticky;
 	top: 0;
-	background: #fafafa;
-	font-size: 0.78rem;
-	color: rgba(0, 0, 0, 0.6);
-	padding: 0 10px;
 	z-index: 1;
-}
-.dr-table td.mat-cell {
-	padding: 4px 10px;
-	font-size: 0.85rem;
 }
 .dr-table input {
 	width: 100%;
@@ -163,9 +153,6 @@
 .dr-table input:focus {
 	outline: none;
 	border-bottom: 2px solid #f44336;
-}
-.dr-row-selected {
-	background-color: rgba(244, 67, 54, 0.08);
 }
 .dr-f1-value {
 	margin-right: 2px;

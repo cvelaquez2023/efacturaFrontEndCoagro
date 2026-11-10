@@ -1,3 +1,4 @@
+<div class="fr-page fr-dialog">
 <h1 mat-dialog-title color="warn">
   <mat-icon class="ar-title-icon">menu_book</mat-icon>
   Mantenimiento de Ruta{{
@@ -6,8 +7,8 @@
 </h1>
 <div mat-dialog-content class="dialog-content">
   <form [formGroup]="rutaForm">
-    <div class="row">
-      <div class="col-12 col-md-25">
+    <div class="row g-3">
+      <div class="col-12 col-md-3">
         <mat-form-field appearance="outline">
           <mat-label>Ruta</mat-label>
           <input
@@ -25,7 +26,7 @@
           >
         </mat-form-field>
       </div>
-      <div class="col-12 col-md-50">
+      <div class="col-12 col-md-6">
         <mat-form-field appearance="outline">
           <mat-label>Descripción</mat-label>
           <input
@@ -42,7 +43,7 @@
           >
         </mat-form-field>
       </div>
-      <div class="col-12 col-md-25">
+      <div class="col-12 col-md-3">
         <mat-form-field appearance="outline">
           <mat-label>Periodicidad</mat-label>
           <mat-select formControlName="periodicidad">
@@ -52,7 +53,7 @@
         </mat-form-field>
       </div>
     </div>
-    <div class="row">
+    <div class="row g-3">
       <div class="col-12">
         <mat-checkbox
           [checked]="activaField.value === 'S'"
@@ -88,7 +89,7 @@
     </div>
   </div>
 
-  <div class="ar-table-wrap mat-elevation-z2">
+  <div class="fr-table-wrap ar-table-wrap">
     <table mat-table [dataSource]="filas" class="ar-table">
       <ng-container matColumnDef="compania">
         <th mat-header-cell *matHeaderCellDef>Compañía</th>
@@ -228,7 +229,7 @@
           ]
         "
         (click)="seleccionarFilaConsecutivo(fila)"
-        [class.ar-row-selected]="fila === filaSeleccionada"
+        [class.fr-row-selected]="fila === filaSeleccionada"
       ></tr>
     </table>
     <p *ngIf="filas.length === 0" class="ar-empty">
@@ -242,4 +243,5 @@
   <button mat-raised-button color="warn" (click)="clickSave()">
     {{ actionBtn }}
   </button>
+</div>
 </div>

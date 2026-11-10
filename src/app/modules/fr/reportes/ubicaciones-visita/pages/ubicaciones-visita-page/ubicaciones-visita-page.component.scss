@@ -12,6 +12,110 @@
   margin-left: 4px;
 }
 
+// El filtro ocupa todo el ancho de su columna; el mapa iguala su alto (mínimo 420px).
+.reporte-filtro {
+  max-width: none;
+}
+
+.mapa-col {
+  min-height: 420px;
+}
+
 .sin-dato {
   color: #999;
+}
+
+// ---------- Alerta: visitas fuera del rango ----------
+.alerta-fuera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 12px 16px;
+  border: 1px solid #ef9a9a;
+  border-left: 5px solid #c62828;
+  border-radius: 8px;
+  background: #ffebee;
+  color: #b71c1c;
+  animation: alerta-latido 2s ease-in-out infinite;
+}
+
+.alerta-icono {
+  font-size: 30px;
+  width: 30px;
+  height: 30px;
+}
+
+.alerta-texto {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 220px;
+  min-width: 0;
+
+  span {
+    font-size: 13px;
+    color: #8e2424;
+  }
+}
+
+.alerta-boton {
+  color: #b71c1c !important;
+  border-color: #c62828 !important;
+
+  @media (max-width: 575.98px) {
+    flex: 1 1 100%;
+  }
+}
+
+@keyframes alerta-latido {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(198, 40, 40, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(198, 40, 40, 0);
+  }
+}
+
+// Filas fuera de rango en rojo claro (gana a la cebra y al hover del tema FR)
+:host ::ng-deep tr.mat-row.fila-fuera td {
+  background: #ffebee !important;
+}
+
+:host ::ng-deep tr.mat-row.fila-fuera td:first-child {
+  box-shadow: inset 4px 0 0 #c62828;
+}
+
+.texto-fuera {
+  color: #c62828;
+  font-weight: 600;
+}
+
+.icono-alerta {
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+  margin-right: 3px;
+  vertical-align: -2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .alerta-fuera {
+    animation: none;
+  }
+}
+
+.aviso-ubicaciones {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  border: 1px solid #ffe082;
+  border-left: 5px solid #f9a825;
+  border-radius: 8px;
+  background: #fffde7;
+  color: #6d4c00;
+  font-size: 13.5px;
 }

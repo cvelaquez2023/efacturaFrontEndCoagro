@@ -47,7 +47,7 @@ export class SugeridosVentaPageComponent implements OnInit, AfterViewInit {
 
   openDialog(): void {
     this._dialog
-      .open(AddSugeridoVentaComponent, { width: "35%" })
+      .open(AddSugeridoVentaComponent, { width: "560px", maxWidth: "96vw" })
       .afterClosed()
       .subscribe((result: ISugeridoVentaFr) => {
         if (result) {
@@ -62,7 +62,7 @@ export class SugeridosVentaPageComponent implements OnInit, AfterViewInit {
 
   clickEdit(element: ISugeridoVentaFr): void {
     this._dialog
-      .open(AddSugeridoVentaComponent, { width: "35%", data: element })
+      .open(AddSugeridoVentaComponent, { width: "560px", maxWidth: "96vw", data: element })
       .afterClosed()
       .subscribe((result: ISugeridoVentaFr) => {
         if (result) {

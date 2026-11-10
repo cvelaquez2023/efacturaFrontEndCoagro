@@ -1,9 +1,12 @@
+<div class="fr-page fr-dialog">
 <h1 mat-dialog-title color="warn">
   {{ actionBtn === "Guardar" ? "Adicionar" : "Editar" }} Visita
 </h1>
 <div mat-dialog-content>
   <form [formGroup]="visitaForm">
-    <h3>Registro de Visita (Manual FRm, pág. 210-211)</h3>
+    <div class="row g-3">
+    <div class="col-12"><h3 class="fr-subtitle">Registro de Visita (Manual FRm, pág. 210-211)</h3></div>
+    <div class="col-12">
     <mat-form-field appearance="outline">
       <mat-label>Cliente</mat-label>
       <input
@@ -19,6 +22,8 @@
         >Máximo 20 caracteres</mat-error
       >
     </mat-form-field>
+    </div>
+    <div class="col-12 col-sm-6">
     <mat-form-field appearance="outline">
       <mat-label>Fecha / Hora Inicio</mat-label>
       <input formControlName="inicio" matInput type="datetime-local" />
@@ -26,6 +31,8 @@
         >La fecha/hora de inicio es requerida</mat-error
       >
     </mat-form-field>
+    </div>
+    <div class="col-12 col-sm-6">
     <mat-form-field appearance="outline">
       <mat-label>Fecha / Hora Fin</mat-label>
       <input formControlName="fin" matInput type="datetime-local" />
@@ -33,6 +40,8 @@
         >La fecha/hora de fin es requerida</mat-error
       >
     </mat-form-field>
+    </div>
+    <div class="col-12 col-sm-6">
     <mat-form-field appearance="outline">
       <mat-label>Tipo de Visita</mat-label>
       <mat-select formControlName="tipo">
@@ -42,6 +51,8 @@
         </mat-option>
       </mat-select>
     </mat-form-field>
+    </div>
+    <div class="col-12">
     <mat-form-field appearance="outline">
       <mat-label>Estado (Razón de Efectividad)</mat-label>
       <mat-select formControlName="razon">
@@ -56,12 +67,14 @@
         >El estado es requerido</mat-error
       >
     </mat-form-field>
+    </div>
 
-    <h3>Datos administrativos adicionales</h3>
-    <p class="hint">
+    <div class="col-12"><h3 class="fr-subtitle">Datos administrativos adicionales</h3></div>
+    <div class="col-12"><p class="hint">
       No forman parte del flujo documentado en el manual FRm, pero existen en la
       tabla real.
-    </p>
+    </p></div>
+    <div class="col-12 col-sm-6">
     <mat-form-field appearance="outline">
       <mat-label>Ruta</mat-label>
       <input formControlName="ruta" matInput placeholder="Ruta" maxlength="4" />
@@ -72,6 +85,8 @@
         >Máximo 4 caracteres</mat-error
       >
     </mat-form-field>
+    </div>
+    <div class="col-12 col-sm-6">
     <mat-form-field appearance="outline">
       <mat-label>Fecha Plan</mat-label>
       <input formControlName="fechaPlan" matInput type="date" />
@@ -79,6 +94,8 @@
         >La fecha plan es requerida</mat-error
       >
     </mat-form-field>
+    </div>
+    <div class="col-12 col-sm-6">
     <mat-form-field appearance="outline">
       <mat-label>Documento Pro</mat-label>
       <input
@@ -88,6 +105,8 @@
         maxlength="1"
       />
     </mat-form-field>
+    </div>
+    <div class="col-12">
     <mat-form-field appearance="outline" class="full-with">
       <mat-label>Notas</mat-label>
       <textarea
@@ -97,6 +116,8 @@
         maxlength="512"
       ></textarea>
     </mat-form-field>
+    </div>
+      </div>
   </form>
 </div>
 <div mat-dialog-actions [align]="'end'">
@@ -104,4 +125,5 @@
   <button mat-raised-button color="warn" (click)="clickSave()">
     {{ actionBtn }}
   </button>
+</div>
 </div>

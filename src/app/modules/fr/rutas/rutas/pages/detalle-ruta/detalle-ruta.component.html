@@ -1,3 +1,4 @@
+<div class="fr-page fr-dialog">
 <h1 mat-dialog-title color="warn">
   <mat-icon class="dr-title-icon">alt_route</mat-icon>
   Detalle de Ruta {{ ruta.RUTA }} · {{ ruta.DESCRIPCION }}
@@ -5,13 +6,8 @@
 
 <div mat-dialog-content class="dr-content">
   <!-- Ruta Asignada / Asignación de Agente / Actividad de la Ruta -->
-  <div
-    fxLayout="row"
-    fxLayout.lt-md="column"
-    fxLayoutGap="16px"
-    class="dr-header"
-  >
-    <mat-card fxFlex="30" class="dr-box">
+  <div class="row g-3 dr-header">
+    <div class="col-12 col-md-4"><mat-card class="dr-box h-100">
       <div class="dr-box-title">
         <mat-icon>alt_route</mat-icon> Ruta Asignada
       </div>
@@ -35,9 +31,9 @@
         <span class="dr-label">Compañía(s):</span>
         <span class="dr-value">{{ companiasTexto }}</span>
       </div>
-    </mat-card>
+    </mat-card></div>
 
-    <mat-card fxFlex="35" class="dr-box">
+    <div class="col-12 col-md-5"><mat-card class="dr-box h-100">
       <div class="dr-box-title">
         <mat-icon>person</mat-icon> Asignación de Agente
       </div>
@@ -68,15 +64,15 @@
         <mat-icon>local_shipping</mat-icon>
         Camión/Bodega: <strong>{{ cabecera.bodega || "Seleccionar…" }}</strong>
       </button>
-    </mat-card>
+    </mat-card></div>
 
-    <mat-card fxFlex="20" class="dr-box">
+    <div class="col-12 col-md-3"><mat-card class="dr-box h-100">
       <div class="dr-box-title">Actividad de la Ruta</div>
       <mat-radio-group [(ngModel)]="activa">
         <mat-radio-button value="S" color="primary">Activa</mat-radio-button>
         <mat-radio-button value="N" color="warn">Inactiva</mat-radio-button>
       </mat-radio-group>
-    </mat-card>
+    </mat-card></div>
   </div>
 
   <mat-divider class="dr-divider"></mat-divider>
@@ -105,7 +101,7 @@
     </div>
   </div>
 
-  <div class="dr-table-wrap mat-elevation-z2">
+  <div class="fr-table-wrap dr-table-wrap">
     <table mat-table [dataSource]="filas" class="dr-table">
       <ng-container matColumnDef="compania">
         <th mat-header-cell *matHeaderCellDef>Compañía</th>
@@ -300,7 +296,7 @@
           ]
         "
         (click)="seleccionarFilaConsecutivo(fila)"
-        [class.dr-row-selected]="fila === filaSeleccionada"
+        [class.fr-row-selected]="fila === filaSeleccionada"
       ></tr>
     </table>
     <p *ngIf="filas.length === 0" class="dr-empty">
@@ -319,7 +315,7 @@
 
   <!-- Clientes de la ruta -->
   <h3 class="dr-section-title">Clientes de la Ruta</h3>
-  <form class="buscar">
+  <form class="fr-search">
     <mat-form-field class="full-with" appearance="fill">
       <input
         matInput
@@ -329,29 +325,29 @@
       />
     </mat-form-field>
   </form>
-  <div class="mat-elevation-z2">
+  <div class="fr-table-wrap">
     <div *ngIf="cargandoClientes" class="dr-cargando">
       <mat-progress-spinner
         diameter="32"
         mode="indeterminate"
       ></mat-progress-spinner>
     </div>
-    <mat-table [dataSource]="filasClientes" matSort *ngIf="!cargandoClientes">
+    <table mat-table [dataSource]="filasClientes" matSort *ngIf="!cargandoClientes">
       <ng-container matColumnDef="cliente">
-        <mat-header-cell *matHeaderCellDef mat-sort-header
-          >Cliente</mat-header-cell
+        <th mat-header-cell *matHeaderCellDef mat-sort-header
+          >Cliente</th
         >
-        <mat-cell *matCellDef="let fila">{{ fila.cliente }}</mat-cell>
+        <td mat-cell *matCellDef="let fila">{{ fila.cliente }}</td>
       </ng-container>
       <ng-container matColumnDef="nombre">
-        <mat-header-cell *matHeaderCellDef mat-sort-header
-          >Nombre</mat-header-cell
+        <th mat-header-cell *matHeaderCellDef mat-sort-header
+          >Nombre</th
         >
-        <mat-cell *matCellDef="let fila">{{ fila.nombre }}</mat-cell>
+        <td mat-cell *matCellDef="let fila">{{ fila.nombre }}</td>
       </ng-container>
       <ng-container matColumnDef="asignacion">
-        <mat-header-cell *matHeaderCellDef>Asignación</mat-header-cell>
-        <mat-cell *matCellDef="let fila">
+        <th mat-header-cell *matHeaderCellDef>Asignación</th>
+        <td mat-cell *matCellDef="let fila">
           <button
             mat-button
             class="dr-chip-btn"
@@ -368,23 +364,23 @@
             </span>
             <mat-icon class="dr-chip-caret">arrow_drop_down</mat-icon>
           </button>
-        </mat-cell>
+        </td>
       </ng-container>
 
-      <mat-header-row
+      <tr mat-header-row
         *matHeaderRowDef="displayedColumnsClientes"
-      ></mat-header-row>
-      <mat-row
+      ></tr>
+      <tr mat-row
         *matRowDef="let row; columns: displayedColumnsClientes"
-      ></mat-row>
+      ></tr>
       <tr class="mat-row" *matNoDataRow>
-        <td class="mat-cell" colspan="3">
+        <td class="mat-cell fr-empty" colspan="3">
           No hay clientes que coincidan con el filtro "{{
             inputClientes.value
           }}"
         </td>
       </tr>
-    </mat-table>
+    </table>
     <mat-paginator
       [pageSizeOptions]="[10, 25, 75, 100]"
       showFirstLastButtons
@@ -426,4 +422,5 @@
   <button mat-raised-button color="warn" (click)="guardar()">
     <mat-icon>save</mat-icon> Guardar
   </button>
+</div>
 </div>

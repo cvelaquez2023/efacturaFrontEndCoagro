@@ -6,6 +6,7 @@ import { MatTableDataSource } from "@angular/material/table";
 import { SnotifyPosition, SnotifyService } from "ng-snotify";
 import { AddHandheldComponent } from "../add-handheld/add-handheld.component";
 import { HandheldApiService } from "../../service/handheld-api.service";
+import { HandheldConfigApiService } from "../../service/handheld-config-api.service";
 import { IResponseHandheld } from "../../model/handheld-fr-model-interface";
 
 @Component({
@@ -17,7 +18,8 @@ export class HandheldsPageComponent implements OnInit, AfterViewInit {
   constructor(
     private _snotifyService: SnotifyService,
     private _dialog: MatDialog,
-    private _handheldApiService: HandheldApiService
+    private _handheldApiService: HandheldApiService,
+    private _configApi: HandheldConfigApiService
   ) {}
 
   listHandhelds = new MatTableDataSource<IResponseHandheld>();
@@ -62,7 +64,7 @@ export class HandheldsPageComponent implements OnInit, AfterViewInit {
 
   openDialog(): void {
     this._dialog
-      .open(AddHandheldComponent, { width: "40%" })
+      .open(AddHandheldComponent, { width: "640px", maxWidth: "96vw" })
       .afterClosed()
       .subscribe((val) => {
         if (val === "save") {
@@ -73,7 +75,7 @@ export class HandheldsPageComponent implements OnInit, AfterViewInit {
 
   clickEdit(element: IResponseHandheld): void {
     this._dialog
-      .open(AddHandheldComponent, { width: "40%", data: element })
+      .open(AddHandheldComponent, { width: "640px", maxWidth: "96vw", data: element })
       .afterClosed()
       .subscribe((val) => {
         if (val === "update") {
@@ -95,6 +97,7 @@ export class HandheldsPageComponent implements OnInit, AfterViewInit {
               .deleteHandheld(handheld)
               .subscribe((response) => {
                 if (response.success) {
+                  this._configApi.remove(handheld).subscribe();
                   this._snotifyService.info("El registro ha sido eliminado");
                   this._loadHandhelds();
                 } else {

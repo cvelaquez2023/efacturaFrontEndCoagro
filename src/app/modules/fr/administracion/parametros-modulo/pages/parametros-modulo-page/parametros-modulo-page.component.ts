@@ -691,11 +691,11 @@ export class ParametrosModuloPageComponent implements OnInit {
   // descripción ancha): el ancho depende del largo esperado del valor, no es fijo para todos.
   colClass(campo: ICampoParametro): string {
     if (campo.type === "textarea") return "col-12";
-    if (campo.type === "number") return "col-12 col-md-30";
+    if (campo.type === "number") return "col-12 col-sm-6 col-lg-4";
     const len = campo.maxLength;
-    if (len && len <= 10) return "col-12 col-md-30";
-    if (len && len <= 40) return "col-12 col-md-50";
-    return "col-12 col-md-70";
+    if (len && len <= 10) return "col-12 col-sm-6 col-lg-4";
+    if (len && len <= 40) return "col-12 col-md-6";
+    return "col-12 col-lg-8";
   }
 
   isBoolean(key: string): boolean {

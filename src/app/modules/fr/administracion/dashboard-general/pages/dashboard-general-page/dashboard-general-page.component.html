@@ -1,24 +1,21 @@
-<h2>Dashboard General</h2>
+<div class="fr-page">
+<h2 class="fr-title">Dashboard General</h2>
 
-<div class="kpi-row" fxLayout="row wrap" fxLayoutGap="16px">
-  <mat-card *ngFor="let kpi of kpis" class="kpi-card">
-    <mat-card-content
-      fxLayout="row"
-      fxLayoutAlign="start center"
-      fxLayoutGap="12px"
-    >
-      <mat-icon [color]="kpi.color">{{ kpi.icono }}</mat-icon>
-      <div>
-        <div class="kpi-valor">{{ kpi.valor }}</div>
-        <div class="kpi-titulo">{{ kpi.titulo }}</div>
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-4 col-xl-3" *ngFor="let kpi of kpis">
+    <div class="fr-kpi d-flex align-items-center gap-3">
+      <mat-icon [color]="kpi.color" class="kpi-icono">{{ kpi.icono }}</mat-icon>
+      <div class="min-w-0">
+        <div class="fr-kpi-value">{{ kpi.valor }}</div>
+        <div class="fr-kpi-label">{{ kpi.titulo }}</div>
       </div>
-    </mat-card-content>
-  </mat-card>
+    </div>
+  </div>
 </div>
 
-<h3>Ranking de Rutas del Dia</h3>
-<div class="mat-elevation-z8">
-  <table mat-table [dataSource]="ranking" class="full-with">
+<h3 class="fr-subtitle">Ranking de Rutas del Dia</h3>
+<div class="fr-table-wrap">
+  <table mat-table [dataSource]="ranking">
     <ng-container matColumnDef="ruta">
       <th mat-header-cell *matHeaderCellDef>Ruta</th>
       <td mat-cell *matCellDef="let element">{{ element.ruta }}</td>
@@ -28,16 +25,17 @@
       <td mat-cell *matCellDef="let element">{{ element.agente }}</td>
     </ng-container>
     <ng-container matColumnDef="visitas">
-      <th mat-header-cell *matHeaderCellDef>Visitas</th>
-      <td mat-cell *matCellDef="let element">{{ element.visitas }}</td>
+      <th mat-header-cell class="fr-num" *matHeaderCellDef>Visitas</th>
+      <td mat-cell class="fr-num" *matCellDef="let element">{{ element.visitas }}</td>
     </ng-container>
     <ng-container matColumnDef="vendido">
-      <th mat-header-cell *matHeaderCellDef>Vendido</th>
-      <td mat-cell *matCellDef="let element">
+      <th mat-header-cell class="fr-num" *matHeaderCellDef>Vendido</th>
+      <td mat-cell class="fr-num" *matCellDef="let element">
         {{ element.vendido | currency: "USD" }}
       </td>
     </ng-container>
     <tr mat-header-row *matHeaderRowDef="rankingColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: rankingColumns"></tr>
   </table>
+</div>
 </div>

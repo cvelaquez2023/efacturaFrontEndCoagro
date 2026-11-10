@@ -63,22 +63,46 @@ export interface IRutaAsignadaReporte {
   ACTIVA: string;
 }
 
-/** Fila de la Bitácora de Sincronización (cargas/descargas entre handheld, tablas intermedias
- *  y ERP). Todavía no existe tabla/endpoint en el backend: ver BitacoraSincronizacionApiService. */
-export type EstadoSincronizacion = "Exitosa" | "Con errores" | "En proceso";
-
+/** Fila de la Bitácora de Sincronización. Sale de erpadmin.VISITA (misma fuente que Histórico de
+ *  Visitas, GET /fr/reporteVisita): cada visita que sube la handheld es un registro sincronizado.
+ *  `estado` (Status) todavía no existe en la tabla: se deja en blanco hasta que el backend lo
+ *  exponga. */
 export interface IBitacoraSincronizacion {
   ruta: string;
+  rutaNombre: string;
   handheld: string;
   agente: string;
-  tipo: "Carga" | "Descarga";
+  agenteNombre: string;
+  cliente: string;
+  clienteNombre: string;
+  tipo: string;
   proceso: string;
   fecha: string;
   horaInicio: string | null;
   horaFin: string | null;
-  registros: number | null;
-  estado: EstadoSincronizacion;
-  mensaje: string | null;
+  duracion: number | null;
+  /** Documentos (alFAC_ENC_PED) generados en la visita, p. ej. "PEDIDRT007". */
+  documentos: string[];
+  /** Status según alFAC_ENC_PED.DOC_PRO: 'S' = enviado al ERP; null = pendiente. Vacío si la
+   *  visita no generó documento. */
+  estado: EstadoBitacora;
+}
+
+export type EstadoBitacora = "" | "Enviado al ERP" | "Pendiente de envío";
+
+/** Fila de erpadmin.CLIENTE_UBICACION (GET /fr/clienteUbicacion): coordenadas del cliente que
+ *  tomó la handheld la primera vez. Se compara contra VISITA_UBICACION de cada visita. */
+export interface IClienteUbicacion {
+  RUTA: string;
+  CLIENTE: string;
+  LATITUD: number | string | null;
+  LONGITUD: number | string | null;
+  ALTITUD?: number | string | null;
+  RUTA_DESCRIPCION?: string | null;
+  CLIENTE_NOMBRE?: string | null;
+  CLIENTE_DIRECCION?: string | null;
+  /** Enlace de Google Maps que arma el backend (null si falta latitud o longitud). */
+  MAPA?: string | null;
 }
 
 /** Fila de GET /fr/pedido: encabezado de pedido de la handheld (erpadmin.alFAC_ENC_PED) con
@@ -100,4 +124,8 @@ export interface IPedidoReporte {
   MON_SIV: number | null;
   MON_DSC: number | null;
   ESTADO: string | null;
+  /** 'S' cuando CargaAlERP ya lo pasó a CINCOH.PEDIDO; null/'N' = pendiente de cargar. */
+  DOC_PRO?: string | null;
+  /** Tipo de documento: 'C' = cotización; el resto, pedido. */
+  TIP_DOC?: string | null;
 }
