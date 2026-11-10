@@ -484,7 +484,7 @@ export class MantenimientoAsignacionRutaComponent
     onSeleccionar: (item: IF1Item) => void
   ): void {
     this._dialog
-      .open(F1SelectorComponent, { width: "40%", data: { titulo, items } })
+      .open(F1SelectorComponent, { width: "640px", maxWidth: "96vw", data: { titulo, items } })
       .afterClosed()
       .subscribe((seleccion: IF1Item) => {
         if (seleccion) onSeleccionar(seleccion);

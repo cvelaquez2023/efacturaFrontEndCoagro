@@ -1,33 +1,39 @@
+<div class="fr-page fr-dialog">
 <h1 mat-dialog-title color="warn">
   Detalle de Devolucion {{ ediData.codigo }}
 </h1>
 <div mat-dialog-content>
-  <p><strong>Compania:</strong> {{ ediData.compania }}</p>
-  <p><strong>Ruta:</strong> {{ ediData.ruta }}</p>
-  <p><strong>Cliente:</strong> {{ ediData.cliente }}</p>
-  <p><strong>Bodega:</strong> {{ ediData.bodega }}</p>
-  <p>
+  <div class="row g-2 mb-3 dad-datos">
+<p class="col-12 col-sm-6 mb-1"><strong>Compania:</strong> {{ ediData.compania }}</p>
+  <p class="col-12 col-sm-6 mb-1"><strong>Ruta:</strong> {{ ediData.ruta }}</p>
+  <p class="col-12 col-sm-6 mb-1"><strong>Cliente:</strong> {{ ediData.cliente }}</p>
+  <p class="col-12 col-sm-6 mb-1"><strong>Bodega:</strong> {{ ediData.bodega }}</p>
+  <p class="col-12 col-sm-6 mb-1">
     <strong>Documento referencia:</strong>
     {{ ediData.documentoReferencia || "Sin documento" }}
   </p>
-  <p><strong>Estado:</strong> {{ ediData.estado }}</p>
-  <p><strong>Anulada:</strong> {{ ediData.anulada ? "Si" : "No" }}</p>
-  <p><strong>Fecha:</strong> {{ ediData.fecha | date: "medium" }}</p>
-  <table class="full-with">
+  <p class="col-12 col-sm-6 mb-1"><strong>Estado:</strong> {{ ediData.estado }}</p>
+  <p class="col-12 col-sm-6 mb-1"><strong>Anulada:</strong> {{ ediData.anulada ? "Si" : "No" }}</p>
+  <p class="col-12 col-sm-6 mb-1"><strong>Fecha:</strong> {{ ediData.fecha | date: "medium" }}</p>
+  </div>
+  <div class="fr-table-wrap">
+  <table class="fr-simple">
     <tr>
       <th>Articulo</th>
       <th>Descripcion</th>
-      <th>Cantidad</th>
+      <th class="fr-num">Cantidad</th>
       <th>Lote</th>
     </tr>
     <tr *ngFor="let linea of lineas">
       <td>{{ linea.articulo }}</td>
       <td>{{ linea.descripcion }}</td>
-      <td>{{ linea.cantidad }}</td>
+      <td class="fr-num">{{ linea.cantidad }}</td>
       <td>{{ linea.lote }}</td>
     </tr>
   </table>
+  </div>
 </div>
 <div mat-dialog-actions [align]="'end'">
   <button mat-raised-button color="warn" mat-dialog-close>Cerrar</button>
+</div>
 </div>

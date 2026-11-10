@@ -1,21 +1,27 @@
-<h2>Monitoreo de Documentos</h2>
+<div class="fr-page">
+<h2 class="fr-title">Monitoreo de Documentos</h2>
 
-<mat-card class="filtro-card">
+<mat-card class="filtro-card fr-card">
   <mat-card-subtitle class="filtro-titulo">Filtro Datos</mat-card-subtitle>
-  <form [formGroup]="filtroForm" fxLayout="row wrap" fxLayoutGap="24px">
-    <div fxLayout="column" fxFlex="1 1 520px">
-      <div fxLayout="row" fxLayoutGap="12px">
-        <mat-form-field appearance="outline" fxFlex="50">
+  <form [formGroup]="filtroForm" class="row g-3">
+    <div class="col-12 col-lg-9 col-xl-8">
+      <div class="row g-2">
+        <div class="col-12 col-sm-6">
+        <mat-form-field appearance="outline">
           <mat-label>Fecha Inicio</mat-label>
           <input formControlName="fechaInicio" matInput type="date" />
         </mat-form-field>
-        <mat-form-field appearance="outline" fxFlex="50">
+        </div>
+        <div class="col-12 col-sm-6">
+        <mat-form-field appearance="outline">
           <mat-label>Fecha Fin</mat-label>
           <input formControlName="fechaFin" matInput type="date" />
         </mat-form-field>
+        </div>
       </div>
-      <div fxLayout="row" fxLayoutGap="12px">
-        <mat-form-field appearance="outline" fxFlex="35">
+      <div class="row g-2">
+        <div class="col-5 col-sm-4">
+        <mat-form-field appearance="outline">
           <mat-label>Ruta</mat-label>
           <input
             formControlName="ruta"
@@ -27,13 +33,17 @@
             <mat-icon>search</mat-icon>
           </button>
         </mat-form-field>
-        <mat-form-field appearance="outline" fxFlex="65">
+        </div>
+        <div class="col-7 col-sm-8">
+        <mat-form-field appearance="outline">
           <mat-label>Descripción</mat-label>
           <input formControlName="rutaNombre" matInput />
         </mat-form-field>
+        </div>
       </div>
-      <div fxLayout="row" fxLayoutGap="12px">
-        <mat-form-field appearance="outline" fxFlex="35">
+      <div class="row g-2">
+        <div class="col-5 col-sm-4">
+        <mat-form-field appearance="outline">
           <mat-label>HandHeld</mat-label>
           <input
             formControlName="handheld"
@@ -45,13 +55,17 @@
             <mat-icon>search</mat-icon>
           </button>
         </mat-form-field>
-        <mat-form-field appearance="outline" fxFlex="65">
+        </div>
+        <div class="col-7 col-sm-8">
+        <mat-form-field appearance="outline">
           <mat-label>Descripción</mat-label>
           <input formControlName="handheldNombre" matInput />
         </mat-form-field>
+        </div>
       </div>
-      <div fxLayout="row" fxLayoutGap="12px">
-        <mat-form-field appearance="outline" fxFlex="35">
+      <div class="row g-2">
+        <div class="col-5 col-sm-4">
+        <mat-form-field appearance="outline">
           <mat-label>Agente</mat-label>
           <input
             formControlName="agente"
@@ -63,20 +77,25 @@
             <mat-icon>search</mat-icon>
           </button>
         </mat-form-field>
-        <mat-form-field appearance="outline" fxFlex="65">
+        </div>
+        <div class="col-7 col-sm-8">
+        <mat-form-field appearance="outline">
           <mat-label>Nombre</mat-label>
           <input formControlName="agenteNombre" matInput />
         </mat-form-field>
+        </div>
       </div>
-      <div fxLayout="row">
-        <mat-form-field appearance="outline" fxFlex="35">
+      <div class="row g-2">
+        <div class="col-5 col-sm-4">
+        <mat-form-field appearance="outline">
           <mat-label>Top</mat-label>
           <input formControlName="top" matInput type="number" min="1" />
         </mat-form-field>
+        </div>
       </div>
     </div>
 
-    <div fxLayout="column" fxLayoutGap="12px" fxLayoutAlign="start start">
+    <div class="col-12 col-lg-3 col-xl-4 d-flex flex-row flex-lg-column flex-wrap gap-2 align-items-start">
       <button
         mat-raised-button
         color="primary"
@@ -94,10 +113,11 @@
   </form>
 </mat-card>
 
-<div fxLayout="row" fxLayoutGap="12px" class="monitor">
+<div class="row g-3 monitor">
   <!-- Botones de la izquierda: mismo efecto que las pestañas -->
-  <mat-card class="panel-botones" fxFlex="170px">
-    <div fxLayout="column" fxLayoutGap="6px">
+  <div class="col-auto d-none d-lg-block">
+  <mat-card class="panel-botones">
+    <div class="d-flex flex-column gap-2">
       <button
         *ngFor="let tab of tabs; let i = index"
         mat-stroked-button
@@ -111,8 +131,9 @@
       </button>
     </div>
   </mat-card>
+  </div>
 
-  <div fxFlex class="contenido">
+  <div class="col-12 col-lg contenido">
     <mat-tab-group
       [selectedIndex]="tabIndex"
       (selectedIndexChange)="seleccionarTab($event)"
@@ -128,8 +149,8 @@
       </mat-tab>
     </mat-tab-group>
 
-    <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="barra">
-      <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="4px">
+    <div class="barra d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <div class="d-flex flex-wrap align-items-center gap-1">
         <button mat-icon-button type="button" [matMenuTriggerFor]="menuColumnas" matTooltip="Mostrar / ocultar columnas">
           <mat-icon>view_column</mat-icon>
         </button>
@@ -160,25 +181,25 @@
       </div>
     </mat-menu>
 
-    <div class="mat-elevation-z8 tabla-wrapper">
-      <mat-table [dataSource]="resultados" matSort>
+    <div class="fr-table-wrap tabla-wrapper">
+      <table mat-table [dataSource]="resultados" matSort class="tabla-centrada">
         <ng-container *ngFor="let col of tabActual.columnas" [matColumnDef]="col.key">
-          <mat-header-cell
+          <th mat-header-cell
             *matHeaderCellDef
             mat-sort-header
             [class.numero]="col.formato === 'numero' || col.formato === 'monto'"
-          >{{ col.header }}</mat-header-cell>
-          <mat-cell
+          >{{ col.header }}</th>
+          <td mat-cell
             *matCellDef="let element"
             [class.numero]="col.formato === 'numero' || col.formato === 'monto'"
           >
             {{ valor(element, col) }}
-          </mat-cell>
+          </td>
         </ng-container>
 
-        <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>
-        <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
-      </mat-table>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
 
       <div class="vacio" *ngIf="!cargando && resultados.filteredData.length === 0">
         <ng-container *ngIf="tieneBackend; else pendiente">
@@ -194,4 +215,5 @@
       <mat-paginator [pageSizeOptions]="[25, 50, 100, 250]" showFirstLastButtons></mat-paginator>
     </div>
   </div>
+</div>
 </div>

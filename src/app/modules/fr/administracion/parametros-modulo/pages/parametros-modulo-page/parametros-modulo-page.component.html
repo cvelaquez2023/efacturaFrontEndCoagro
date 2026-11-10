@@ -1,5 +1,5 @@
-<div class="parametros-container">
-  <h2>Parámetros del Módulo</h2>
+<div class="fr-page parametros-container">
+  <h2 class="fr-title">Parámetros del Módulo</h2>
 
   <p *ngIf="!cargando && !existeConfiguracion" class="aviso-creacion">
     Aún no existe una configuración de Globales de Ruteo. Complete al menos el
@@ -14,7 +14,7 @@
   </div>
 
   <form *ngIf="!cargando" [formGroup]="parametrosForm" class="parametros-form">
-    <mat-tab-group mat-align-tabs="center" class="parametros-tabs">
+    <mat-tab-group mat-align-tabs="center" class="parametros-tabs fr-card p-0">
       <mat-tab *ngFor="let tab of tabs" [label]="tab">
         <div class="tab-content">
           <section
@@ -33,7 +33,7 @@
           </section>
 
           <section class="fields-section" *ngIf="inputFieldsForTab(tab).length">
-            <div class="row">
+            <div class="row g-3">
               <div
                 *ngFor="let campo of inputFieldsForTab(tab)"
                 [ngClass]="colClass(campo)"
@@ -91,7 +91,7 @@
       </mat-tab>
     </mat-tab-group>
 
-    <div mat-dialog-actions [align]="'end'" class="acciones">
+    <div class="fr-actions justify-content-end acciones">
       <button mat-raised-button color="warn" (click)="guardar()">
         {{ existeConfiguracion ? "Guardar" : "Crear Configuración" }}
       </button>

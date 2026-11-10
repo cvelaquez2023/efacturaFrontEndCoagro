@@ -203,7 +203,7 @@ export class DetalleRutaComponent implements OnInit, AfterViewInit {
   nuevaCompania(): void {
     this._dialog
       .open(F1SelectorComponent, {
-        width: "40%",
+        width: "640px", maxWidth: "96vw",
         data: {
           titulo: "Seleccionar Compañía",
           items: COMPANIAS_DISPONIBLES,
@@ -272,7 +272,7 @@ export class DetalleRutaComponent implements OnInit, AfterViewInit {
   ): void {
     this._dialog
       .open(F1SelectorComponent, {
-        width: "40%",
+        width: "640px", maxWidth: "96vw",
         data: {
           titulo: "Seleccionar NCF",
           items: NCF_DISPONIBLES,
@@ -292,7 +292,7 @@ export class DetalleRutaComponent implements OnInit, AfterViewInit {
   ): void {
     this._dialog
       .open(F1SelectorComponent, {
-        width: "40%",
+        width: "640px", maxWidth: "96vw",
         data: {
           titulo: "Seleccionar Resolución",
           items: RESOLUCIONES_DISPONIBLES,
@@ -414,7 +414,7 @@ export class DetalleRutaComponent implements OnInit, AfterViewInit {
     onSeleccionar: (item: IF1Item) => void
   ): void {
     this._dialog
-      .open(F1SelectorComponent, { width: "40%", data: { titulo, items } })
+      .open(F1SelectorComponent, { width: "640px", maxWidth: "96vw", data: { titulo, items } })
       .afterClosed()
       .subscribe((seleccion: IF1Item) => {
         if (seleccion) onSeleccionar(seleccion);

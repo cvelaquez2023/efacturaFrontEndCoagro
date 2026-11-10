@@ -3,11 +3,11 @@
     <button mat-icon-button (click)="toggleSideBar()">
       <mat-icon>menu</mat-icon>
     </button>
-    <span style="cursor: pointer" (click)="home()">
+    <span class="empresa-nombre" (click)="home()">
       {{ datoUsuario.empresaNombre }}
     </span>
     <div fxFlex fxLayout="row" fxLayoutAlign="flex-end">
-      <ul fxLayout="row" fxLayoutGap="20px">
+      <ul fxLayout="row" fxLayoutGap="20px" fxLayoutGap.lt-sm="0px">
         <li>
           <button mat-icon-button>
             <mat-icon>settings</mat-icon>

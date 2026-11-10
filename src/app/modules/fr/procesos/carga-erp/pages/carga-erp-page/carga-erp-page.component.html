@@ -1,77 +1,206 @@
-<h2>Carga de Datos al ERP</h2>
+<div class="fr-page">
+  <h2 class="fr-title">Carga de Datos al ERP</h2>
 
-<mat-tab-group mat-align-tabs="center">
-  <mat-tab label="Proceso">
-    <p>
-      Este proceso traslada pedidos, facturas, devoluciones, cobros y visitas
-      desde las tablas intermedias hacia SoftlandERP.
-    </p>
-    <div mat-dialog-actions [align]="'end'">
-      <button mat-raised-button color="warn" (click)="ejecutarCarga()">
-        <mat-icon>cloud_upload</mat-icon>Cargar
-      </button>
-    </div>
-    <p *ngIf="procesoFinalizado" class="mensaje-exito">
-      Proceso finalizado correctamente. Bitacora disponible en el tab Bitacoras.
-    </p>
-  </mat-tab>
+  <mat-tab-group mat-align-tabs="center" animationDuration="0ms">
+    <!-- ================= PROCESO ================= -->
+    <mat-tab label="Proceso">
+      <div class="fr-card mt-3">
+        <p class="fr-help mb-3">
+          Pasa a SoftlandERP (CINCOH.PEDIDO) los pedidos que enviaron las handhelds y que aún no se
+          han cargado. Cada pedido se valida (cliente activo, artículos existentes, líneas de
+          detalle); los que fallan quedan pendientes con su mensaje de error.
+        </p>
+        <div class="row g-3 align-items-center">
+          <div class="col-12 col-sm-6 col-lg-4">
+            <mat-form-field appearance="outline">
+              <mat-label>Compañía</mat-label>
+              <mat-select [formControl]="compania">
+                <mat-option *ngFor="let c of companias" [value]="c">{{ c }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="col-12 col-sm-6 col-lg-8 fr-actions justify-content-sm-end">
+            <button
+              mat-stroked-button
+              type="button"
+              (click)="cargarPendientes()"
+              [disabled]="cargandoPendientes || ejecutando"
+            >
+              <mat-icon>refresh</mat-icon> Actualizar
+            </button>
+            <button
+              mat-raised-button
+              color="warn"
+              type="button"
+              (click)="confirmarCarga()"
+              [disabled]="ejecutando || cargandoPendientes"
+            >
+              <mat-icon>cloud_upload</mat-icon> Cargar al ERP
+            </button>
+          </div>
+        </div>
 
-  <mat-tab label="Configuracion">
-    <div class="mat-elevation-z8">
-      <mat-table [dataSource]="tareas">
-        <ng-container matColumnDef="nombre">
-          <mat-header-cell *matHeaderCellDef>Nombre</mat-header-cell>
-          <mat-cell *matCellDef="let element">{{ element.nombre }}</mat-cell>
-        </ng-container>
-        <ng-container matColumnDef="ultimaEjecucion">
-          <mat-header-cell *matHeaderCellDef>Ultima Ejecucion</mat-header-cell>
-          <mat-cell *matCellDef="let element">{{
-            element.ultimaEjecucion | date: "short"
-          }}</mat-cell>
-        </ng-container>
-        <ng-container matColumnDef="proximaEjecucion">
-          <mat-header-cell *matHeaderCellDef>Proxima Ejecucion</mat-header-cell>
-          <mat-cell *matCellDef="let element">{{
-            element.proximaEjecucion | date: "short"
-          }}</mat-cell>
-        </ng-container>
-        <ng-container matColumnDef="comentario">
-          <mat-header-cell *matHeaderCellDef>Comentario</mat-header-cell>
-          <mat-cell *matCellDef="let element">{{
-            element.comentario
-          }}</mat-cell>
-        </ng-container>
-        <mat-header-row *matHeaderRowDef="tareasColumns"></mat-header-row>
-        <mat-row *matRowDef="let row; columns: tareasColumns"></mat-row>
-      </mat-table>
-    </div>
-    <div class="search-div" fxLayout="row" fxLayoutAlign="end end">
-      <button mat-raised-button color="warn">
-        <mat-icon>add</mat-icon>Crear Tarea
-      </button>
-    </div>
-  </mat-tab>
+        <div *ngIf="ejecutando" class="carga-progreso">
+          <mat-spinner diameter="28"></mat-spinner>
+          <span>Cargando pedidos al ERP, espere un momento…</span>
+        </div>
+      </div>
 
-  <mat-tab label="Bitacoras">
-    <div class="mat-elevation-z8">
-      <mat-table [dataSource]="bitacora">
-        <ng-container matColumnDef="fecha">
-          <mat-header-cell *matHeaderCellDef>Fecha</mat-header-cell>
-          <mat-cell *matCellDef="let element">{{
-            element.fecha | date: "short"
-          }}</mat-cell>
-        </ng-container>
-        <ng-container matColumnDef="estado">
-          <mat-header-cell *matHeaderCellDef>Estado</mat-header-cell>
-          <mat-cell *matCellDef="let element">{{ element.estado }}</mat-cell>
-        </ng-container>
-        <ng-container matColumnDef="archivo">
-          <mat-header-cell *matHeaderCellDef>Archivo</mat-header-cell>
-          <mat-cell *matCellDef="let element">{{ element.archivo }}</mat-cell>
-        </ng-container>
-        <mat-header-row *matHeaderRowDef="bitacoraColumns"></mat-header-row>
-        <mat-row *matRowDef="let row; columns: bitacoraColumns"></mat-row>
-      </mat-table>
-    </div>
-  </mat-tab>
-</mat-tab-group>
+      <!-- Resultado de la última ejecución -->
+      <ng-container *ngIf="resultado">
+        <div class="row g-3 mb-3">
+          <div class="col-6 col-md-3">
+            <div class="fr-kpi kpi-ok">
+              <div class="fr-kpi-label">Pedidos cargados</div>
+              <div class="fr-kpi-value">{{ resultado.cargados }}</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="fr-kpi">
+              <div class="fr-kpi-label">Con error</div>
+              <div class="fr-kpi-value">{{ resultado.conError }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="fr-card">
+          <h3 class="fr-card-title">Resultado de la carga</h3>
+          <div class="fr-table-wrap" *ngIf="detalle.data.length; else sinDetalle">
+            <table mat-table [dataSource]="detalle">
+              <ng-container matColumnDef="pedido">
+                <th mat-header-cell *matHeaderCellDef>Pedido</th>
+                <td mat-cell *matCellDef="let d">{{ d.NUM_PED }}</td>
+              </ng-container>
+              <ng-container matColumnDef="resultado">
+                <th mat-header-cell *matHeaderCellDef class="fr-center">Resultado</th>
+                <td mat-cell *matCellDef="let d" class="fr-center">
+                  <span class="estado" [class.estado-ok]="d.RESULTADO === 'OK'" [class.estado-error]="d.RESULTADO !== 'OK'">
+                    {{ d.RESULTADO === "OK" ? "Cargado" : "Error" }}
+                  </span>
+                </td>
+              </ng-container>
+              <ng-container matColumnDef="mensaje">
+                <th mat-header-cell *matHeaderCellDef>Mensaje</th>
+                <td mat-cell *matCellDef="let d" class="col-mensaje">{{ d.MENSAJE }}</td>
+              </ng-container>
+              <ng-container matColumnDef="fecha">
+                <th mat-header-cell *matHeaderCellDef class="fr-center">Fecha</th>
+                <td mat-cell *matCellDef="let d" class="fr-center">{{ fmtFechaHora(d.FECHA) }}</td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="detalleColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: detalleColumns"></tr>
+            </table>
+          </div>
+          <ng-template #sinDetalle>
+            <p class="fr-empty mb-0">No había pedidos pendientes para cargar.</p>
+          </ng-template>
+        </div>
+      </ng-container>
+
+      <!-- Pedidos pendientes -->
+      <div class="fr-card">
+        <div class="titulo-con-total">
+          <h3 class="fr-card-title mb-0">Pedidos pendientes de cargar</h3>
+          <span class="total-chip" *ngIf="!cargandoPendientes">
+            {{ pendientes.data.length }} pedido(s) · ${{ totalPendiente | number: "1.2-2" }}
+          </span>
+        </div>
+        <div *ngIf="cargandoPendientes" class="carga-progreso">
+          <mat-spinner diameter="24"></mat-spinner><span>Consultando pedidos…</span>
+        </div>
+        <div class="fr-table-wrap mt-2" *ngIf="!cargandoPendientes">
+          <table mat-table [dataSource]="pendientes">
+            <ng-container matColumnDef="pedido">
+              <th mat-header-cell *matHeaderCellDef>Pedido</th>
+              <td mat-cell *matCellDef="let p">{{ p.NUM_PED }}</td>
+            </ng-container>
+            <ng-container matColumnDef="fecha">
+              <th mat-header-cell *matHeaderCellDef class="fr-center">Fecha</th>
+              <td mat-cell *matCellDef="let p" class="fr-center">{{ fmtFecha(p.FEC_PED) }}</td>
+            </ng-container>
+            <ng-container matColumnDef="ruta">
+              <th mat-header-cell *matHeaderCellDef>Ruta</th>
+              <td mat-cell *matCellDef="let p">
+                {{ p.COD_ZON }}<span class="sub" *ngIf="p.RUTA_DESCRIPCION"> - {{ p.RUTA_DESCRIPCION }}</span>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="cliente">
+              <th mat-header-cell *matHeaderCellDef>Cliente</th>
+              <td mat-cell *matCellDef="let p">
+                {{ p.COD_CLT }}<span class="sub" *ngIf="p.CLIENTE_NOMBRE"> - {{ p.CLIENTE_NOMBRE }}</span>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="total">
+              <th mat-header-cell *matHeaderCellDef class="fr-num">Total</th>
+              <td mat-cell *matCellDef="let p" class="fr-num">{{ p.MON_CIV | number: "1.2-2" }}</td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="pendientesColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: pendientesColumns"></tr>
+            <tr class="mat-row" *matNoDataRow>
+              <td class="mat-cell fr-empty" [attr.colspan]="pendientesColumns.length">
+                No hay pedidos pendientes de cargar para {{ compania.value }}.
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- ================= CONFIGURACIÓN ================= -->
+    <mat-tab label="Configuración">
+      <div class="fr-card mt-3">
+        <h3 class="fr-card-title">Tareas programadas</h3>
+        <p class="fr-help mb-0">
+          Pendiente backend: todavía no existe un endpoint para programar la carga automática al
+          ERP. Por ahora la carga se ejecuta manualmente desde la pestaña <b>Proceso</b>.
+        </p>
+      </div>
+    </mat-tab>
+
+    <!-- ================= BITÁCORAS ================= -->
+    <mat-tab label="Bitácoras">
+      <div class="fr-card mt-3">
+        <h3 class="fr-card-title">Ejecuciones de esta sesión</h3>
+        <p class="fr-help">
+          El historial completo se guarda en la tabla ERPADMIN.LOG_CARGA_ERP, pero aún no hay
+          endpoint para consultarlo; aquí se muestran las cargas hechas desde este navegador.
+        </p>
+        <div class="fr-table-wrap">
+          <table mat-table [dataSource]="ejecuciones">
+            <ng-container matColumnDef="inicio">
+              <th mat-header-cell *matHeaderCellDef class="fr-center">Fecha</th>
+              <td mat-cell *matCellDef="let e" class="fr-center">{{ e.inicio | date: "dd/MM/yyyy h:mm a" }}</td>
+            </ng-container>
+            <ng-container matColumnDef="compania">
+              <th mat-header-cell *matHeaderCellDef>Compañía</th>
+              <td mat-cell *matCellDef="let e">{{ e.compania }}</td>
+            </ng-container>
+            <ng-container matColumnDef="estado">
+              <th mat-header-cell *matHeaderCellDef class="fr-center">Estado</th>
+              <td mat-cell *matCellDef="let e" class="fr-center">
+                <span class="estado" [class.estado-ok]="e.exito" [class.estado-error]="!e.exito">
+                  {{ e.exito ? "Exitosa" : "Con errores" }}
+                </span>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="duracion">
+              <th mat-header-cell *matHeaderCellDef class="fr-num">Duración</th>
+              <td mat-cell *matCellDef="let e" class="fr-num">{{ e.duracionSeg | number: "1.1-1" }} s</td>
+            </ng-container>
+            <ng-container matColumnDef="mensaje">
+              <th mat-header-cell *matHeaderCellDef>Detalle</th>
+              <td mat-cell *matCellDef="let e" class="col-mensaje">{{ e.mensaje }}</td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="ejecucionesColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: ejecucionesColumns"></tr>
+            <tr class="mat-row" *matNoDataRow>
+              <td class="mat-cell fr-empty" [attr.colspan]="ejecucionesColumns.length">
+                Aún no se ha ejecutado la carga en esta sesión.
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

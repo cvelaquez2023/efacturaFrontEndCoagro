@@ -61,7 +61,7 @@ export class BodegasPageComponent implements OnInit, AfterViewInit {
 
   openDialog(): void {
     this._dialog
-      .open(AddBodegaComponent, { width: "40%" })
+      .open(AddBodegaComponent, { width: "640px", maxWidth: "96vw" })
       .afterClosed()
       .subscribe((val) => {
         if (val === "save") {
@@ -72,7 +72,7 @@ export class BodegasPageComponent implements OnInit, AfterViewInit {
 
   clickEdit(element: IResponseBodegaConAsoc): void {
     this._dialog
-      .open(AddBodegaComponent, { width: "40%", data: element })
+      .open(AddBodegaComponent, { width: "640px", maxWidth: "96vw", data: element })
       .afterClosed()
       .subscribe((val) => {
         if (val === "update") {

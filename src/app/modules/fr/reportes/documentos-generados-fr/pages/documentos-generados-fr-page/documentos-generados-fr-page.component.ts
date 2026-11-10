@@ -3,6 +3,12 @@ import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
+import { fmtFecha } from "../../../shared/reporte-utils";
+import {
+  abrirReporteRuteroPdf,
+  fmtMonto,
+  IRecuadroPdf,
+} from "../../../shared/reporte-pdf-rutero";
 
 interface IDocumentoGenerado {
   tipoDocumento: string;
@@ -69,5 +75,71 @@ export class DocumentosGeneradosFrPageComponent
 
   generar(): void {
     this.resultados.data = MOCK_DATA;
+  }
+
+  /** Reporte con el formato de Softland FR: resumen por tipo de documento y un recuadro por tipo. */
+  generarReporte(): void {
+    const f = this.filtroForm.value;
+    const filas = this.resultados.filteredData;
+    const tipos = Array.from(new Set(filas.map((d) => d.tipoDocumento)));
+    const porTipo = tipos.map((tipo) => {
+      const deTipo = filas.filter((d) => d.tipoDocumento === tipo);
+      return {
+        tipo,
+        cantidad: deTipo.length,
+        monto: deTipo.reduce((t, d) => t + d.monto, 0),
+      };
+    });
+    const rango =
+      f.fechaDesde || f.fechaHasta
+        ? `${f.fechaDesde ? fmtFecha(f.fechaDesde + "T00:00") : "(inicio)"} al ${
+            f.fechaHasta ? fmtFecha(f.fechaHasta + "T00:00") : "(fin)"
+          }`
+        : "todas";
+    const detalle: IRecuadroPdf[][] = f.mostrarDetalles
+      ? tipos.map((tipo) => [
+          {
+            titulo: tipo,
+            columnas: [
+              { header: "Consecutivo", valor: (d: IDocumentoGenerado) => d.consecutivo },
+              { header: "Cliente", valor: (d: IDocumentoGenerado) => d.cliente, width: "*" },
+              { header: "Fecha", valor: (d: IDocumentoGenerado) => fmtFecha(d.fecha + "T00:00") },
+              { header: "Monto", valor: (d: IDocumentoGenerado) => fmtMonto(d.monto), alignment: "right", width: 80 },
+            ],
+            filas: filas.filter((d) => d.tipoDocumento === tipo),
+            total: String(filas.filter((d) => d.tipoDocumento === tipo).length),
+          },
+        ])
+      : [];
+    abrirReporteRuteroPdf({
+      titulo: "Reporte de Documentos Generados en FR",
+      horizontal: false,
+      paginas: [
+        {
+          encabezado: [
+            `Compañía: ${f.compania || "(todas)"}`,
+            `Fechas: ${rango}`,
+            "Montos en moneda dólar.",
+          ],
+          bloques: [
+            [
+              {
+                titulo: "Resumen por Tipo de Documento",
+                cebra: true,
+                columnas: [
+                  { header: "Tipo Documento", valor: (r: typeof porTipo[number]) => r.tipo, width: "*" },
+                  { header: "Cantidad", valor: (r: typeof porTipo[number]) => r.cantidad, alignment: "right" },
+                  { header: "Monto", valor: (r: typeof porTipo[number]) => fmtMonto(r.monto), alignment: "right", width: 80 },
+                ],
+                filas: porTipo,
+                total: String(filas.length),
+                vacio: "Sin documentos para los filtros indicados.",
+              },
+            ],
+            ...detalle,
+          ],
+        },
+      ],
+    });
   }
 }

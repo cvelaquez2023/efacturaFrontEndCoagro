@@ -1,72 +1,86 @@
-<h2>Liquidacion de Agentes</h2>
+<div class="fr-page">
+<h2 class="fr-title">Liquidacion de Agentes</h2>
 
-<form
-  [formGroup]="filtroForm"
-  class="filtro-reporte"
-  fxLayout="row wrap"
-  fxLayoutGap="16px"
-  fxLayoutAlign="start center"
->
-  <mat-form-field appearance="outline">
+<form [formGroup]="filtroForm"
+ class="fr-card">
+  <div class="row g-3 align-items-center">
+  <div class="col-12 col-sm-6 col-lg-3">
+    <mat-form-field appearance="outline">
     <mat-label>Compania (opcional)</mat-label>
     <input formControlName="compania" matInput />
   </mat-form-field>
-  <mat-form-field appearance="outline">
+  </div>
+  <div class="col-12 col-sm-6 col-lg-3">
+    <mat-form-field appearance="outline">
     <mat-label>Agente</mat-label>
     <input formControlName="agente" matInput placeholder="Codigo de agente" />
   </mat-form-field>
-  <mat-form-field appearance="outline">
+  </div>
+  <div class="col-12 col-sm-6 col-lg-3">
+    <mat-form-field appearance="outline">
     <mat-label>Ruta</mat-label>
     <input formControlName="ruta" matInput placeholder="Codigo de ruta" />
   </mat-form-field>
-  <mat-form-field appearance="outline">
+  </div>
+  <div class="col-12 col-sm-6 col-lg-3">
+    <mat-form-field appearance="outline">
     <mat-label>Fecha Desde</mat-label>
     <input formControlName="fechaDesde" matInput type="date" />
   </mat-form-field>
-  <mat-form-field appearance="outline">
+  </div>
+  <div class="col-12 col-sm-6 col-lg-3">
+    <mat-form-field appearance="outline">
     <mat-label>Fecha Hasta</mat-label>
     <input formControlName="fechaHasta" matInput type="date" />
   </mat-form-field>
-  <button mat-raised-button color="warn" (click)="generar()">
-    <mat-icon>print</mat-icon>Generar
-  </button>
+  </div>
+  <div class="col-12 col-lg fr-actions justify-content-end">
+    <button mat-stroked-button type="button" (click)="generar()">
+      <mat-icon>search</mat-icon> Consultar
+    </button>
+    <button mat-raised-button color="primary" type="button" (click)="generarReporte()">
+      <mat-icon>summarize</mat-icon> Generar Reporte
+    </button>
+  </div>
+  </div>
 </form>
 
-<div class="mat-elevation-z8">
-  <mat-table [dataSource]="resultados" matSort>
+<div class="fr-table-wrap">
+  <table mat-table [dataSource]="resultados" matSort>
     <ng-container matColumnDef="tipoDocumento">
-      <mat-header-cell *matHeaderCellDef mat-sort-header
-        >Tipo Documento</mat-header-cell
+      <th mat-header-cell *matHeaderCellDef mat-sort-header
+        >Tipo Documento</th
       >
-      <mat-cell *matCellDef="let element">{{ element.tipoDocumento }}</mat-cell>
+      <td mat-cell *matCellDef="let element">{{ element.tipoDocumento }}</td>
     </ng-container>
     <ng-container matColumnDef="consecutivo">
-      <mat-header-cell *matHeaderCellDef mat-sort-header
-        >Consecutivo</mat-header-cell
+      <th mat-header-cell *matHeaderCellDef mat-sort-header
+        >Consecutivo</th
       >
-      <mat-cell *matCellDef="let element">{{ element.consecutivo }}</mat-cell>
+      <td mat-cell *matCellDef="let element">{{ element.consecutivo }}</td>
     </ng-container>
     <ng-container matColumnDef="cliente">
-      <mat-header-cell *matHeaderCellDef mat-sort-header
-        >Cliente</mat-header-cell
+      <th mat-header-cell *matHeaderCellDef mat-sort-header
+        >Cliente</th
       >
-      <mat-cell *matCellDef="let element">{{ element.cliente }}</mat-cell>
+      <td mat-cell *matCellDef="let element">{{ element.cliente }}</td>
     </ng-container>
     <ng-container matColumnDef="monto">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Monto</mat-header-cell>
-      <mat-cell *matCellDef="let element">{{
+      <th mat-header-cell class="fr-num" *matHeaderCellDef mat-sort-header>Monto</th>
+      <td mat-cell class="fr-num" *matCellDef="let element">{{
         element.monto | currency: "USD"
-      }}</mat-cell>
+      }}</td>
     </ng-container>
 
-    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-    <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
-  </mat-table>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
   <mat-paginator
     [pageSizeOptions]="[10, 25, 75, 100]"
     showFirstLastButtons
   ></mat-paginator>
-  <p class="total-liquidacion">
+  <p class="total-liquidacion text-end px-3 py-2 mb-0">
     <strong>Total liquidacion:</strong> {{ totalLiquidacion | currency: "USD" }}
   </p>
+</div>
 </div>

@@ -6,9 +6,14 @@ import { AngularMaterialModule } from "@app/angular-material-modulo";
 import { HandheldsRoutingModule } from "./handhelds-routing.module";
 import { HandheldsPageComponent } from "./pages/handhelds-page/handhelds-page.component";
 import { AddHandheldComponent } from "./pages/add-handheld/add-handheld.component";
+import { ConfigHandheldComponent } from "./pages/config-handheld/config-handheld.component";
 
 @NgModule({
-  declarations: [HandheldsPageComponent, AddHandheldComponent],
+  declarations: [
+    HandheldsPageComponent,
+    AddHandheldComponent,
+    ConfigHandheldComponent,
+  ],
   imports: [
     CommonModule,
     HandheldsRoutingModule,

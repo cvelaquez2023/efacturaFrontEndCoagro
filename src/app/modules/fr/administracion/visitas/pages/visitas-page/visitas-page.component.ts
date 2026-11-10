@@ -64,7 +64,7 @@ export class VisitasPageComponent implements OnInit, AfterViewInit {
   openDialog(): void {
     this._dialog
       .open(AddVisitaComponent, {
-        width: "40%",
+        width: "640px", maxWidth: "96vw",
       })
       .afterClosed()
       .subscribe((val) => {
@@ -77,7 +77,7 @@ export class VisitasPageComponent implements OnInit, AfterViewInit {
   clickEdit(element: IResponseVisita): void {
     this._dialog
       .open(AddVisitaComponent, {
-        width: "40%",
+        width: "640px", maxWidth: "96vw",
         data: element,
       })
       .afterClosed()

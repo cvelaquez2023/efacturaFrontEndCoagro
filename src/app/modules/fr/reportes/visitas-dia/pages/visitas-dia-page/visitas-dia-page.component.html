@@ -1,4 +1,5 @@
-<h2>Visitas por Día</h2>
+<div class="fr-page">
+<h2 class="fr-title">Visitas por Día</h2>
 
 <mat-card class="reporte-filtro">
   <div class="reporte-descripcion">
@@ -18,13 +19,13 @@
 
     <fieldset class="grupo">
       <legend>Día</legend>
-      <mat-form-field appearance="outline" fxFlex="1 1 220px">
+      <mat-form-field appearance="outline" class="campo-corto">
         <mat-label>Fecha</mat-label>
         <input formControlName="fecha" matInput type="date" />
       </mat-form-field>
     </fieldset>
 
-    <div class="acciones" fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
+    <div class="acciones">
       <button mat-raised-button color="primary" type="button" (click)="imprimir()">
         <mat-icon>print</mat-icon> Imprimir
       </button>
@@ -34,9 +35,9 @@
 </mat-card>
 
 <ng-container *ngIf="consultado">
-  <div class="resultado-barra" fxLayout="row" fxLayoutAlign="space-between center">
+  <div class="resultado-barra">
     <strong>{{ diaSemana }} — {{ visitas.data.length }} visita(s)</strong>
-    <div fxLayout="row" fxLayoutGap="8px">
+    <div class="resultado-acciones">
       <button mat-raised-button color="primary" type="button" (click)="generarReporte()">
         <mat-icon>summarize</mat-icon> Generar Reporte
       </button>
@@ -50,98 +51,100 @@
     La columna de pedido se muestra vacía.
   </div>
 
-  <div fxLayout="row wrap" fxLayoutGap="12px" class="resumen">
-    <mat-card *ngFor="let r of resumen" class="resumen-card">
+  <div class="row g-3 resumen">
+    <div class="col-12 col-sm-6 col-lg-4" *ngFor="let r of resumen">
+    <div class="fr-kpi resumen-card">
       <div class="resumen-ruta">{{ r.RUTA }} <span>{{ r.RUTA_DESCRIPCION }}</span></div>
       <div>Visitas: <strong>{{ r.TOTAL_VISITAS }}</strong> · Clientes: <strong>{{ r.CLIENTES_VISITADOS }}</strong></div>
       <div>Con GPS: {{ r.VISITAS_CON_GPS }} · Prom.: {{ r.DURACION_PROMEDIO_MIN ?? "—" }} min</div>
       <div>Jornada: {{ fmtHora(r.PRIMERA_VISITA) }} – {{ fmtHora(r.ULTIMA_VISITA) }}</div>
-    </mat-card>
+    </div>
+    </div>
   </div>
 
-  <mat-tab-group animationDuration="0ms" class="mat-elevation-z8">
+  <mat-tab-group animationDuration="0ms" class="fr-card p-0 vd-tabs">
     <mat-tab [label]="'Detalle de visitas (' + visitas.data.length + ')'">
       <div class="tabla-wrapper">
-        <mat-table [dataSource]="visitas">
+        <table mat-table [dataSource]="visitas">
           <ng-container matColumnDef="ruta">
-            <mat-header-cell *matHeaderCellDef>Ruta</mat-header-cell>
-            <mat-cell *matCellDef="let v">{{ v.ruta }}</mat-cell>
+            <th mat-header-cell *matHeaderCellDef>Ruta</th>
+            <td mat-cell *matCellDef="let v">{{ v.ruta }}</td>
           </ng-container>
           <ng-container matColumnDef="agente">
-            <mat-header-cell *matHeaderCellDef>Agente</mat-header-cell>
-            <mat-cell *matCellDef="let v">{{ v.agente }}</mat-cell>
+            <th mat-header-cell *matHeaderCellDef>Agente</th>
+            <td mat-cell *matCellDef="let v">{{ v.agente }}</td>
           </ng-container>
           <ng-container matColumnDef="cliente">
-            <mat-header-cell *matHeaderCellDef>Cliente</mat-header-cell>
-            <mat-cell *matCellDef="let v">{{ v.cliente }}</mat-cell>
+            <th mat-header-cell *matHeaderCellDef>Cliente</th>
+            <td mat-cell *matCellDef="let v">{{ v.cliente }}</td>
           </ng-container>
           <ng-container matColumnDef="nombre">
-            <mat-header-cell *matHeaderCellDef>Nombre</mat-header-cell>
-            <mat-cell *matCellDef="let v">{{ v.nombre }}</mat-cell>
+            <th mat-header-cell *matHeaderCellDef>Nombre</th>
+            <td mat-cell *matCellDef="let v">{{ v.nombre }}</td>
           </ng-container>
           <ng-container matColumnDef="razon">
-            <mat-header-cell *matHeaderCellDef>Razón</mat-header-cell>
-            <mat-cell *matCellDef="let v">{{ v.razon }}</mat-cell>
+            <th mat-header-cell *matHeaderCellDef>Razón</th>
+            <td mat-cell *matCellDef="let v">{{ v.razon }}</td>
           </ng-container>
           <ng-container matColumnDef="documento">
-            <mat-header-cell *matHeaderCellDef>Documento</mat-header-cell>
-            <mat-cell *matCellDef="let v">{{ v.documento || "—" }}</mat-cell>
+            <th mat-header-cell *matHeaderCellDef>Documento</th>
+            <td mat-cell *matCellDef="let v">{{ v.documento || "—" }}</td>
           </ng-container>
           <ng-container matColumnDef="inicio">
-            <mat-header-cell *matHeaderCellDef>Inicio</mat-header-cell>
-            <mat-cell *matCellDef="let v">{{ fmtHora(v.inicio) }}</mat-cell>
+            <th mat-header-cell class="fr-center" *matHeaderCellDef>Inicio</th>
+            <td mat-cell class="fr-center" *matCellDef="let v">{{ fmtHora(v.inicio) }}</td>
           </ng-container>
           <ng-container matColumnDef="fin">
-            <mat-header-cell *matHeaderCellDef>Fin</mat-header-cell>
-            <mat-cell *matCellDef="let v">{{ fmtHora(v.fin) }}</mat-cell>
+            <th mat-header-cell class="fr-center" *matHeaderCellDef>Fin</th>
+            <td mat-cell class="fr-center" *matCellDef="let v">{{ fmtHora(v.fin) }}</td>
           </ng-container>
           <ng-container matColumnDef="duracion">
-            <mat-header-cell *matHeaderCellDef class="numero">Duración (min)</mat-header-cell>
-            <mat-cell *matCellDef="let v" class="numero">{{ v.duracion }}</mat-cell>
+            <th mat-header-cell *matHeaderCellDef class="numero">Duración (min)</th>
+            <td mat-cell *matCellDef="let v" class="numero">{{ v.duracion }}</td>
           </ng-container>
           <ng-container matColumnDef="traslado">
-            <mat-header-cell *matHeaderCellDef class="numero">Traslado (min)</mat-header-cell>
-            <mat-cell *matCellDef="let v" class="numero">{{ v.traslado ?? "—" }}</mat-cell>
+            <th mat-header-cell *matHeaderCellDef class="numero">Traslado (min)</th>
+            <td mat-cell *matCellDef="let v" class="numero">{{ v.traslado ?? "—" }}</td>
           </ng-container>
           <ng-container matColumnDef="totalPedido">
-            <mat-header-cell *matHeaderCellDef class="numero">Total Pedido</mat-header-cell>
-            <mat-cell *matCellDef="let v" class="numero">{{ fmtMonto(v.totalPedido) }}</mat-cell>
+            <th mat-header-cell *matHeaderCellDef class="numero">Total Pedido</th>
+            <td mat-cell *matCellDef="let v" class="numero">{{ fmtMonto(v.totalPedido) }}</td>
           </ng-container>
           <ng-container matColumnDef="enRuta">
-            <mat-header-cell *matHeaderCellDef>En Ruta</mat-header-cell>
-            <mat-cell *matCellDef="let v">
+            <th mat-header-cell class="fr-center" *matHeaderCellDef>En Ruta</th>
+            <td mat-cell class="fr-center" *matCellDef="let v">
               <span class="estado" [ngClass]="v.enRuta ? 'ok' : 'proceso'">{{ v.enRuta ? "Sí" : "Fuera" }}</span>
-            </mat-cell>
+            </td>
           </ng-container>
-          <mat-header-row *matHeaderRowDef="columnasVisitas"></mat-header-row>
-          <mat-row *matRowDef="let row; columns: columnasVisitas"></mat-row>
-        </mat-table>
+          <tr mat-header-row *matHeaderRowDef="columnasVisitas"></tr>
+          <tr mat-row *matRowDef="let row; columns: columnasVisitas"></tr>
+        </table>
         <div class="vacio" *ngIf="!visitas.data.length">No hay visitas registradas ese día.</div>
       </div>
     </mat-tab>
 
     <mat-tab [label]="'Clientes sin visita (' + sinVisita.data.length + ')'">
       <div class="tabla-wrapper">
-        <mat-table [dataSource]="sinVisita">
+        <table mat-table [dataSource]="sinVisita">
           <ng-container matColumnDef="ruta">
-            <mat-header-cell *matHeaderCellDef>Ruta</mat-header-cell>
-            <mat-cell *matCellDef="let c">{{ c.ruta }}</mat-cell>
+            <th mat-header-cell *matHeaderCellDef>Ruta</th>
+            <td mat-cell *matCellDef="let c">{{ c.ruta }}</td>
           </ng-container>
           <ng-container matColumnDef="cliente">
-            <mat-header-cell *matHeaderCellDef>Cliente</mat-header-cell>
-            <mat-cell *matCellDef="let c">{{ c.cliente }}</mat-cell>
+            <th mat-header-cell *matHeaderCellDef>Cliente</th>
+            <td mat-cell *matCellDef="let c">{{ c.cliente }}</td>
           </ng-container>
           <ng-container matColumnDef="nombre">
-            <mat-header-cell *matHeaderCellDef>Nombre</mat-header-cell>
-            <mat-cell *matCellDef="let c">{{ c.nombre }}</mat-cell>
+            <th mat-header-cell *matHeaderCellDef>Nombre</th>
+            <td mat-cell *matCellDef="let c">{{ c.nombre }}</td>
           </ng-container>
           <ng-container matColumnDef="orden">
-            <mat-header-cell *matHeaderCellDef class="numero">Orden</mat-header-cell>
-            <mat-cell *matCellDef="let c" class="numero">{{ c.orden }}</mat-cell>
+            <th mat-header-cell *matHeaderCellDef class="numero">Orden</th>
+            <td mat-cell *matCellDef="let c" class="numero">{{ c.orden }}</td>
           </ng-container>
-          <mat-header-row *matHeaderRowDef="columnasSinVisita"></mat-header-row>
-          <mat-row *matRowDef="let row; columns: columnasSinVisita"></mat-row>
-        </mat-table>
+          <tr mat-header-row *matHeaderRowDef="columnasSinVisita"></tr>
+          <tr mat-row *matRowDef="let row; columns: columnasSinVisita"></tr>
+        </table>
         <div class="vacio" *ngIf="!sinVisita.data.length">
           Todos los clientes planificados para el {{ diaSemana }} fueron visitados.
         </div>
@@ -160,34 +163,35 @@
 
 <ng-template #tablaSimple let-fuente let-vacio="vacio">
   <div class="tabla-wrapper">
-    <mat-table [dataSource]="fuente">
+    <table mat-table [dataSource]="fuente">
       <ng-container matColumnDef="ruta">
-        <mat-header-cell *matHeaderCellDef>Ruta</mat-header-cell>
-        <mat-cell *matCellDef="let v">{{ v.ruta }}</mat-cell>
+        <th mat-header-cell *matHeaderCellDef>Ruta</th>
+        <td mat-cell *matCellDef="let v">{{ v.ruta }}</td>
       </ng-container>
       <ng-container matColumnDef="cliente">
-        <mat-header-cell *matHeaderCellDef>Cliente</mat-header-cell>
-        <mat-cell *matCellDef="let v">{{ v.cliente }}</mat-cell>
+        <th mat-header-cell *matHeaderCellDef>Cliente</th>
+        <td mat-cell *matCellDef="let v">{{ v.cliente }}</td>
       </ng-container>
       <ng-container matColumnDef="nombre">
-        <mat-header-cell *matHeaderCellDef>Nombre</mat-header-cell>
-        <mat-cell *matCellDef="let v">{{ v.nombre }}</mat-cell>
+        <th mat-header-cell *matHeaderCellDef>Nombre</th>
+        <td mat-cell *matCellDef="let v">{{ v.nombre }}</td>
       </ng-container>
       <ng-container matColumnDef="razon">
-        <mat-header-cell *matHeaderCellDef>Razón</mat-header-cell>
-        <mat-cell *matCellDef="let v">{{ v.razon }}</mat-cell>
+        <th mat-header-cell *matHeaderCellDef>Razón</th>
+        <td mat-cell *matCellDef="let v">{{ v.razon }}</td>
       </ng-container>
       <ng-container matColumnDef="inicio">
-        <mat-header-cell *matHeaderCellDef>Inicio</mat-header-cell>
-        <mat-cell *matCellDef="let v">{{ fmtHora(v.inicio) }}</mat-cell>
+        <th mat-header-cell class="fr-center" *matHeaderCellDef>Inicio</th>
+        <td mat-cell class="fr-center" *matCellDef="let v">{{ fmtHora(v.inicio) }}</td>
       </ng-container>
       <ng-container matColumnDef="fin">
-        <mat-header-cell *matHeaderCellDef>Fin</mat-header-cell>
-        <mat-cell *matCellDef="let v">{{ fmtHora(v.fin) }}</mat-cell>
+        <th mat-header-cell class="fr-center" *matHeaderCellDef>Fin</th>
+        <td mat-cell class="fr-center" *matCellDef="let v">{{ fmtHora(v.fin) }}</td>
       </ng-container>
-      <mat-header-row *matHeaderRowDef="columnasVisitaSimple"></mat-header-row>
-      <mat-row *matRowDef="let row; columns: columnasVisitaSimple"></mat-row>
-    </mat-table>
+      <tr mat-header-row *matHeaderRowDef="columnasVisitaSimple"></tr>
+      <tr mat-row *matRowDef="let row; columns: columnasVisitaSimple"></tr>
+    </table>
     <div class="vacio" *ngIf="!fuente.data.length">{{ vacio }}</div>
   </div>
 </ng-template>
+</div>

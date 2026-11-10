@@ -1,0 +1,385 @@
+// Tema de Facturación de Rutas (FR)
+// - Bootstrap 5 (solo grid, contenedores y utilidades; sin reboot para no pisar Angular Material)
+//   queda limitado a elementos dentro de `.fr-page`, así los demás módulos no cambian.
+// - Tablas, paginadores y tarjetas en claro (blanco/rojo), centrado parejo de encabezados y celdas.
+// Uso: el elemento raíz de cada página y diálogo FR lleva class="fr-page".
+
+$fr-red: #c62828;
+$fr-red-dark: #8e0000;
+$fr-red-soft: #fdecea;
+$fr-border: #e0e0e0;
+$fr-text: rgba(0, 0, 0, 0.87);
+$fr-muted: #5f6368;
+
+// ---------- Bootstrap ----------
+$primary: $fr-red;
+$danger: $fr-red;
+$enable-dark-mode: false;
+$enable-reduced-motion: false;
+
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/variables-dark";
+@import "bootstrap/scss/maps";
+@import "bootstrap/scss/mixins";
+@import "bootstrap/scss/utilities";
+@import "bootstrap/scss/root";
+
+.fr-page {
+	@import "bootstrap/scss/containers";
+	@import "bootstrap/scss/grid";
+	@import "bootstrap/scss/helpers";
+	@import "bootstrap/scss/utilities/api";
+}
+
+// ---------- Página ----------
+.fr-page {
+	display: block;
+	box-sizing: border-box;
+	color: $fr-text;
+	background-color: #fff;
+	padding: 16px;
+
+	*,
+	*::before,
+	*::after {
+		box-sizing: border-box;
+	}
+
+	@media (max-width: 575.98px) {
+		padding: 10px;
+	}
+}
+
+// Diálogos: sin padding extra (mat-dialog-container ya trae el suyo)
+.mat-dialog-container .fr-page,
+.fr-page.fr-dialog {
+	padding: 0;
+}
+
+// Título de página con acento rojo
+.fr-page .fr-title {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0 0 16px;
+	padding-bottom: 8px;
+	font-size: 1.35rem;
+	font-weight: 500;
+	color: $fr-red-dark;
+	border-bottom: 3px solid transparent;
+	border-image: linear-gradient(90deg, $fr-red, $fr-red-dark 60%, transparent) 1;
+
+	@media (max-width: 575.98px) {
+		font-size: 1.15rem;
+	}
+}
+
+// Subtítulo de sección dentro de una página o diálogo
+.fr-page .fr-subtitle {
+	margin: 8px 0 12px;
+	font-size: 1rem;
+	font-weight: 500;
+	color: $fr-red-dark;
+}
+
+// Mensaje de proceso terminado
+.fr-page .mensaje-exito {
+	margin: 12px 0;
+	padding: 10px 14px;
+	border-left: 4px solid #2e7d32;
+	border-radius: 6px;
+	background: #e8f5e9;
+	color: #1b5e20;
+}
+
+// Diálogos: aire arriba para que la etiqueta flotante del primer campo no se corte
+.fr-dialog .mat-dialog-content {
+	padding-top: 8px;
+}
+
+.fr-dialog .mat-dialog-actions {
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+// Tarjetas / cajas de filtros
+.fr-page .fr-card {
+	background: #fff;
+	border: 1px solid $fr-border;
+	border-radius: 8px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+	padding: 16px;
+	margin-bottom: 16px;
+
+	> .fr-card-title,
+	> h3 {
+		margin: 0 0 12px;
+		font-size: 1rem;
+		font-weight: 500;
+		color: $fr-red-dark;
+	}
+}
+
+.fr-page .mat-form-field {
+	width: 100%;
+}
+
+// Barra de acciones (botones) que baja de línea en pantallas chicas
+.fr-page .fr-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: center;
+
+	@media (max-width: 575.98px) {
+		> .mat-flat-button,
+		> .mat-raised-button,
+		> .mat-stroked-button,
+		> button {
+			flex: 1 1 auto;
+		}
+	}
+}
+
+// Barra superior de listados: buscador + botón(es) de acción; se apila en teléfono
+.fr-page .fr-toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 12px 16px;
+
+	.fr-search {
+		flex: 1 1 260px;
+		max-width: 480px;
+	}
+
+	.mat-form-field-wrapper {
+		padding-bottom: 0;
+	}
+
+	@media (max-width: 575.98px) {
+		.fr-search {
+			max-width: none;
+		}
+		> .mat-raised-button,
+		> .mat-flat-button,
+		> .mat-stroked-button,
+		> .fr-actions {
+			flex: 1 1 100%;
+		}
+	}
+}
+
+// Texto de ayuda / descripción de la pantalla
+.fr-page .fr-help {
+	background: #fafafa;
+	border: 1px solid $fr-border;
+	border-left: 4px solid $fr-red;
+	border-radius: 6px;
+	padding: 10px 14px;
+	margin-bottom: 16px;
+	color: $fr-muted;
+	font-size: 13.5px;
+}
+
+// ---------- Tablas (claras, alineación pareja) ----------
+// Contenedor con scroll horizontal para que la tabla no rompa la página en teléfono/tablet
+.fr-page .fr-table-wrap {
+	width: 100%;
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+	border: 1px solid $fr-border;
+	border-radius: 8px;
+	background: #fff;
+	margin-bottom: 16px;
+
+	// Los encabezados no se parten (white-space: nowrap), así que en pantallas chicas la tabla
+	// crece a lo ancho y se desplaza aquí dentro en lugar de aplastar las columnas.
+	> table {
+		margin: 0;
+	}
+
+	> mat-paginator,
+	> .mat-paginator {
+		border-top: 1px solid $fr-border;
+	}
+}
+
+.fr-page table,
+.fr-page th,
+.fr-page td,
+.fr-page mat-paginator,
+.fr-page .mat-paginator {
+	background-color: #fff !important;
+	color: $fr-text !important;
+	border-bottom-color: $fr-border !important;
+}
+
+.fr-page table {
+	width: 100%;
+}
+
+.fr-page th.mat-header-cell,
+.fr-page .mat-header-cell {
+	background: $fr-red-soft !important;
+	color: $fr-red-dark !important;
+	font-size: 12.5px;
+	font-weight: 600;
+	letter-spacing: 0.3px;
+	text-transform: uppercase;
+	white-space: nowrap;
+}
+
+// Mismo padding y alineación en encabezado y celda → los datos quedan bajo su columna
+.fr-page th.mat-header-cell,
+.fr-page td.mat-cell,
+.fr-page td.mat-footer-cell {
+	padding: 8px 12px !important;
+	vertical-align: middle;
+	text-align: left;
+}
+
+.fr-page th.mat-header-cell:first-of-type,
+.fr-page td.mat-cell:first-of-type {
+	padding-left: 16px !important;
+}
+
+// Encabezados con mat-sort-header: el contenido sigue la misma alineación de la celda
+.fr-page .mat-sort-header-container {
+	justify-content: inherit;
+}
+
+.fr-page .text-center .mat-sort-header-container,
+.fr-page th.text-center .mat-sort-header-container {
+	justify-content: center;
+}
+
+.fr-page .text-end .mat-sort-header-container,
+.fr-page th.text-end .mat-sort-header-container {
+	justify-content: flex-end;
+}
+
+// Columnas de números / montos / acciones (usar en th y td a la vez)
+// (.numero es el nombre heredado que usan los reportes)
+.fr-page .fr-num,
+.fr-page th.numero,
+.fr-page td.numero {
+	text-align: right !important;
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+
+	.mat-sort-header-container {
+		justify-content: flex-end;
+	}
+}
+
+.fr-page .fr-center {
+	text-align: center !important;
+
+	.mat-sort-header-container {
+		justify-content: center;
+	}
+}
+
+.fr-page .fr-col-actions {
+	width: 1%;
+	text-align: center !important;
+	white-space: nowrap;
+}
+
+// Tablas HTML simples (sin mat-table)
+.fr-page table.fr-simple {
+	border-collapse: collapse;
+
+	th,
+	td {
+		padding: 8px 12px;
+		text-align: left;
+		vertical-align: middle;
+		border-bottom: 1px solid $fr-border;
+	}
+
+	th {
+		background: $fr-red-soft !important;
+		color: $fr-red-dark !important;
+		font-size: 12.5px;
+		font-weight: 600;
+		text-transform: uppercase;
+		white-space: nowrap;
+	}
+}
+
+.fr-page tr.mat-row:nth-child(even) td {
+	background-color: #fafafa !important;
+}
+
+.fr-page tr.mat-row:hover td {
+	background-color: $fr-red-soft !important;
+}
+
+.fr-page tr.mat-row.fr-row-selected td {
+	background-color: #f8d7d5 !important;
+}
+
+// Fila "sin datos"
+.fr-page .fr-empty {
+	padding: 24px 16px !important;
+	text-align: center !important;
+	color: $fr-muted !important;
+}
+
+.fr-page .mat-paginator-range-actions button {
+	color: $fr-red !important;
+}
+
+.fr-page .mat-paginator-container {
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	min-height: 48px;
+}
+
+// Pestañas en claro
+.fr-page mat-tab-body,
+.fr-page .mat-tab-body-wrapper {
+	background-color: #fff;
+}
+
+.fr-page .mat-tab-label {
+	min-width: 0 !important;
+	padding: 0 16px !important;
+}
+
+// Indicadores / KPIs
+.fr-page .fr-kpi {
+	background: #fff;
+	border: 1px solid $fr-border;
+	border-left: 4px solid $fr-red;
+	border-radius: 8px;
+	padding: 12px 16px;
+	height: 100%;
+
+	.fr-kpi-label {
+		font-size: 12px;
+		color: $fr-muted;
+		text-transform: uppercase;
+		letter-spacing: 0.3px;
+	}
+
+	.fr-kpi-value {
+		font-size: 1.5rem;
+		font-weight: 600;
+		color: $fr-red-dark;
+		font-variant-numeric: tabular-nums;
+	}
+}
+
+// Diálogos FR a pantalla casi completa en teléfono
+@media (max-width: 599.98px) {
+	.cdk-overlay-pane.mat-dialog-panel,
+	.cdk-overlay-pane {
+		max-width: 96vw !important;
+	}
+}

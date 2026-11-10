@@ -3,6 +3,11 @@ import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
+import { fmtFecha } from "../../../shared/reporte-utils";
+import {
+  abrirReporteRuteroPdf,
+  fmtMonto,
+} from "../../../shared/reporte-pdf-rutero";
 
 interface ILiquidacionAgente {
   tipoDocumento: string;
@@ -74,5 +79,64 @@ export class LiquidacionAgentesPageComponent implements OnInit, AfterViewInit {
 
   generar(): void {
     this.resultados.data = MOCK_DATA;
+  }
+
+  /** Reporte con el formato de Softland FR: resumen por tipo de documento y el detalle de la
+   *  liquidación con su total. */
+  generarReporte(): void {
+    const f = this.filtroForm.value;
+    const filas = this.resultados.filteredData;
+    const fecha = (iso: string) => (iso ? fmtFecha(iso + "T00:00") : "");
+    const porTipo = Array.from(new Set(filas.map((l) => l.tipoDocumento))).map((tipo) => {
+      const deTipo = filas.filter((l) => l.tipoDocumento === tipo);
+      return {
+        tipo,
+        cantidad: deTipo.length,
+        monto: deTipo.reduce((t, l) => t + l.monto, 0),
+      };
+    });
+    abrirReporteRuteroPdf({
+      titulo: "Reporte de Liquidación de Agentes",
+      horizontal: false,
+      paginas: [
+        {
+          encabezado: [
+            `Agente: ${f.agente || "(todos)"}. Ruta: ${f.ruta || "(todas)"}.`,
+            `Fechas: ${fecha(f.fechaDesde) || "(inicio)"} al ${fecha(f.fechaHasta) || "(fin)"}`,
+            ...(f.compania ? [`Compañía: ${f.compania}`] : []),
+            "Montos en moneda dólar.",
+          ],
+          bloques: [
+            [
+              {
+                titulo: "Resumen por Tipo de Documento",
+                cebra: true,
+                columnas: [
+                  { header: "Tipo Documento", valor: (r: typeof porTipo[number]) => r.tipo, width: "*" },
+                  { header: "Cantidad", valor: (r: typeof porTipo[number]) => r.cantidad, alignment: "right" },
+                  { header: "Monto", valor: (r: typeof porTipo[number]) => fmtMonto(r.monto), alignment: "right", width: 80 },
+                ],
+                filas: porTipo,
+                total: fmtMonto(this.totalLiquidacion),
+              },
+            ],
+            [
+              {
+                titulo: "Detalle de Liquidación",
+                columnas: [
+                  { header: "Tipo Documento", valor: (l: ILiquidacionAgente) => l.tipoDocumento },
+                  { header: "Consecutivo", valor: (l: ILiquidacionAgente) => l.consecutivo },
+                  { header: "Cliente", valor: (l: ILiquidacionAgente) => l.cliente, width: "*" },
+                  { header: "Monto", valor: (l: ILiquidacionAgente) => fmtMonto(l.monto), alignment: "right", width: 80 },
+                ],
+                filas,
+                total: fmtMonto(this.totalLiquidacion),
+                vacio: "Sin documentos para liquidar.",
+              },
+            ],
+          ],
+        },
+      ],
+    });
   }
 }

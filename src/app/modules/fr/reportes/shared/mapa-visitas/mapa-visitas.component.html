@@ -1,0 +1,44 @@
+<div class="mapa-visitas">
+  <div class="mapa-barra">
+    <div class="mapa-titulo">
+      <mat-icon>map</mat-icon>
+      <span>Mapa de visitas</span>
+    </div>
+    <div class="mapa-botones">
+      <button mat-stroked-button type="button" class="btn-vivo" [class.activo]="vivo"
+              [matTooltip]="'Vuelve a consultar cada ' + segundosVivo + ' s'" (click)="alternarVivo()">
+        <span class="punto-vivo"></span> {{ vivo ? "En vivo" : "Activar en vivo" }}
+      </button>
+      <button mat-icon-button type="button" matTooltip="Encuadrar todos los puntos" (click)="encuadrar()">
+        <mat-icon>center_focus_strong</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <div class="mapa-leyenda">
+    <span><i class="dot" style="background:#2e7d32"></i>Dentro GPS</span>
+    <span><i class="dot dot-alarma"></i>Fuera GPS (alerta)</span>
+    <span><i class="dot" style="background:#607d8b"></i>Sin ubicación de cliente</span>
+    <span><i class="dot cliente"></i>Cliente</span>
+    <span><i class="linea"></i>Recorrido</span>
+    <span *ngIf="puntos.length && puntosConGps < puntos.length" class="mapa-actualizado">
+      {{ puntosConGps }} de {{ puntos.length }} visita(s) con GPS
+    </span>
+    <span *ngIf="actualizado && (puntos.length || vivo)" class="mapa-actualizado">
+      Actualizado {{ actualizado | date: "HH:mm:ss" }}
+    </span>
+  </div>
+
+  <div class="mapa-cuerpo">
+    <div #contenedor class="mapa-lienzo"></div>
+    <div *ngIf="cargando" class="mapa-overlay">
+      <mat-spinner diameter="32"></mat-spinner>
+    </div>
+    <div *ngIf="!cargando && !puntos.length" class="mapa-overlay suave">
+      Consulte el reporte para ver las visitas en el mapa.
+    </div>
+    <div *ngIf="!cargando && puntos.length && !puntosConGps" class="mapa-overlay suave">
+      Ninguna de las {{ puntos.length }} visita(s) del rango trae ubicación GPS desde la handheld.
+    </div>
+  </div>
+</div>

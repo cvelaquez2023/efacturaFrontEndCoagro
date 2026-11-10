@@ -1,10 +1,11 @@
+<div class="fr-page fr-dialog">
 <h1 mat-dialog-title color="warn">
   {{ actionBtn === "Guardar" ? "Adicionar" : "Editar" }} Grupo de Artículo
 </h1>
 <div mat-dialog-content class="dialog-content">
   <form [formGroup]="grupoForm">
-    <div class="row">
-      <div class="col-12 col-md-30">
+    <div class="row g-3">
+      <div class="col-12 col-md-4">
         <mat-form-field appearance="outline">
           <mat-label>Grupo</mat-label>
           <input
@@ -22,7 +23,7 @@
           >
         </mat-form-field>
       </div>
-      <div class="col-12 col-md-70">
+      <div class="col-12 col-md-8">
         <mat-form-field appearance="outline">
           <mat-label>Descripción</mat-label>
           <input
@@ -49,7 +50,7 @@
       Artículos).
     </p>
 
-    <div class="row">
+    <div class="row g-3">
       <div class="col-12">
         <mat-form-field class="full-with" appearance="fill">
           <mat-label>Buscar artículo</mat-label>
@@ -71,31 +72,31 @@
 
     <div
       *ngIf="!cargandoArticulos"
-      class="mat-elevation-z2 articulos-grid-wrapper"
+      class="fr-table-wrap articulos-grid-wrapper"
     >
-      <mat-table [dataSource]="articulosDataSource">
+      <table mat-table [dataSource]="articulosDataSource">
         <ng-container matColumnDef="articulo">
-          <mat-header-cell *matHeaderCellDef>Artículo</mat-header-cell>
-          <mat-cell *matCellDef="let element">{{ element.ARTICULO }}</mat-cell>
+          <th mat-header-cell *matHeaderCellDef>Artículo</th>
+          <td mat-cell *matCellDef="let element">{{ element.ARTICULO }}</td>
         </ng-container>
         <ng-container matColumnDef="descripcion">
-          <mat-header-cell *matHeaderCellDef>Descripción</mat-header-cell>
-          <mat-cell *matCellDef="let element">{{
+          <th mat-header-cell *matHeaderCellDef>Descripción</th>
+          <td mat-cell *matCellDef="let element">{{
             element.DESCRIPCION
-          }}</mat-cell>
+          }}</td>
         </ng-container>
 
-        <mat-header-row *matHeaderRowDef="articulosColumns"></mat-header-row>
-        <mat-row *matRowDef="let row; columns: articulosColumns"></mat-row>
+        <tr mat-header-row *matHeaderRowDef="articulosColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: articulosColumns"></tr>
         <tr class="mat-row" *matNoDataRow>
           <td
-            class="mat-cell sin-datos"
+            class="mat-cell fr-empty"
             [attr.colspan]="articulosColumns.length"
           >
             No hay artículos asociados a este grupo
           </td>
         </tr>
-      </mat-table>
+      </table>
       <mat-paginator
         [pageSizeOptions]="[5, 10, 25]"
         pageSize="5"
@@ -114,4 +115,5 @@
   >
     {{ actionBtn }}
   </button>
+</div>
 </div>

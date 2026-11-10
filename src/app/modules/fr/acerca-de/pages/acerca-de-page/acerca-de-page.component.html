@@ -1,21 +1,19 @@
-<h2>Acerca de Facturacion de Rutero</h2>
-<p>
+<div class="fr-page">
+<h2 class="fr-title">Acerca de Facturacion de Rutero</h2>
+<p class="fr-help">
   Modulo de Facturacion de Rutero (FR) version {{ version }}, integrado con
   SoftlandERP para la gestion de preventa, ruteo y cobro en campo.
 </p>
 
-<div class="caracteristicas-grid" fxLayout="row wrap" fxLayoutGap="16px">
-  <mat-card *ngFor="let item of caracteristicas" class="caracteristica-card">
-    <mat-card-content
-      fxLayout="row"
-      fxLayoutAlign="start start"
-      fxLayoutGap="12px"
-    >
+<div class="row g-3">
+  <div class="col-12 col-md-6 col-xl-4" *ngFor="let item of caracteristicas">
+    <div class="fr-card h-100 mb-0 d-flex align-items-start gap-3">
       <mat-icon color="primary">{{ item.icono }}</mat-icon>
       <div>
         <div class="caracteristica-titulo">{{ item.titulo }}</div>
         <div class="caracteristica-descripcion">{{ item.descripcion }}</div>
       </div>
-    </mat-card-content>
-  </mat-card>
+    </div>
+  </div>
+</div>
 </div>

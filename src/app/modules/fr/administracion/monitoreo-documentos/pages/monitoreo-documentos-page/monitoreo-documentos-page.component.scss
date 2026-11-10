@@ -4,16 +4,20 @@
 
 .filtro-titulo {
   font-weight: 600;
-  color: #e65100;
+  color: #c62828;
 }
 
 .accion {
   min-width: 140px;
+
+  @media (max-width: 991.98px) {
+    flex: 1 1 140px;
+  }
 }
 
 .panel-botones {
   padding: 8px;
-  align-self: flex-start;
+  width: 170px;
 }
 
 .boton-tipo {
@@ -25,9 +29,9 @@
   padding: 6px 0;
 
   &.activo {
-    background: #fff3e0;
-    border-color: #e65100;
-    color: #e65100;
+    background: #fdecea;
+    border-color: #c62828;
+    color: #c62828;
   }
 }
 
@@ -38,7 +42,7 @@
 .contador {
   margin-left: 4px;
   font-size: 12px;
-  color: #e65100;
+  color: #c62828;
 }
 
 .barra {
@@ -57,6 +61,7 @@
 
 .buscar {
   width: 240px;
+  max-width: 100%;
 }
 
 .menu-columnas {
@@ -69,20 +74,31 @@
 .tabla-wrapper {
   overflow-x: auto;
 
-  mat-table {
+  table {
     min-width: 1100px;
   }
 }
 
-// Columnas numéricas (visitas, clientes, con GPS, promedios, montos): valor y encabezado centrados.
-.mat-cell.numero,
-.mat-header-cell.numero {
-  justify-content: center;
-  text-align: center;
-}
+// Todas las columnas centradas: encabezado y valor quedan justo uno bajo el otro.
+.tabla-centrada {
+  th.mat-header-cell,
+  td.mat-cell {
+    text-align: center !important;
+    padding: 8px 12px !important;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
 
-.mat-header-cell.numero ::ng-deep .mat-sort-header-container {
-  justify-content: center;
+  td.mat-cell.numero {
+    font-variant-numeric: tabular-nums;
+  }
+
+  // La flecha de orden (12px + 6px de margen) se compensa a la izquierda
+  // para que el texto del encabezado quede centrado sobre la columna.
+  th.mat-header-cell ::ng-deep .mat-sort-header-container {
+    justify-content: center;
+    padding-left: 18px;
+  }
 }
 
 .vacio {

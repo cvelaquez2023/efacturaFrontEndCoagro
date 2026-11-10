@@ -1,0 +1,35 @@
+.modulo-fr-home {
+	max-width: 640px;
+	margin: 32px auto;
+	padding: 32px 24px;
+
+	h1 {
+		margin: 8px 0;
+		font-size: 1.6rem;
+		font-weight: 500;
+		background: linear-gradient(90deg, #c62828, #8e0000);
+		-webkit-background-clip: text;
+		background-clip: text;
+		color: transparent;
+	}
+
+	p {
+		margin: 0;
+		color: #5f6368;
+	}
+
+	@media (max-width: 575.98px) {
+		margin: 16px auto;
+		padding: 24px 16px;
+
+		h1 {
+			font-size: 1.3rem;
+		}
+	}
+}
+
+.modulo-fr-icono {
+	font-size: 56px;
+	width: 56px;
+	height: 56px;
+}
