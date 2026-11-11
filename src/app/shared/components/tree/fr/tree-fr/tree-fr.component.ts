@@ -79,6 +79,10 @@ const TREE_DATA: FrNode[] = [
         name: "Ubicaciones por Visita",
         constante: "_ubicacionesVisita",
       },
+      {
+        name: "Motivos de No Venta",
+        constante: "_motivosNoVenta",
+      },
     ],
   },
   {
@@ -187,6 +191,30 @@ const TREE_DATA: FrNode[] = [
         name: "Metas de Venta y Cobro",
         constante: "_metasVentaCobro",
       },
+      {
+        name: "Condiciones Especiales por Cliente",
+        constante: "_condicionesCliente",
+      },
+      {
+        name: "Promociones y Descuentos de Temporada",
+        constante: "_promociones",
+      },
+      {
+        name: "Consulta de Precios",
+        constante: "_consultaPrecios",
+      },
+      {
+        name: "Metas",
+        constante: "_metas",
+      },
+      {
+        name: "Líderes",
+        constante: "_lideres",
+      },
+      {
+        name: "Proveedores",
+        constante: "_proveedores",
+      },
     ],
   },
   {
@@ -272,6 +300,9 @@ export class TreeFrComponent implements OnInit {
         void this._router.navigateByUrl(
           PATHS_FR_PAGES.ubicacionesVisita.withSlash
         );
+        break;
+      case "_motivosNoVenta":
+        void this._router.navigateByUrl(PATHS_FR_PAGES.motivosNoVenta.withSlash);
         break;
       case "_cargaClientes":
         void this._router.navigateByUrl(PATHS_FR_PAGES.cargaClientes.withSlash);
@@ -366,6 +397,24 @@ export class TreeFrComponent implements OnInit {
         void this._router.navigateByUrl(
           PATHS_FR_PAGES.metasVentaCobro.withSlash
         );
+        break;
+      case "_condicionesCliente":
+        void this._router.navigateByUrl(PATHS_FR_PAGES.condicionesCliente.withSlash);
+        break;
+      case "_promociones":
+        void this._router.navigateByUrl(PATHS_FR_PAGES.promociones.withSlash);
+        break;
+      case "_consultaPrecios":
+        void this._router.navigateByUrl(PATHS_FR_PAGES.consultaPrecios.withSlash);
+        break;
+      case "_metas":
+        void this._router.navigateByUrl(PATHS_FR_PAGES.metas.withSlash);
+        break;
+      case "_lideres":
+        void this._router.navigateByUrl(PATHS_FR_PAGES.lideres.withSlash);
+        break;
+      case "_proveedores":
+        void this._router.navigateByUrl(PATHS_FR_PAGES.proveedores.withSlash);
         break;
       case "_acercaDe":
         void this._router.navigateByUrl(PATHS_FR_PAGES.acercaDe.withSlash);

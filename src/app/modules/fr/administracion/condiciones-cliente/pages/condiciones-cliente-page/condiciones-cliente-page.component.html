@@ -1,0 +1,241 @@
+<div class="fr-page">
+<h2 class="fr-title">Condiciones Especiales por Cliente</h2>
+
+<div class="aviso-prueba" *ngIf="modoPrueba" role="status">
+  <mat-icon>science</mat-icon>
+  <span>
+    Datos de prueba: falta el backend (ver docs/fr/backend-condiciones-promociones.md). Los cambios
+    no se guardan al recargar.
+  </span>
+</div>
+
+<mat-card class="form-card" [class.editando]="editandoId !== null">
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+    <div class="seccion-titulo mb-0">
+      {{ editandoId !== null ? "Editar condición" : "Nueva condición" }}
+    </div>
+    <button mat-button type="button" color="primary" (click)="verAyuda = !verAyuda">
+      <mat-icon>help_outline</mat-icon> Cómo funciona
+    </button>
+  </div>
+
+  <div class="ayuda" *ngIf="verAyuda">
+    Aquí se autoriza a un cliente un <strong>descuento máximo</strong> (el vendedor puede dar menos,
+    no más) o un <strong>precio especial sin IVA</strong>. Puede aplicar a un artículo, a toda una
+    línea (por ejemplo Productos Vet Calox) o a los productos cuyo nombre contenga un texto (por
+    ejemplo CREDELIO). La condición empieza a aplicar sola en la <strong>fecha de inicio</strong> y
+    deja de aplicar sola después de la <strong>fecha fin</strong>; el precio base nunca se modifica.
+    Si el cliente aún no está en ninguna ruta, la condición queda guardada y aplicará cuando lo
+    agreguen.
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="guardar()">
+    <div class="row g-3">
+      <div class="col-12">
+        <app-buscador-erp
+          #buscadorCliente
+          tipo="cliente"
+          etiqueta="Cliente"
+          placeholder="Escriba el código o nombre del cliente"
+          [requerido]="true"
+          (seleccion)="elegirCliente($event)"
+        ></app-buscador-erp>
+        <div class="error-campo" *ngIf="form.get('cliente')?.touched && form.get('cliente')?.invalid">
+          Seleccione un cliente de la lista
+        </div>
+      </div>
+
+      <div class="col-12 col-md-4">
+        <mat-form-field appearance="outline" class="campo">
+          <mat-label>Aplica a</mat-label>
+          <mat-select formControlName="alcance">
+            <mat-option *ngFor="let a of alcances" [value]="a.codigo">{{ a.nombre }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="col-12 col-md-8" [ngSwitch]="alcance">
+        <ng-container *ngSwitchCase="'A'">
+          <app-buscador-erp
+            #buscadorArticulo
+            tipo="articulo"
+            etiqueta="Artículo"
+            placeholder="Código o nombre (ej. 16003, CIPER-CLOR)"
+            [requerido]="true"
+            (seleccion)="elegirArticulo($event)"
+          ></app-buscador-erp>
+          <div class="error-campo" *ngIf="form.get('valor')?.touched && form.get('valor')?.invalid">
+            Seleccione un artículo de la lista
+          </div>
+        </ng-container>
+        <mat-form-field *ngSwitchCase="'L'" appearance="outline" class="campo">
+          <mat-label>Línea</mat-label>
+          <mat-select formControlName="valor" required>
+            <mat-option *ngFor="let l of lineas" [value]="l.codigo">
+              {{ l.nombre }} <small class="text-muted">({{ l.codigo }})</small>
+            </mat-option>
+          </mat-select>
+          <mat-error>Seleccione la línea</mat-error>
+        </mat-form-field>
+        <mat-form-field *ngSwitchCase="'T'" appearance="outline" class="campo">
+          <mat-label>Productos cuyo nombre contiene</mat-label>
+          <input matInput formControlName="valor" placeholder="Ej. CREDELIO, BRAVECTO" required />
+          <mat-hint>Aplica a todos los productos que tengan este texto en su nombre</mat-hint>
+          <mat-error>Escriba al menos 3 letras</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-3">
+        <mat-form-field appearance="outline" class="campo">
+          <mat-label>Descuento máximo (%)</mat-label>
+          <input
+            matInput
+            type="number"
+            min="0"
+            max="100"
+            step="0.5"
+            formControlName="descuentoMax"
+            placeholder="10"
+            (input)="exclusivo('descuentoMax')"
+          />
+          <mat-error>Entre 0 y 100</mat-error>
+        </mat-form-field>
+      </div>
+      <div class="col-12 col-sm-6 col-lg-3">
+        <mat-form-field appearance="outline" class="campo">
+          <mat-label>O precio especial $ sin IVA</mat-label>
+          <input
+            matInput
+            type="number"
+            min="0"
+            step="0.01"
+            formControlName="precioEspecial"
+            placeholder="30.28"
+            (input)="exclusivo('precioEspecial')"
+          />
+          <mat-error>Debe ser mayor a cero</mat-error>
+        </mat-form-field>
+      </div>
+      <div class="col-12 col-sm-6 col-lg-2">
+        <mat-form-field appearance="outline" class="campo">
+          <mat-label>A partir de (unid.)</mat-label>
+          <input matInput type="number" min="1" step="1" formControlName="cantidadMin" placeholder="Opcional" />
+          <mat-error>Entero mayor a cero</mat-error>
+        </mat-form-field>
+      </div>
+      <div class="col-6 col-lg-2">
+        <mat-form-field appearance="outline" class="campo">
+          <mat-label>Vigente desde</mat-label>
+          <input matInput type="date" formControlName="fechaInicio" required />
+        </mat-form-field>
+      </div>
+      <div class="col-6 col-lg-2">
+        <mat-form-field appearance="outline" class="campo">
+          <mat-label>Vigente hasta</mat-label>
+          <input matInput type="date" formControlName="fechaFin" />
+          <mat-hint>Vacío = sin vencimiento</mat-hint>
+        </mat-form-field>
+      </div>
+
+      <div class="col-12" *ngIf="form.errors?.['unoDeDos'] && (form.get('descuentoMax')?.touched || form.get('precioEspecial')?.touched)">
+        <div class="error-campo">Indique el descuento máximo <strong>o</strong> el precio especial (solo uno).</div>
+      </div>
+      <div class="col-12" *ngIf="form.errors?.['fechas']">
+        <div class="error-campo">La fecha "hasta" no puede ser menor que la fecha "desde".</div>
+      </div>
+
+      <div class="col-12 col-md-9" *ngIf="modoPrueba">
+        <mat-form-field appearance="outline" class="campo">
+          <mat-label>Notas (opcional)</mat-label>
+          <input matInput formControlName="notas" maxlength="250" placeholder="Ej. autorizado por gerencia" />
+        </mat-form-field>
+      </div>
+      <div class="col-12 col-md-3 d-flex align-items-center">
+        <mat-checkbox formControlName="activa" color="primary">Activa</mat-checkbox>
+      </div>
+    </div>
+
+    <div class="botones mt-1">
+      <button mat-raised-button color="primary" type="submit" [disabled]="guardando">
+        <mat-icon>{{ editandoId !== null ? "save" : "add" }}</mat-icon>
+        {{ editandoId !== null ? "Guardar cambios" : "Agregar condición" }}
+      </button>
+      <button mat-stroked-button type="button" (click)="cancelar()">Cancelar</button>
+    </div>
+  </form>
+</mat-card>
+
+<div class="fr-card fr-toolbar filtros">
+  <div class="row g-2 align-items-center w-100">
+    <div class="col-12 col-md-5">
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Buscar cliente, producto o línea</mat-label>
+        <input matInput [(ngModel)]="filtroTexto" (ngModelChange)="aplicarFiltros()" />
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+    </div>
+    <div class="col-12 col-md-3">
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Vendedor</mat-label>
+        <mat-select [(ngModel)]="filtroAgente" (ngModelChange)="aplicarFiltros()">
+          <mat-option value="">Todos</mat-option>
+          <mat-option *ngFor="let a of agentes" [value]="a">{{ a }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div class="col-12 col-md-4 estado-filtro">
+      <mat-button-toggle-group
+        [(ngModel)]="filtroEstado"
+        (ngModelChange)="aplicarFiltros()"
+        aria-label="Estado"
+      >
+        <mat-button-toggle *ngFor="let e of estados" [value]="e.codigo">{{ e.nombre }}</mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+  </div>
+</div>
+
+<div class="resumen-lista">
+  {{ grupos.length }} cliente(s) · {{ totalFiltradas }} condición(es)
+  <span *ngIf="cargando"> · cargando…</span>
+</div>
+
+<div class="tarjeta-cliente" *ngFor="let g of grupos">
+  <div class="tarjeta-encabezado">
+    <span class="cod">{{ g.cliente }}</span> - {{ g.nombre }}
+  </div>
+  <div class="tarjeta-sub">
+    {{ g.agente || "Sin vendedor asignado" }}
+    <span *ngIf="g.rutas"> · Ruta {{ g.rutas }}</span>
+    <span *ngIf="!g.enCartera" class="sin-cartera">
+      · aún no está en la cartera: aplicará cuando lo agreguen a la ruta
+    </span>
+  </div>
+  <div class="condicion" *ngFor="let c of g.condiciones" [class.apagada]="c.ESTADO === 'VENCIDA' || c.ESTADO === 'INACTIVA'">
+    <div class="condicion-texto">
+      {{ describir(c) }}
+      <span class="estado {{ c.ESTADO }}">{{ nombreEstado[c.ESTADO] }}</span>
+      <div class="condicion-notas" *ngIf="c.NOTAS">{{ c.NOTAS }}</div>
+    </div>
+    <div class="condicion-acciones">
+      <button mat-icon-button type="button" (click)="editar(c)" matTooltip="Editar" aria-label="Editar">
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        type="button"
+        (click)="alternarActiva(c)"
+        [matTooltip]="c.ACTIVA === 'S' ? 'Desactivar' : 'Activar'"
+        [attr.aria-label]="c.ACTIVA === 'S' ? 'Desactivar' : 'Activar'"
+      >
+        <mat-icon>{{ c.ACTIVA === "S" ? "toggle_on" : "toggle_off" }}</mat-icon>
+      </button>
+      <button mat-stroked-button color="warn" type="button" class="btn-quitar" (click)="quitar(c)">Quitar</button>
+    </div>
+  </div>
+</div>
+
+<div class="vacio" *ngIf="!cargando && grupos.length === 0">
+  No hay condiciones que coincidan con los filtros.
+</div>
+</div>

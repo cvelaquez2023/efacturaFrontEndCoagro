@@ -102,6 +102,13 @@ const routes: Routes = [
         "../fr/reportes/ubicaciones-visita/ubicaciones-visita.module"
       ).then((m) => m.UbicacionesVisitaModule),
   },
+  {
+    path: PATHS_FR_PAGES.motivosNoVenta.onLyPath,
+    loadChildren: () =>
+      import("../fr/reportes/motivos-no-venta/motivos-no-venta.module").then(
+        (m) => m.MotivosNoVentaModule
+      ),
+  },
   //Procesos
   {
     path: PATHS_FR_PAGES.cargaClientes.onLyPath,
@@ -269,6 +276,48 @@ const routes: Routes = [
       import(
         "../fr/administracion/metas-venta-cobro/metas-venta-cobro.module"
       ).then((m) => m.MetasVentaCobroModule),
+  },
+  {
+    path: PATHS_FR_PAGES.condicionesCliente.onLyPath,
+    loadChildren: () =>
+      import("../fr/administracion/condiciones-cliente/condiciones-cliente.module").then(
+        (m) => m.CondicionesClienteModule
+      ),
+  },
+  {
+    path: PATHS_FR_PAGES.promociones.onLyPath,
+    loadChildren: () =>
+      import("../fr/administracion/promociones/promociones.module").then(
+        (m) => m.PromocionesModule
+      ),
+  },
+  {
+    path: PATHS_FR_PAGES.consultaPrecios.onLyPath,
+    loadChildren: () =>
+      import("../fr/administracion/consulta-precios/consulta-precios.module").then(
+        (m) => m.ConsultaPreciosModule
+      ),
+  },
+  {
+    path: PATHS_FR_PAGES.metas.onLyPath,
+    loadChildren: () =>
+      import("../fr/administracion/metas/metas.module").then(
+        (m) => m.MetasModule
+      ),
+  },
+  {
+    path: PATHS_FR_PAGES.lideres.onLyPath,
+    loadChildren: () =>
+      import("../fr/administracion/lideres/lideres.module").then(
+        (m) => m.LideresModule
+      ),
+  },
+  {
+    path: PATHS_FR_PAGES.proveedores.onLyPath,
+    loadChildren: () =>
+      import("../fr/administracion/proveedores/proveedores.module").then(
+        (m) => m.ProveedoresModule
+      ),
   },
   //Acerca de
   {

@@ -13,6 +13,7 @@ const documentosGeneradosFrPage = "documentos-generados-fr";
 const liquidacionAgentesPage = "liquidacion-agentes";
 const visitasDiaPage = "visitas-dia";
 const ubicacionesVisitaPage = "ubicaciones-visita";
+const motivosNoVentaPage = "motivos-no-venta";
 const cargaClientesPage = "carga-clientes";
 const cargaArticulosPage = "carga-articulos";
 const cargaBodegasPage = "carga-bodegas";
@@ -37,6 +38,12 @@ const monitoreoDocumentosPage = "monitoreo-documentos";
 const parametrosModuloPage = "parametros-modulo";
 const dashboardGeneralPage = "dashboard-general";
 const metasVentaCobroPage = "metas-venta-cobro";
+const condicionesClientePage = "condiciones-cliente";
+const promocionesPage = "promociones";
+const consultaPreciosPage = "consulta-precios";
+const metasPage = "metas";
+const lideresPage = "lideres";
+const proveedoresPage = "proveedores";
 const acercaDePage = "acerca-de";
 
 export const PATHS_FR_PAGES = {
@@ -95,6 +102,10 @@ export const PATHS_FR_PAGES = {
   ubicacionesVisita: {
     withSlash: `/${ModuloFRPage}/${ubicacionesVisitaPage}`,
     onLyPath: ubicacionesVisitaPage,
+  },
+  motivosNoVenta: {
+    withSlash: `/${ModuloFRPage}/${motivosNoVentaPage}`,
+    onLyPath: motivosNoVentaPage,
   },
   cargaClientes: {
     withSlash: `/${ModuloFRPage}/${cargaClientesPage}`,
@@ -191,6 +202,30 @@ export const PATHS_FR_PAGES = {
   metasVentaCobro: {
     withSlash: `/${ModuloFRPage}/${metasVentaCobroPage}`,
     onLyPath: metasVentaCobroPage,
+  },
+  condicionesCliente: {
+    withSlash: `/${ModuloFRPage}/${condicionesClientePage}`,
+    onLyPath: condicionesClientePage,
+  },
+  promociones: {
+    withSlash: `/${ModuloFRPage}/${promocionesPage}`,
+    onLyPath: promocionesPage,
+  },
+  consultaPrecios: {
+    withSlash: `/${ModuloFRPage}/${consultaPreciosPage}`,
+    onLyPath: consultaPreciosPage,
+  },
+  metas: {
+    withSlash: `/${ModuloFRPage}/${metasPage}`,
+    onLyPath: metasPage,
+  },
+  lideres: {
+    withSlash: `/${ModuloFRPage}/${lideresPage}`,
+    onLyPath: lideresPage,
+  },
+  proveedores: {
+    withSlash: `/${ModuloFRPage}/${proveedoresPage}`,
+    onLyPath: proveedoresPage,
   },
   acercaDe: {
     withSlash: `/${ModuloFRPage}/${acercaDePage}`,

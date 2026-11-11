@@ -1,0 +1,71 @@
+// Estilos comunes de Condiciones por Cliente, Promociones y Consulta de Precios.
+
+.aviso-prueba {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff8e1;
+  border: 1px solid #ffe082;
+  color: #6d4c00;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  font-size: 13px;
+
+  mat-icon {
+    flex: 0 0 auto;
+  }
+}
+
+.seccion-titulo {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #5f6368;
+  text-transform: uppercase;
+  margin: 0 0 10px;
+}
+
+.campo {
+  width: 100%;
+}
+
+.estado {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  &.VIGENTE {
+    background: #e8f5e9;
+    color: #1b5e20;
+  }
+  &.PROGRAMADA {
+    background: #e3f2fd;
+    color: #0d47a1;
+  }
+  &.VENCIDA {
+    background: #eeeeee;
+    color: #616161;
+  }
+  &.INACTIVA {
+    background: #fbe9e7;
+    color: #8e0000;
+  }
+}
+
+.botones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.vacio {
+  padding: 16px;
+  text-align: center;
+  color: #757575;
+}

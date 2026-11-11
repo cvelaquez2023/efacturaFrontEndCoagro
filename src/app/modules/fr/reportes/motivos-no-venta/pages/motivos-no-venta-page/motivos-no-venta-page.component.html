@@ -1,0 +1,137 @@
+<div class="fr-page">
+<h2 class="fr-title">Reporte de Motivos de No Venta</h2>
+
+<mat-card class="reporte-filtro">
+  <div class="reporte-descripcion">
+    Muestra las visitas en las que el representante no logró la venta (visitas sin pedido) y el
+    motivo que registró. Los motivos son el catálogo de <strong>Razones de Visita</strong>.
+  </div>
+
+  <form [formGroup]="filtroForm">
+    <app-rango-f1
+      titulo="Rutas"
+      [items]="rutasF1"
+      [desde]="filtroForm.get('rutaDesde')"
+      [hasta]="filtroForm.get('rutaHasta')"
+    ></app-rango-f1>
+
+    <fieldset class="grupo">
+      <legend>Fecha</legend>
+      <div class="row">
+        <div class="col-12 col-sm-6">
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>Desde</mat-label>
+            <input formControlName="desde" matInput type="date" />
+          </mat-form-field>
+        </div>
+        <div class="col-12 col-sm-6">
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>Hasta</mat-label>
+            <input formControlName="hasta" matInput type="date" />
+          </mat-form-field>
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="acciones">
+      <button mat-raised-button color="primary" type="button" [disabled]="cargando" (click)="imprimir()">
+        <mat-icon>print</mat-icon> Imprimir
+      </button>
+      <button mat-stroked-button type="button" (click)="cancelar()">Cancelar</button>
+    </div>
+  </form>
+</mat-card>
+
+<div class="motivos-sub" *ngIf="cargando">Consultando visitas…</div>
+
+<ng-container *ngIf="consultado">
+  <div class="row">
+    <div class="col-12 col-lg-5 mb-3">
+      <mat-card class="motivos-card">
+        <div class="motivos-titulo">MOTIVOS DE NO VENTA</div>
+        <div class="motivos-sub">
+          {{ resultados.data.length }} de {{ totalVisitas }} visita(s) sin venta
+        </div>
+        <button
+          type="button"
+          class="motivo-fila"
+          *ngFor="let c of conteo"
+          [class.activo]="motivoFiltrado === c.motivo"
+          (click)="filtrarMotivo(c.motivo)"
+          [attr.aria-pressed]="motivoFiltrado === c.motivo"
+        >
+          <span class="motivo-nombre">{{ c.motivo }}</span>
+          <span class="motivo-barra"><span [style.width.%]="c.porcentaje"></span></span>
+          <span class="motivo-cantidad">{{ c.cantidad }}</span>
+        </button>
+        <div class="vacio" *ngIf="conteo.length === 0">
+          No hay visitas sin venta en el rango indicado.
+        </div>
+        <div class="motivos-ayuda" *ngIf="conteo.length">
+          Clic en un motivo para ver solo esas visitas.
+        </div>
+      </mat-card>
+    </div>
+
+    <div class="col-12 col-lg-7">
+      <div class="resultado-barra">
+        <strong>
+          {{ resultados.filteredData.length }} visita(s)
+          <span *ngIf="motivoFiltrado">· {{ motivoFiltrado }}</span>
+        </strong>
+        <div class="resultado-acciones">
+          <button mat-stroked-button type="button" *ngIf="motivoFiltrado" (click)="filtrarMotivo(motivoFiltrado)">
+            <mat-icon>filter_alt_off</mat-icon> Quitar filtro
+          </button>
+          <button mat-raised-button color="primary" type="button" (click)="pdf()">
+            <mat-icon>picture_as_pdf</mat-icon> PDF
+          </button>
+          <button mat-stroked-button type="button" (click)="csv()">
+            <mat-icon>download</mat-icon> Excel (CSV)
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>
+
+<div class="fr-table-wrap tabla-wrapper" [hidden]="!consultado">
+  <table mat-table [dataSource]="resultados" matSort>
+    <ng-container matColumnDef="fecha">
+      <th mat-header-cell class="fr-center" *matHeaderCellDef mat-sort-header>Fecha</th>
+      <td mat-cell class="fr-center" *matCellDef="let element">{{ fmtFecha(element.inicio) }}</td>
+    </ng-container>
+    <ng-container matColumnDef="hora">
+      <th mat-header-cell class="fr-center" *matHeaderCellDef mat-sort-header>Hora</th>
+      <td mat-cell class="fr-center" *matCellDef="let element">{{ fmtHora(element.inicio) }}</td>
+    </ng-container>
+    <ng-container matColumnDef="ruta">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Ruta</th>
+      <td mat-cell *matCellDef="let element">{{ element.ruta }}</td>
+    </ng-container>
+    <ng-container matColumnDef="cliente">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Cliente</th>
+      <td mat-cell *matCellDef="let element">{{ element.cliente }}</td>
+    </ng-container>
+    <ng-container matColumnDef="nombre">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
+      <td mat-cell *matCellDef="let element">{{ element.nombre }}</td>
+    </ng-container>
+    <ng-container matColumnDef="motivo">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Motivo</th>
+      <td mat-cell *matCellDef="let element">{{ element.motivo }}</td>
+    </ng-container>
+    <ng-container matColumnDef="notas">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Notas</th>
+      <td mat-cell *matCellDef="let element">{{ element.notas }}</td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+  <div class="vacio" *ngIf="resultados.filteredData.length === 0">
+    No hay visitas sin venta para los filtros indicados.
+  </div>
+  <mat-paginator [pageSizeOptions]="[25, 50, 100]" showFirstLastButtons></mat-paginator>
+</div>
+</div>
