@@ -1,0 +1,99 @@
+.consulta {
+  min-width: 320px;
+}
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.campo-corto {
+  width: 150px;
+}
+
+.estado-carga,
+.nota {
+  color: #5f6368;
+  font-size: 13px;
+}
+
+.nota {
+  margin: 10px 0;
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 6px 10px;
+    border-bottom: 1px solid #e0e0e0;
+    text-align: left;
+    vertical-align: middle;
+  }
+
+  th {
+    background: #fdecea;
+    color: #8e0000;
+    font-weight: 600;
+    font-size: 13px;
+  }
+
+  .fr-num {
+    text-align: right;
+  }
+
+  .fr-center {
+    text-align: center;
+  }
+}
+
+.nombre {
+  font-weight: 500;
+}
+
+.codigo {
+  font-size: 11px;
+  color: #5f6368;
+}
+
+.vacio {
+  text-align: center;
+  color: #5f6368;
+  padding: 16px;
+}
+
+h4 {
+  margin: 12px 0 6px;
+  font-size: 14px;
+  color: #8e0000;
+}
+
+.lista {
+  max-height: 140px;
+  overflow: auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 13px;
+
+  &.alta {
+    max-height: 220px;
+  }
+
+  &.muy-alta {
+    max-height: 480px;
+  }
+
+  .inactivo {
+    color: #9e9e9e;
+  }
+}
+
+.reglas {
+  padding-left: 20px;
+  font-size: 13px;
+}

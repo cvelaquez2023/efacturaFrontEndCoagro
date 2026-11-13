@@ -1,0 +1,261 @@
+<div class="fr-page dashboard">
+  <!-- ===================== Encabezado ===================== -->
+  <div class="encabezado">
+    <div>
+      <h2 class="fr-title">Dashboard de Rutas</h2>
+      <div class="subtitulo" *ngIf="cargado">{{ tituloPeriodo }} · ventas del ERP, metas, visitas y pedidos de ruta</div>
+    </div>
+    <span class="espacio"></span>
+    <button mat-stroked-button type="button" [disabled]="!cargado || cargando" (click)="exportar()">
+      <mat-icon>download</mat-icon>Excel
+    </button>
+  </div>
+
+  <!-- ===================== Filtros ===================== -->
+  <div class="fr-card filtros" [formGroup]="filtros">
+    <div class="fila-filtros">
+      <mat-button-toggle-group formControlName="periodo" aria-label="Periodo">
+        <mat-button-toggle value="mes">Mes</mat-button-toggle>
+        <mat-button-toggle value="anio">Año</mat-button-toggle>
+      </mat-button-toggle-group>
+      <mat-form-field appearance="outline" class="campo-anio">
+        <mat-label>Año</mat-label>
+        <input matInput type="number" formControlName="anio" min="2000" max="2100" />
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="campo-mes" *ngIf="filtros.value.periodo === 'mes'">
+        <mat-label>Mes</mat-label>
+        <mat-select formControlName="mes">
+          <mat-option *ngFor="let m of meses; let i = index" [value]="i + 1">{{ m }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <button mat-raised-button color="warn" type="button" [disabled]="cargando" (click)="consultar()">
+        <mat-icon>refresh</mat-icon>{{ cargando ? "Consultando…" : "Consultar" }}
+      </button>
+      <span class="progreso" *ngIf="cargando"><mat-spinner diameter="18"></mat-spinner>{{ progreso }}</span>
+    </div>
+    <div class="row g-2 mt-1" *ngIf="cargado">
+      <div class="col-12 col-md-3">
+        <app-select-buscable etiqueta="Vendedor" formControlName="vendedor" [opciones]="opcionesVendedores" textoTodos="Todos"></app-select-buscable>
+      </div>
+      <div class="col-12 col-md-3">
+        <app-select-buscable etiqueta="Proveedor" formControlName="proveedor" [opciones]="opcionesProveedores" textoTodos="Todos"></app-select-buscable>
+      </div>
+      <div class="col-12 col-md-3">
+        <app-select-buscable etiqueta="Línea" formControlName="linea" [opciones]="opcionesLineas" textoTodos="Todas"></app-select-buscable>
+      </div>
+      <div class="col-9 col-md-2">
+        <mat-form-field appearance="outline">
+          <mat-label>Artículo</mat-label>
+          <input matInput formControlName="articulo" placeholder="Código o nombre" autocomplete="off" />
+        </mat-form-field>
+      </div>
+      <div class="col-3 col-md-1 d-flex align-items-center">
+        <button mat-icon-button type="button" matTooltip="Quitar filtros" (click)="limpiarFiltros()">
+          <mat-icon>filter_alt_off</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="cargando-inicial fr-card" *ngIf="!cargado && cargando">
+    <mat-spinner diameter="36"></mat-spinner>
+    <span>{{ progreso || "Cargando…" }}</span>
+  </div>
+
+  <ng-container *ngIf="cargado">
+    <!-- ===================== Indicadores ===================== -->
+    <div class="kpis">
+      <div class="kpi" *ngFor="let k of kpis" [ngClass]="k.color" [class.pendiente]="k.pendiente">
+        <div class="kpi-icono"><mat-icon>{{ k.icono }}</mat-icon></div>
+        <div class="kpi-cuerpo">
+          <div class="kpi-titulo">{{ k.titulo }}</div>
+          <div class="kpi-valor">
+            {{ k.valor }}
+            <span class="variacion" *ngIf="k.variacion !== null && k.variacion !== undefined" [class.sube]="(k.variacion ?? 0) >= 0" [class.baja]="(k.variacion ?? 0) < 0">
+              <mat-icon>{{ (k.variacion ?? 0) >= 0 ? "arrow_upward" : "arrow_downward" }}</mat-icon>{{ k.variacion | percent: "1.0-1" }}
+            </span>
+          </div>
+          <div class="kpi-detalle" *ngIf="k.detalle">{{ k.detalle }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== Gráficos ===================== -->
+    <div class="row g-3">
+      <div class="col-12">
+        <div class="fr-card panel">
+          <div class="panel-titulo">
+            <mat-icon>show_chart</mat-icon>Tendencia de ventas {{ esAnual ? "por mes" : "por día" }}
+          </div>
+          <highcharts-chart [Highcharts]="Highcharts" [options]="gTendencia" class="grafico"></highcharts-chart>
+        </div>
+      </div>
+
+      <div class="col-12 col-xl-6">
+        <div class="fr-card panel">
+          <div class="panel-titulo"><mat-icon>leaderboard</mat-icon>Ventas por vendedor</div>
+          <highcharts-chart [Highcharts]="Highcharts" [options]="gVendedores" class="grafico"></highcharts-chart>
+        </div>
+      </div>
+      <div class="col-12 col-xl-6">
+        <div class="fr-card panel">
+          <div class="panel-titulo"><mat-icon>flag</mat-icon>Avance contra metas por vendedor (unidades)</div>
+          <highcharts-chart [Highcharts]="Highcharts" [options]="gAvance" class="grafico"></highcharts-chart>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-6">
+        <div class="fr-card panel">
+          <div class="panel-titulo"><mat-icon>local_shipping</mat-icon>Ventas por proveedor</div>
+          <highcharts-chart [Highcharts]="Highcharts" [options]="gProveedores" class="grafico"></highcharts-chart>
+        </div>
+      </div>
+      <div class="col-12 col-lg-6">
+        <div class="fr-card panel">
+          <div class="panel-titulo"><mat-icon>category</mat-icon>Ventas por línea</div>
+          <highcharts-chart [Highcharts]="Highcharts" [options]="gLineas" class="grafico"></highcharts-chart>
+        </div>
+      </div>
+
+      <div class="col-12" [class.col-xl-6]="hayCosto">
+        <div class="fr-card panel">
+          <div class="panel-titulo"><mat-icon>star</mat-icon>Top 10 productos por venta</div>
+          <highcharts-chart [Highcharts]="Highcharts" [options]="gProductos" class="grafico"></highcharts-chart>
+        </div>
+      </div>
+      <div class="col-12 col-xl-6" *ngIf="hayCosto">
+        <div class="fr-card panel">
+          <div class="panel-titulo"><mat-icon>trending_up</mat-icon>Ganancia bruta por vendedor</div>
+          <highcharts-chart [Highcharts]="Highcharts" [options]="gMargen" class="grafico"></highcharts-chart>
+        </div>
+      </div>
+
+      <div class="col-12 col-xl-8">
+        <div class="fr-card panel">
+          <div class="panel-titulo"><mat-icon>storefront</mat-icon>Visitas de ruta: con y sin pedido</div>
+          <highcharts-chart [Highcharts]="Highcharts" [options]="gVisitas" class="grafico"></highcharts-chart>
+        </div>
+      </div>
+      <div class="col-12 col-xl-4">
+        <div class="fr-card panel">
+          <div class="panel-titulo"><mat-icon>do_not_disturb_on</mat-icon>Motivos de no venta</div>
+          <highcharts-chart [Highcharts]="Highcharts" [options]="gMotivos" class="grafico"></highcharts-chart>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== Ranking de vendedores ===================== -->
+    <div class="fr-card panel mt-3">
+      <div class="panel-titulo"><mat-icon>groups</mat-icon>Ranking de vendedores</div>
+      <div class="fr-table-wrap tabla">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th class="izq">Vendedor</th>
+              <th>Ventas ($)</th>
+              <th>Unidades</th>
+              <th>Precio prom.</th>
+              <th>Productos</th>
+              <th>Devoluciones</th>
+              <th>Clientes visitados</th>
+              <th>Meta (u)</th>
+              <th class="col-avance">Avance meta</th>
+              <ng-container *ngIf="hayCosto">
+                <th>Ganancia ($)</th>
+                <th>Margen</th>
+              </ng-container>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let v of vendedores; let i = index">
+              <td class="centro">{{ i + 1 }}</td>
+              <td class="izq">
+                <div class="nombre">{{ v.nombre }}</div>
+                <div class="codigo">{{ v.codigo }}</div>
+              </td>
+              <td><strong>{{ v.ventas | currency: "USD" }}</strong></td>
+              <td>{{ v.unidades | number: "1.0-0" }}</td>
+              <td>{{ v.unidades ? (v.ventas / v.unidades | currency: "USD") : "—" }}</td>
+              <td>{{ v.productos }}</td>
+              <td [class.rojo]="v.devoluciones < 0">{{ v.devoluciones ? (-v.devoluciones | currency: "USD") : "" }}</td>
+              <td>{{ v.clientesVisitados || "" }}</td>
+              <td>{{ v.meta ? (v.meta | number: "1.0-0") : "" }}</td>
+              <td class="col-avance">
+                <ng-container *ngIf="v.avance !== null; else sinMeta">
+                  <div class="barra"><div class="relleno" [class.ok]="v.avance >= 1" [style.width.%]="anchoBarra(v.avance)"></div></div>
+                  <span>{{ v.avance | percent: "1.0-1" }}</span>
+                </ng-container>
+                <ng-template #sinMeta><span class="tenue">sin meta</span></ng-template>
+              </td>
+              <ng-container *ngIf="hayCosto">
+                <td><strong>{{ v.ventas - (v.costo ?? 0) | currency: "USD" }}</strong></td>
+                <td>{{ margen(v.ventas, v.costo) | percent: "1.0-1" }}</td>
+              </ng-container>
+            </tr>
+            <tr *ngIf="!vendedores.length">
+              <td colspan="12" class="vacio">Sin ventas para los filtros elegidos.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===================== Productos ===================== -->
+    <div class="fr-card panel mt-3">
+      <div class="panel-titulo">
+        <mat-icon>inventory_2</mat-icon>Productos ({{ productos.length }})
+        <span class="espacio"></span>
+        <button mat-button type="button" *ngIf="productos.length > 20" (click)="verTodosProductos = !verTodosProductos">
+          {{ verTodosProductos ? "Ver los 20 principales" : "Ver todos" }}
+        </button>
+      </div>
+      <div class="fr-table-wrap tabla">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th class="izq">Producto</th>
+              <th class="izq">Proveedor</th>
+              <th>Unidades</th>
+              <th>Ventas ($)</th>
+              <th>Precio prom.</th>
+              <th>Vendedores</th>
+              <ng-container *ngIf="hayCosto">
+                <th>Ganancia ($)</th>
+                <th>Margen</th>
+              </ng-container>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of productosVisibles; let i = index">
+              <td class="centro">{{ i + 1 }}</td>
+              <td class="izq">
+                <div class="nombre">{{ p.descripcion }}</div>
+                <div class="codigo">{{ p.codigo }}</div>
+              </td>
+              <td class="izq">{{ p.proveedor }}</td>
+              <td [class.rojo]="p.unidades < 0">{{ p.unidades | number: "1.0-0" }}</td>
+              <td [class.rojo]="p.ventas < 0"><strong>{{ p.ventas | currency: "USD" }}</strong></td>
+              <td>{{ p.precioPromedio | currency: "USD" }}</td>
+              <td>{{ p.vendedores }}</td>
+              <ng-container *ngIf="hayCosto">
+                <td><strong>{{ p.ventas - (p.costo ?? 0) | currency: "USD" }}</strong></td>
+                <td>{{ margen(p.ventas, p.costo) | percent: "1.0-1" }}</td>
+              </ng-container>
+            </tr>
+            <tr *ngIf="!productos.length">
+              <td colspan="9" class="vacio">Sin ventas para los filtros elegidos.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <p class="nota">
+      Ventas: facturas del ERP menos devoluciones (sin anuladas), en vivo. Ganancia bruta = venta − costo del ERP.
+      Proveedor y línea: los de las metas cuando el artículo tiene meta (CALOX, Veterinaria 1…); si no, los del ERP.
+      Visitas y pedidos: app de ruteo; el vendedor de una visita es el agente de su ruta.
+    </p>
+  </ng-container>
+</div>

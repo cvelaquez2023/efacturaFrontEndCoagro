@@ -38,6 +38,14 @@ const routes: Routes = [
         "../fr/documentos/aprobar-devolucion/aprobar-devolucion.module"
       ).then((m) => m.AprobarDevolucionModule),
   },
+  {
+    path: PATHS_FR_PAGES.promocionales.onLyPath,
+    loadChildren: () => import("../fr/documentos/promocionales/promocionales.module").then((m) => m.PromocionalesModule),
+  },
+  {
+    path: PATHS_FR_PAGES.cobros.onLyPath,
+    loadChildren: () => import("../fr/documentos/cobros/cobros.module").then((m) => m.CobrosModule),
+  },
   //Reportes
   {
     path: PATHS_FR_PAGES.documentosNoCargados.onLyPath,
@@ -238,16 +246,11 @@ const routes: Routes = [
       ),
   },
   {
-    path: PATHS_FR_PAGES.emm.onLyPath,
+    path: PATHS_FR_PAGES.bonificacionesDescuentos.onLyPath,
     loadChildren: () =>
-      import("../fr/administracion/emm/emm.module").then((m) => m.EmmModule),
-  },
-  {
-    path: PATHS_FR_PAGES.controlArchivosActualizaciones.onLyPath,
-    loadChildren: () =>
-      import(
-        "../fr/administracion/control-archivos-actualizaciones/control-archivos-actualizaciones.module"
-      ).then((m) => m.ControlArchivosActualizacionesModule),
+      import("../fr/administracion/bonificaciones-descuentos/bonificaciones-descuentos.module").then(
+        (m) => m.BonificacionesDescuentosModule
+      ),
   },
   {
     path: PATHS_FR_PAGES.monitoreoDocumentos.onLyPath,
@@ -296,27 +299,6 @@ const routes: Routes = [
     loadChildren: () =>
       import("../fr/administracion/consulta-precios/consulta-precios.module").then(
         (m) => m.ConsultaPreciosModule
-      ),
-  },
-  {
-    path: PATHS_FR_PAGES.metas.onLyPath,
-    loadChildren: () =>
-      import("../fr/administracion/metas/metas.module").then(
-        (m) => m.MetasModule
-      ),
-  },
-  {
-    path: PATHS_FR_PAGES.lideres.onLyPath,
-    loadChildren: () =>
-      import("../fr/administracion/lideres/lideres.module").then(
-        (m) => m.LideresModule
-      ),
-  },
-  {
-    path: PATHS_FR_PAGES.proveedores.onLyPath,
-    loadChildren: () =>
-      import("../fr/administracion/proveedores/proveedores.module").then(
-        (m) => m.ProveedoresModule
       ),
   },
   //Acerca de

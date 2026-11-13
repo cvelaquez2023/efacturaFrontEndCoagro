@@ -1,0 +1,137 @@
+<div class="fr-page consulta">
+  <h2 mat-dialog-title>Consulta de metas cargadas</h2>
+
+  <div mat-dialog-content>
+    <div class="filtros">
+      <mat-form-field appearance="outline" class="campo-corto">
+        <mat-label>Año</mat-label>
+        <input matInput type="number" min="2000" max="2100" [(ngModel)]="anio" (keyup.enter)="consultar()" />
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="campo-corto">
+        <mat-label>Mes</mat-label>
+        <mat-select [(ngModel)]="mes" (selectionChange)="consultar()">
+          <mat-option [value]="null">Todos</mat-option>
+          <mat-option *ngFor="let m of meses; let i = index" [value]="i + 1">{{ m }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <button mat-stroked-button type="button" (click)="consultar()" [disabled]="cargando">
+        <mat-icon>search</mat-icon>Consultar
+      </button>
+      <span class="estado-carga" *ngIf="cargando">Consultando…</span>
+    </div>
+
+    <mat-tab-group animationDuration="0ms" *ngIf="datos">
+      <!-- Periodos cargados -->
+      <mat-tab label="Periodos cargados ({{ datos.periodosCargados.length }})">
+        <p class="nota">
+          Cada fila es un vendedor en un mes. Volver a subir ese año/mes/vendedor <strong>reemplaza</strong> sus metas.
+          Total: {{ totalMetas }} meta(s).
+        </p>
+        <div class="fr-table-wrap">
+          <table class="tabla">
+            <thead>
+              <tr>
+                <th>Periodo</th>
+                <th>Vendedor</th>
+                <th class="fr-num">Artículos</th>
+                <th class="fr-num">Meta (u)</th>
+                <th>Cargado</th>
+                <th class="fr-center">Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let p of datos.periodosCargados">
+                <td>{{ nombreMes(p.Mes) }} {{ p.Anio }}</td>
+                <td>
+                  <div class="nombre">{{ p.vendedorNombre || p.Vendedor }}</div>
+                  <div class="codigo">Cód. {{ p.Vendedor }}</div>
+                </td>
+                <td class="fr-num">{{ p.articulos }}</td>
+                <td class="fr-num">{{ p.metaUnidades | number: "1.0-2" }}</td>
+                <td>
+                  <div>{{ p.fechaCarga | date: "dd/MM/yyyy HH:mm" }}</div>
+                  <div class="codigo">{{ p.usuarioCarga }}</div>
+                </td>
+                <td class="fr-center">
+                  <button mat-icon-button color="warn" type="button" matTooltip="Eliminar todas las metas de este periodo"
+                    (click)="eliminarPeriodo(p)">
+                    <mat-icon>delete_sweep</mat-icon>
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="!datos.periodosCargados.length">
+                <td colspan="6" class="vacio">No hay metas cargadas para ese año/mes.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </mat-tab>
+
+      <!-- Códigos válidos -->
+      <mat-tab label="Códigos válidos">
+        <div class="row g-3 mt-1">
+          <div class="col-12 col-md-6">
+            <h4>Líneas de negocio</h4>
+            <div class="lista">
+              <div *ngFor="let l of datos.lineasNegocio" [class.inactivo]="l.activa === false">
+                <strong>{{ l.codigo }}</strong> · {{ l.nombre }}<span *ngIf="l.activa === false"> (inactiva)</span>
+              </div>
+            </div>
+            <h4>Líderes</h4>
+            <div class="lista">
+              <div *ngFor="let l of datos.lideres" [class.inactivo]="l.activo === false">
+                <strong>{{ l.codigo }}</strong> · {{ l.nombre }}<span *ngIf="l.activo === false"> (inactivo)</span>
+              </div>
+            </div>
+            <h4>Vendedores activos</h4>
+            <div class="lista alta">
+              <div *ngFor="let v of datos.vendedores"><strong>{{ v.codigo }}</strong> · {{ v.nombre }}</div>
+            </div>
+          </div>
+          <div class="col-12 col-md-6">
+            <h4>Proveedores ({{ datos.proveedores.length }})</h4>
+            <div class="lista muy-alta">
+              <div *ngFor="let p of datos.proveedores" [class.inactivo]="p.activo === false">
+                <strong>{{ p.codigo }}</strong> · {{ p.nombre }}<span *ngIf="p.activo === false"> (inactivo)</span>
+              </div>
+            </div>
+            <p class="nota">Los artículos se buscan por código o nombre en el filtro «Artículo» de Metas.</p>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Plantilla y reglas -->
+      <mat-tab label="Formato y reglas">
+        <h4>Columnas de la plantilla</h4>
+        <div class="fr-table-wrap">
+          <table class="tabla">
+            <thead>
+              <tr>
+                <th>Columna</th>
+                <th class="fr-center">Obligatoria</th>
+                <th>Ejemplo</th>
+                <th>Regla</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let c of datos.plantilla">
+                <td><strong>{{ c.columna === "ano" ? "Año" : texto(c.columna) }}</strong></td>
+                <td class="fr-center">{{ c.obligatoria ? "Sí" : "No" }}</td>
+                <td>{{ c.ejemplo }}</td>
+                <td>{{ texto(c.descripcion) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h4>Reglas de la carga</h4>
+        <ul class="reglas">
+          <li *ngFor="let r of datos.reglas">{{ texto(r) }}</li>
+        </ul>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+
+  <div mat-dialog-actions [align]="'end'">
+    <button mat-raised-button type="button" (click)="cerrar()">Cerrar</button>
+  </div>
+</div>

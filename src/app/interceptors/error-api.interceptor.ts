@@ -18,6 +18,10 @@ const REQUEST_TIMEOUT_MS = 20000;
  *  `new HttpContext().set(TIEMPO_ESPERA_HTTP, ms)`. */
 export const TIEMPO_ESPERA_HTTP = new HttpContextToken<number>(() => REQUEST_TIMEOUT_MS);
 
+/** Peticiones de fondo (p. ej. cientos de búsquedas al subir una plantilla) que NO deben encender el
+ *  cargador de pantalla completa: `new HttpContext().set(SIN_CARGADOR, true)`. */
+export const SIN_CARGADOR = new HttpContextToken<boolean>(() => false);
+
 @Injectable()
 export class ErrorApiInterceptor implements HttpInterceptor {
   constructor(
@@ -29,12 +33,13 @@ export class ErrorApiInterceptor implements HttpInterceptor {
     request: HttpRequest<unknown>,
     next: HttpHandler
   ): Observable<HttpEvent<unknown>> {
-    this._ngxService.start();
+    const conCargador = !request.context.get(SIN_CARGADOR);
+    if (conCargador) this._ngxService.start();
 
     return next.handle(request).pipe(
       timeout(request.context.get(TIEMPO_ESPERA_HTTP)),
       finalize(() => {
-        this._ngxService.stop();
+        if (conCargador) this._ngxService.stop();
       }),
       catchError((error: unknown) => this._errorHandler(error))
     );

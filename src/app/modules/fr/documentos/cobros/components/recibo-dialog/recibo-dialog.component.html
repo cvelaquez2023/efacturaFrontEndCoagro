@@ -1,0 +1,76 @@
+<div class="fr-page dialogo">
+  <h2 mat-dialog-title>
+    <mat-icon>receipt_long</mat-icon>
+    Recibo {{ recibo?.NUM_DEP || "" }}
+    <span class="estado" *ngIf="recibo" [class.aplicado]="recibo.DOC_PRO === 'S'">
+      {{ recibo.DOC_PRO === "S" ? "Aplicado en el ERP" : "Pendiente de aplicar" }}
+    </span>
+  </h2>
+
+  <div mat-dialog-content>
+    <div class="cargando" *ngIf="cargando"><mat-spinner diameter="28"></mat-spinner> Consultando…</div>
+
+    <ng-container *ngIf="recibo">
+      <div class="datos">
+        <div><span>Fecha</span><strong>{{ recibo.FEC_DEP | date: "dd/MM/yyyy HH:mm" }}</strong></div>
+        <div><span>Cuenta</span><strong>{{ recibo.NOM_CTA || recibo.CTA_BCO }}</strong><small>{{ recibo.COD_BCO }} · {{ recibo.CTA_BCO }}</small></div>
+        <div><span>Moneda</span><strong>{{ recibo.IND_MON === "D" ? "Dólar" : "Local" }}</strong></div>
+        <div><span>Handheld</span><strong>{{ recibo.HANDHELD }}</strong></div>
+        <div><span>Documentos</span><strong>{{ recibo.LINEAS }}</strong></div>
+        <div class="total"><span>Total cobrado</span><strong>{{ total | currency: "USD" }}</strong></div>
+      </div>
+      <div class="notas" *ngIf="recibo.NOTAS"><mat-icon>notes</mat-icon>{{ recibo.NOTAS }}</div>
+
+      <div class="formas">
+        <div *ngIf="recibo.TOTAL_EFE"><mat-icon>payments</mat-icon>Efectivo <strong>{{ recibo.TOTAL_EFE | currency: "USD" }}</strong></div>
+        <div *ngIf="recibo.TOTAL_CHE"><mat-icon>money</mat-icon>Cheque <strong>{{ recibo.TOTAL_CHE | currency: "USD" }}</strong></div>
+        <div *ngIf="recibo.TOTAL_DEP"><mat-icon>account_balance</mat-icon>Depósito <strong>{{ recibo.TOTAL_DEP | currency: "USD" }}</strong></div>
+        <div *ngIf="recibo.TOTAL_TRA"><mat-icon>swap_horiz</mat-icon>Transferencia <strong>{{ recibo.TOTAL_TRA | currency: "USD" }}</strong></div>
+      </div>
+
+      <div class="fr-table-wrap">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th>Documento</th>
+              <th>Cliente</th>
+              <th class="centro">Ruta</th>
+              <th>Forma de pago</th>
+              <th>Referencia</th>
+              <th class="num">Monto</th>
+              <th class="centro">PDF</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let l of recibo.lineas || []">
+              <td>
+                <div class="nombre">{{ l.NUM_DOC }}</div>
+                <div class="codigo">{{ l.COD_TIP_DC || "" }} {{ l.CLASE_DOCUMENTO || "" }}</div>
+              </td>
+              <td>
+                <div class="nombre">{{ l.NOM_CLT || l.COD_CLT || "—" }}</div>
+                <div class="codigo" *ngIf="l.COD_CLT">Cód. {{ l.COD_CLT }}</div>
+              </td>
+              <td class="centro">{{ l.COD_ZON || "—" }}</td>
+              <td>{{ formaDePago(l) }}</td>
+              <td>{{ l.REF || "" }}</td>
+              <td class="num"><strong>{{ totalLinea(l) | currency: "USD" }}</strong></td>
+              <td class="centro">
+                <button mat-icon-button type="button" matTooltip="PDF de este documento" [disabled]="abriendoPdf" (click)="pdf(l.NUM_DOC)">
+                  <mat-icon>picture_as_pdf</mat-icon>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </ng-container>
+  </div>
+
+  <div mat-dialog-actions [align]="'end'">
+    <button mat-stroked-button type="button" [disabled]="!recibo || abriendoPdf" (click)="pdf()">
+      <mat-icon>picture_as_pdf</mat-icon>{{ abriendoPdf ? "Generando…" : "PDF del recibo completo" }}
+    </button>
+    <button mat-raised-button type="button" mat-dialog-close>Cerrar</button>
+  </div>
+</div>

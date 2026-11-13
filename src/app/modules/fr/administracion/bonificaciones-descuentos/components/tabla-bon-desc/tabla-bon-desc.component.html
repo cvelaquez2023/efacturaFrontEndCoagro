@@ -1,0 +1,112 @@
+<div class="tabla-bd">
+  <p class="descripcion">{{ config.descripcion }}</p>
+
+  <!-- Filtros -->
+  <div class="fr-card filtros">
+    <div class="row g-2 align-items-center">
+      <div class="col-6 col-md-3" *ngIf="tieneCliente">
+        <mat-form-field appearance="outline">
+          <mat-label>Cliente (código)</mat-label>
+          <input matInput [(ngModel)]="filtro['cliente']" (keyup.enter)="buscar()" autocomplete="off" />
+        </mat-form-field>
+      </div>
+      <div class="col-6 col-md-3" *ngIf="!tieneCliente">
+        <mat-form-field appearance="outline">
+          <mat-label>Nivel de precio</mat-label>
+          <mat-select [(ngModel)]="filtro['nivelPrecio']" (selectionChange)="buscar()">
+            <mat-option [value]="null">Todos</mat-option>
+            <mat-option *ngFor="let n of niveles" [value]="n.nivel">{{ n.nivel }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col-6 col-md-3">
+        <mat-form-field appearance="outline">
+          <mat-label>Artículo (código)</mat-label>
+          <input matInput [(ngModel)]="filtro['articulo']" (keyup.enter)="buscar()" autocomplete="off" />
+        </mat-form-field>
+      </div>
+      <div class="col-6 col-md-2" *ngIf="config.esBonificacion">
+        <mat-form-field appearance="outline">
+          <mat-label>Artículo regalado</mat-label>
+          <input matInput [(ngModel)]="filtro['articuloBonif']" (keyup.enter)="buscar()" autocomplete="off" />
+        </mat-form-field>
+      </div>
+      <div class="col-6 col-md-2">
+        <mat-checkbox color="primary" [(ngModel)]="soloVigentes" (change)="buscar()">Solo vigentes hoy</mat-checkbox>
+      </div>
+      <div class="col-12 col-md acciones">
+        <button mat-raised-button color="warn" type="button" (click)="buscar()" [disabled]="cargando">
+          <mat-icon>search</mat-icon>Buscar
+        </button>
+        <button mat-stroked-button type="button" (click)="limpiar()">Limpiar</button>
+        <span class="espacio"></span>
+        <button mat-raised-button color="warn" type="button" (click)="abrir()">
+          <mat-icon>add</mat-icon>Nuevo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla -->
+  <div class="fr-table-wrap">
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th *ngIf="tieneCliente">Cliente</th>
+          <th *ngIf="!tieneCliente">Nivel de precio</th>
+          <th>Artículo</th>
+          <th class="centro">Cantidades</th>
+          <th class="centro">Vigencia</th>
+          <th>{{ config.esBonificacion ? "Bonificación" : "Descuento" }}</th>
+          <th class="centro">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let f of filas">
+          <td *ngIf="tieneCliente">
+            <div class="nombre">{{ f.NOMBRE_CLIENTE || f.CLIENTE }}</div>
+            <div class="codigo">Cód. {{ f.CLIENTE }}</div>
+          </td>
+          <td *ngIf="!tieneCliente">
+            <div class="nombre">{{ f.NIVEL_PRECIO }}</div>
+            <div class="codigo">Moneda {{ f.MONEDA === "D" ? "dólar" : f.MONEDA }}</div>
+          </td>
+          <td>
+            <div class="nombre">{{ f.DESCRIPCION_ARTICULO || f.ARTICULO }}</div>
+            <div class="codigo">Cód. {{ f.ARTICULO }}</div>
+          </td>
+          <td class="centro">{{ textoCantidades(f) }}</td>
+          <td class="centro">
+            <div>{{ f.FECHA_INICIO | date: "dd/MM/yyyy":"UTC" }} – {{ f.FECHA_FIN | date: "dd/MM/yyyy":"UTC" }}</div>
+            <span class="estado" [ngClass]="vigencia(f)">{{ textoVigencia(vigencia(f)) }}</span>
+          </td>
+          <td>
+            <div class="valor">{{ textoValor(f) }}</div>
+            <div class="codigo" *ngIf="config.esBonificacion && f.DESCRIPCION_ARTICULO_BONIF">{{ f.DESCRIPCION_ARTICULO_BONIF }}</div>
+          </td>
+          <td class="centro acciones-fila">
+            <button mat-icon-button type="button" matTooltip="Editar" (click)="abrir(f)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button type="button" color="warn" matTooltip="Eliminar" (click)="eliminar(f)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="!filas.length">
+          <td colspan="6" class="vacio">
+            {{ cargando ? "Consultando…" : "No hay registros. Use «Nuevo» para crear el primero." }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <mat-paginator
+      [length]="total"
+      [pageIndex]="page - 1"
+      [pageSize]="limit"
+      [pageSizeOptions]="[20, 50, 100]"
+      showFirstLastButtons
+      (page)="cambiarPagina($event)"
+    ></mat-paginator>
+  </div>
+</div>
