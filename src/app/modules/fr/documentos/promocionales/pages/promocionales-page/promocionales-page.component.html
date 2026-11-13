@@ -1,0 +1,163 @@
+<div class="fr-page promocionales">
+  <h2 class="fr-title">Promocionales</h2>
+  <p class="intro">
+    Solicitudes de material promocional (estantes, afiches, muestras…) que los vendedores registran en la app para sus
+    clientes. Revise cada una y márquela como procesada cuando se haya atendido.
+  </p>
+
+  <!-- Contadores -->
+  <div class="contadores">
+    <button type="button" class="contador pendientes" [class.activo]="filtro.docPro === 'N' && !filtro.hasta" (click)="verEstado('N')">
+      <mat-icon>pending_actions</mat-icon>
+      <div><span>Pendientes</span><strong>{{ pendientes }}</strong></div>
+    </button>
+    <button type="button" class="contador vencidas" (click)="verEstado('N', true)">
+      <mat-icon>warning</mat-icon>
+      <div><span>Vencidas sin atender</span><strong>{{ vencidas }}</strong></div>
+    </button>
+    <button type="button" class="contador procesadas" [class.activo]="filtro.docPro === 'S'" (click)="verEstado('S')">
+      <mat-icon>task_alt</mat-icon>
+      <div><span>Procesadas</span><strong>{{ procesadas }}</strong></div>
+    </button>
+    <button type="button" class="contador todas" [class.activo]="!filtro.docPro" (click)="verEstado(null)">
+      <mat-icon>list_alt</mat-icon>
+      <div><span>Todas</span><strong>{{ pendientes + procesadas }}</strong></div>
+    </button>
+  </div>
+
+  <!-- Filtros -->
+  <div class="fr-card filtros">
+    <div class="row g-2 align-items-start">
+      <div class="col-6 col-md-2">
+        <mat-form-field appearance="outline" floatLabel="always">
+          <mat-label>Estado</mat-label>
+          <mat-select [(ngModel)]="filtro.docPro" (selectionChange)="buscar()">
+            <mat-option [value]="null">Todos</mat-option>
+            <mat-option value="N">Pendientes</mat-option>
+            <mat-option value="S">Procesadas</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col-6 col-md-2">
+        <mat-form-field appearance="outline" floatLabel="always">
+          <mat-label>Requerida desde</mat-label>
+          <input matInput type="date" [(ngModel)]="filtro.desde" />
+        </mat-form-field>
+      </div>
+      <div class="col-6 col-md-2">
+        <mat-form-field appearance="outline" floatLabel="always">
+          <mat-label>Requerida hasta</mat-label>
+          <input matInput type="date" [(ngModel)]="filtro.hasta" />
+        </mat-form-field>
+      </div>
+      <div class="col-6 col-md-2">
+        <mat-form-field appearance="outline" floatLabel="always">
+          <mat-label>Ruta</mat-label>
+          <mat-select [(ngModel)]="filtro.ruta" (selectionChange)="buscar()">
+            <mat-option [value]="null">Todas</mat-option>
+            <mat-option *ngFor="let r of rutas" [value]="r.codigo">{{ r.codigo }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col-6 col-md-2">
+        <mat-form-field appearance="outline" floatLabel="always">
+          <mat-label>Handheld</mat-label>
+          <mat-select [(ngModel)]="filtro.handheld" (selectionChange)="buscar()">
+            <mat-option [value]="null">Todas</mat-option>
+            <mat-option *ngFor="let h of handhelds" [value]="h">{{ h }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col-6 col-md-2">
+        <mat-form-field appearance="outline" floatLabel="always">
+          <mat-label>Buscar</mat-label>
+          <input matInput [(ngModel)]="filtro.q" (keyup.enter)="buscar()" placeholder="Cliente o lo que pidió" autocomplete="off"
+            matTooltip="Código o nombre del cliente, o texto de la solicitud (ej. estante)" />
+        </mat-form-field>
+      </div>
+      <div class="col-12 acciones">
+        <button mat-raised-button color="warn" type="button" [disabled]="cargando" (click)="buscar()">
+          <mat-icon>search</mat-icon>{{ cargando ? "Consultando…" : "Buscar" }}
+        </button>
+        <button mat-stroked-button type="button" (click)="limpiar()">Limpiar</button>
+        <span class="espacio"></span>
+        <span class="contador-sel" *ngIf="seleccion.size">{{ seleccion.size }} seleccionada(s)</span>
+        <button mat-raised-button color="primary" type="button" [disabled]="!seleccion.size || procesando" (click)="procesarSeleccionadas()">
+          <mat-icon>done_all</mat-icon>{{ procesando ? "Procesando…" : "Marcar seleccionadas como procesadas" }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla -->
+  <div class="fr-table-wrap">
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th class="centro col-sel">
+            <mat-checkbox color="primary" [checked]="todasMarcadas" [disabled]="!pendientesEnPagina.length || procesando"
+              (change)="alternarTodas()" matTooltip="Marcar las pendientes de esta página"></mat-checkbox>
+          </th>
+          <th>Requerida para</th>
+          <th>Cliente</th>
+          <th class="centro">Ruta</th>
+          <th>Vendedor</th>
+          <th class="col-notas">Solicitud</th>
+          <th>Solicitada</th>
+          <th>Estado</th>
+          <th class="centro">Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of filas" [class.procesada]="p.DOC_PRO === 'S'" [class.marcada]="seleccion.has(p.ID)">
+          <td class="centro col-sel">
+            <mat-checkbox color="primary" *ngIf="p.DOC_PRO !== 'S'" [checked]="seleccion.has(p.ID)" [disabled]="procesando" (change)="alternar(p)"></mat-checkbox>
+          </td>
+          <td>
+            <div class="nombre">{{ p.FECHA_REQUERIDA | date: "dd/MM/yyyy":"UTC" }}</div>
+            <span class="urgencia" [ngClass]="urgencia(p)">{{ textoUrgencia(p) }}</span>
+          </td>
+          <td>
+            <div class="nombre">{{ p.NOM_CLT || p.CLIENTE }}</div>
+            <div class="codigo">Cód. {{ p.CLIENTE }}</div>
+          </td>
+          <td class="centro">
+            <div class="nombre">{{ p.RUTA }}</div>
+            <div class="codigo" *ngIf="p.RUTA_DESCRIPCION">{{ p.RUTA_DESCRIPCION }}</div>
+          </td>
+          <td>
+            <div class="nombre">{{ p.NOMBRE_AGENTE || p.AGENTE || "—" }}</div>
+            <div class="codigo">{{ p.AGENTE }} · {{ p.HANDHELD }}</div>
+          </td>
+          <td class="col-notas"><div class="notas">{{ p.NOTAS }}</div></td>
+          <td>
+            <div>{{ p.FECHA_SOLICITUD | date: "dd/MM/yyyy HH:mm" }}</div>
+          </td>
+          <td>
+            <span class="estado" [class.ok]="p.DOC_PRO === 'S'">{{ p.DOC_PRO === "S" ? "Procesada" : "Pendiente" }}</span>
+            <div class="codigo" *ngIf="p.DOC_PRO === 'S'">
+              {{ p.PROCESADO_POR }}<br />{{ p.FECHA_PROCESADO | date: "dd/MM/yyyy HH:mm" }}
+            </div>
+          </td>
+          <td class="centro accion">
+            <button mat-stroked-button color="primary" type="button" *ngIf="p.DOC_PRO !== 'S'" [disabled]="enCurso === p.ID || procesando"
+              (click)="marcar(p, 'S')">
+              <mat-icon>task_alt</mat-icon>Procesar
+            </button>
+            <button mat-button type="button" *ngIf="p.DOC_PRO === 'S'" [disabled]="enCurso === p.ID" (click)="marcar(p, 'N')"
+              matTooltip="Volver a dejarla pendiente">
+              <mat-icon>undo</mat-icon>Reabrir
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="!filas.length">
+          <td colspan="9" class="vacio">
+            {{ cargando ? "Consultando…" : filtro.docPro === "N" ? "No hay solicitudes pendientes. ¡Todo atendido!" : "No hay solicitudes con esos filtros." }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <mat-paginator [length]="total" [pageIndex]="page - 1" [pageSize]="limit" [pageSizeOptions]="[20, 50, 100]" showFirstLastButtons
+      (page)="cambiarPagina($event)"></mat-paginator>
+  </div>
+</div>

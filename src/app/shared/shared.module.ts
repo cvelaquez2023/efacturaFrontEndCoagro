@@ -26,6 +26,7 @@ import { TreeProveedorComponent } from "./components/tree/proveedore/tree-provee
 import { TreeDteComponent } from "./components/tree/dte/tree-dte/tree-dte.component";
 import { TreeUsuarioComponent } from "./components/tree/usuarios/tree-usuario/tree-usuario.component";
 import { TreeFrComponent } from "./components/tree/fr/tree-fr/tree-fr.component";
+import { TreeMetasComponent } from "./components/tree/metas/tree-metas/tree-metas.component";
 
 @NgModule({
   declarations: [
@@ -43,6 +44,7 @@ import { TreeFrComponent } from "./components/tree/fr/tree-fr/tree-fr.component"
     TreeDteComponent,
     TreeUsuarioComponent,
     TreeFrComponent,
+    TreeMetasComponent,
   ],
   imports: [
     MatListModule,

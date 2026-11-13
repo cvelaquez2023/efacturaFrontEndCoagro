@@ -1,0 +1,223 @@
+<div class="fr-page cobros">
+  <h2 class="fr-title">Cobros</h2>
+  <p class="intro">
+    Pagos de documentos que registran los vendedores con la handheld (recibos de cobro). Solo consulta: el recibo se
+    aplica en el ERP desde el proceso de control.
+  </p>
+
+  <!-- Filtros comunes -->
+  <div class="fr-card filtros">
+    <div class="row g-2 align-items-start">
+      <div class="col-6 col-md-2">
+        <mat-form-field appearance="outline" floatLabel="always">
+          <mat-label>Desde</mat-label>
+          <input matInput type="date" [(ngModel)]="filtro.desde" />
+        </mat-form-field>
+      </div>
+      <div class="col-6 col-md-2">
+        <mat-form-field appearance="outline" floatLabel="always">
+          <mat-label>Hasta</mat-label>
+          <input matInput type="date" [(ngModel)]="filtro.hasta" />
+        </mat-form-field>
+      </div>
+      <div class="col-6 col-md-2">
+        <mat-form-field appearance="outline" floatLabel="always">
+          <mat-label>Estado</mat-label>
+          <mat-select [(ngModel)]="filtro.docPro">
+            <mat-option [value]="null">Todos</mat-option>
+            <mat-option value="N">Pendiente de aplicar</mat-option>
+            <mat-option value="S">Aplicado en el ERP</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col-6 col-md-2">
+        <mat-form-field appearance="outline" floatLabel="always">
+          <mat-label>Moneda</mat-label>
+          <mat-select [(ngModel)]="filtro.indMon">
+            <mat-option [value]="null">Todas</mat-option>
+            <mat-option value="L">Local</mat-option>
+            <mat-option value="D">Dólar</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col-6 col-md-2">
+        <mat-form-field appearance="outline" floatLabel="always">
+          <mat-label>Handheld</mat-label>
+          <mat-select [(ngModel)]="filtro.handheld">
+            <mat-option [value]="null">Todas</mat-option>
+            <mat-option *ngFor="let h of handhelds" [value]="h">{{ h }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col-6 col-md-2">
+        <mat-form-field appearance="outline" floatLabel="always">
+          <mat-label>N.º de recibo</mat-label>
+          <input matInput [(ngModel)]="filtro.q" (keyup.enter)="buscar()" autocomplete="off" placeholder="Ej. RERT_01" />
+        </mat-form-field>
+      </div>
+      <ng-container *ngIf="tab === 0">
+        <div class="col-6 col-md-2">
+          <mat-form-field appearance="outline" floatLabel="always">
+            <mat-label>N.º de factura / documento</mat-label>
+            <input matInput [(ngModel)]="filtro.numDoc" (keyup.enter)="buscar()" autocomplete="off" placeholder="Ej. 9776"
+              matTooltip="Parte del número de la factura que se pagó" />
+          </mat-form-field>
+        </div>
+        <div class="col-6 col-md-2">
+          <mat-form-field appearance="outline" floatLabel="always">
+            <mat-label>Cliente (código)</mat-label>
+            <input matInput [(ngModel)]="filtro.cliente" (keyup.enter)="buscar()" autocomplete="off" />
+          </mat-form-field>
+        </div>
+        <div class="col-6 col-md-2">
+          <mat-form-field appearance="outline" floatLabel="always">
+            <mat-label>Ruta</mat-label>
+            <mat-select [(ngModel)]="filtro.ruta">
+              <mat-option [value]="null">Todas</mat-option>
+              <mat-option *ngFor="let r of rutas" [value]="r">{{ r }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </ng-container>
+      <div class="col-12 col-md acciones">
+        <button mat-raised-button color="warn" type="button" [disabled]="cargando" (click)="buscar()">
+          <mat-icon>search</mat-icon>{{ cargando ? "Consultando…" : "Buscar" }}
+        </button>
+        <button mat-stroked-button type="button" (click)="limpiar()">Limpiar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Totales por forma de pago (de todo lo filtrado) -->
+  <div class="totales" *ngIf="totales">
+    <div class="total principal"><mat-icon>paid</mat-icon><div><span>Total cobrado</span><strong>{{ totales.TOTAL_PAGADO | currency: "USD" }}</strong><small>{{ totalDocumentos }} documento(s)</small></div></div>
+    <div class="total"><mat-icon>payments</mat-icon><div><span>Efectivo</span><strong>{{ totales.TOTAL_EFE | currency: "USD" }}</strong></div></div>
+    <div class="total"><mat-icon>money</mat-icon><div><span>Cheque</span><strong>{{ totales.TOTAL_CHE | currency: "USD" }}</strong></div></div>
+    <div class="total"><mat-icon>account_balance</mat-icon><div><span>Depósito</span><strong>{{ totales.TOTAL_DEP | currency: "USD" }}</strong></div></div>
+    <div class="total"><mat-icon>swap_horiz</mat-icon><div><span>Transferencia</span><strong>{{ totales.TOTAL_TRA | currency: "USD" }}</strong></div></div>
+  </div>
+
+  <mat-tab-group [(selectedIndex)]="tab" animationDuration="0ms">
+    <!-- ===================== Documentos pagados ===================== -->
+    <mat-tab label="Documentos pagados ({{ totalDocumentos }})">
+      <div class="fr-table-wrap">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Recibo</th>
+              <th>Documento</th>
+              <th>Cliente</th>
+              <th class="centro">Ruta</th>
+              <th>Forma de pago</th>
+              <th>Referencia</th>
+              <th class="num">Monto</th>
+              <th class="centro">Estado</th>
+              <th class="centro">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let d of documentos">
+              <td>{{ d.FEC_DEP | date: "dd/MM/yyyy HH:mm" }}</td>
+              <td>
+                <a class="enlace" (click)="verRecibo(d.CONSEC_DEP)">{{ d.NUM_DEP }}</a>
+                <div class="codigo">{{ d.HANDHELD }} · {{ d.IND_MON === "D" ? "Dólar" : "Local" }}</div>
+              </td>
+              <td>
+                <div class="nombre">{{ d.NUM_DOC }}</div>
+                <div class="codigo">{{ d.COD_TIP_DC || "" }} {{ d.CLASE_DOCUMENTO || "" }}</div>
+              </td>
+              <td>
+                <div class="nombre">{{ d.NOM_CLT || d.COD_CLT || "—" }}</div>
+                <div class="codigo" *ngIf="d.COD_CLT">Cód. {{ d.COD_CLT }}</div>
+              </td>
+              <td class="centro">{{ d.COD_ZON || "—" }}</td>
+              <td>{{ formaDePago(d) }}</td>
+              <td>{{ d.REF || "" }}</td>
+              <td class="num"><strong>{{ d.MONTO_PAGADO | currency: "USD" }}</strong></td>
+              <td class="centro">
+                <span class="estado" [class.aplicado]="d.DOC_PRO === 'S'">{{ d.DOC_PRO === "S" ? "Aplicado" : "Pendiente" }}</span>
+              </td>
+              <td class="centro acciones-fila">
+                <button mat-icon-button type="button" matTooltip="Ver recibo" (click)="verRecibo(d.CONSEC_DEP)">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                <button mat-icon-button type="button" matTooltip="PDF del recibo de este documento" [disabled]="pdfAbriendo === d.CONSEC_DEP"
+                  (click)="pdf(d.CONSEC_DEP, d.NUM_DOC)">
+                  <mat-icon>picture_as_pdf</mat-icon>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="!documentos.length">
+              <td colspan="10" class="vacio">{{ cargando ? "Consultando…" : "No hay cobros en ese periodo." }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <mat-paginator [length]="totalDocumentos" [pageIndex]="pageDoc - 1" [pageSize]="limitDoc" [pageSizeOptions]="[20, 50, 100]"
+          showFirstLastButtons (page)="paginaDocumentos($event)"></mat-paginator>
+      </div>
+    </mat-tab>
+
+    <!-- ===================== Recibos ===================== -->
+    <mat-tab label="Recibos ({{ totalRecibos }})">
+      <div class="fr-table-wrap">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Recibo</th>
+              <th>Cuenta</th>
+              <th class="centro">Handheld</th>
+              <th class="centro">Moneda</th>
+              <th class="centro">Documentos</th>
+              <th class="num">Efectivo</th>
+              <th class="num">Cheque</th>
+              <th class="num">Depósito</th>
+              <th class="num">Transf.</th>
+              <th class="num">Total</th>
+              <th class="centro">Estado</th>
+              <th class="centro">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of recibos">
+              <td>{{ r.FEC_DEP | date: "dd/MM/yyyy HH:mm" }}</td>
+              <td>
+                <a class="enlace" (click)="verRecibo(r.CONSEC_DEP)">{{ r.NUM_DEP }}</a>
+                <div class="codigo" *ngIf="r.NOTAS">{{ r.NOTAS }}</div>
+              </td>
+              <td>
+                <div class="nombre">{{ r.NOM_CTA || r.CTA_BCO }}</div>
+                <div class="codigo">{{ r.COD_BCO }} · {{ r.CTA_BCO }}</div>
+              </td>
+              <td class="centro">{{ r.HANDHELD }}</td>
+              <td class="centro">{{ r.IND_MON === "D" ? "Dólar" : "Local" }}</td>
+              <td class="centro">{{ r.LINEAS }}</td>
+              <td class="num">{{ r.TOTAL_EFE ? (r.TOTAL_EFE | currency: "USD") : "" }}</td>
+              <td class="num">{{ r.TOTAL_CHE ? (r.TOTAL_CHE | currency: "USD") : "" }}</td>
+              <td class="num">{{ r.TOTAL_DEP ? (r.TOTAL_DEP | currency: "USD") : "" }}</td>
+              <td class="num">{{ r.TOTAL_TRA ? (r.TOTAL_TRA | currency: "USD") : "" }}</td>
+              <td class="num"><strong>{{ totalRecibo(r) | currency: "USD" }}</strong></td>
+              <td class="centro">
+                <span class="estado" [class.aplicado]="r.DOC_PRO === 'S'">{{ r.DOC_PRO === "S" ? "Aplicado" : "Pendiente" }}</span>
+              </td>
+              <td class="centro acciones-fila">
+                <button mat-icon-button type="button" matTooltip="Ver detalle" (click)="verRecibo(r.CONSEC_DEP)">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                <button mat-icon-button type="button" matTooltip="PDF del recibo" [disabled]="pdfAbriendo === r.CONSEC_DEP" (click)="pdf(r.CONSEC_DEP)">
+                  <mat-icon>picture_as_pdf</mat-icon>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="!recibos.length">
+              <td colspan="13" class="vacio">No hay recibos en ese periodo.</td>
+            </tr>
+          </tbody>
+        </table>
+        <mat-paginator [length]="totalRecibos" [pageIndex]="pageRec - 1" [pageSize]="limitRec" [pageSizeOptions]="[20, 50, 100]"
+          showFirstLastButtons (page)="paginaRecibos($event)"></mat-paginator>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

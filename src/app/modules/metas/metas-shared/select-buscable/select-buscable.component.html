@@ -1,0 +1,21 @@
+<mat-form-field appearance="outline" class="select-buscable">
+  <mat-label>{{ etiqueta }}</mat-label>
+  <input
+    matInput
+    [formControl]="texto"
+    [matAutocomplete]="auto"
+    [placeholder]="tieneValor ? '' : textoTodos"
+    autocomplete="off"
+    (focus)="alEnfocar()"
+    (blur)="alSalir()"
+  />
+  <button *ngIf="tieneValor && !deshabilitado" mat-icon-button matSuffix type="button" aria-label="Quitar filtro" (click)="limpiar($event)">
+    <mat-icon>close</mat-icon>
+  </button>
+  <mat-icon *ngIf="!tieneValor" matSuffix class="icono-buscar">search</mat-icon>
+  <mat-autocomplete #auto="matAutocomplete" [displayWith]="mostrar" (optionSelected)="elegir($event)">
+    <mat-option [value]="null"><em>{{ textoTodos }}</em></mat-option>
+    <mat-option *ngFor="let o of filtradas" [value]="o.valor">{{ o.texto }}</mat-option>
+    <mat-option *ngIf="!filtradas.length" disabled>Sin coincidencias</mat-option>
+  </mat-autocomplete>
+</mat-form-field>

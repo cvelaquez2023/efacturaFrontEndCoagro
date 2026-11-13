@@ -43,4 +43,7 @@ export class SidebarComponent implements OnInit {
   FRclick(): void {
     void this._router.navigateByUrl("/fr");
   }
+  Metasclick(): void {
+    void this._router.navigateByUrl("/metas");
+  }
 }

@@ -1,0 +1,123 @@
+<div class="fr-page dialogo">
+  <h2 mat-dialog-title>
+    <mat-icon>{{ cfg.icono }}</mat-icon>
+    {{ esEdicion ? "Editar" : "Nuevo" }} {{ cfg.singular }}
+  </h2>
+
+  <div mat-dialog-content [formGroup]="form">
+    <div class="seccion">Aplica a</div>
+    <div class="row g-2">
+      <ng-container *ngFor="let c of cfg.entidad">
+        <div class="col-12" [class.col-md-6]="c.tipo === 'cliente' || c.tipo === 'articulo'" [class.col-md-3]="c.tipo === 'nivel' || c.tipo === 'moneda'">
+          <ng-container [ngSwitch]="c.tipo">
+            <ng-container *ngSwitchCase="'cliente'">
+              <mat-form-field appearance="outline" *ngIf="esEdicion">
+                <mat-label>{{ c.etiqueta }}</mat-label>
+                <input matInput [value]="textos[c.clave] || ''" disabled />
+              </mat-form-field>
+              <ng-container *ngIf="!esEdicion">
+                <app-select-buscable [etiqueta]="c.etiqueta + ' (de ruta)'" [formControlName]="c.clave" [opciones]="clientesRuta"
+                  textoTodos="Elija un cliente"></app-select-buscable>
+                <div class="nota" *ngIf="cargandoClientes">Cargando clientes de ruta…</div>
+                <div class="nota" *ngIf="!cargandoClientes">Solo clientes asignados a una ruta (los que tiene la handheld). Si falta uno, asígnelo en Rutas → Asignación de Rutas.</div>
+              </ng-container>
+            </ng-container>
+            <ng-container *ngSwitchCase="'articulo'">
+              <app-buscador-erp tipo="articulo" [etiqueta]="c.etiqueta" [texto]="textos[c.clave] || ''" [requerido]="true"
+                [deshabilitado]="esEdicion" (seleccion)="elegir(c, $event)"></app-buscador-erp>
+            </ng-container>
+            <mat-form-field appearance="outline" *ngSwitchCase="'nivel'">
+              <mat-label>{{ c.etiqueta }}</mat-label>
+              <mat-select [formControlName]="c.clave" (selectionChange)="elegirNivel($event.value)">
+                <mat-option *ngFor="let n of niveles" [value]="n.nivel">{{ n.nivel }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" *ngSwitchCase="'moneda'">
+              <mat-label>{{ c.etiqueta }}</mat-label>
+              <mat-select [formControlName]="c.clave">
+                <mat-option *ngFor="let m of monedas" [value]="m.codigo">{{ m.nombre }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </ng-container>
+          <div class="error" *ngIf="form.get(c.clave)?.touched && form.get(c.clave)?.invalid">Obligatorio</div>
+        </div>
+      </ng-container>
+    </div>
+    <div class="nota" *ngIf="esEdicion">Para cambiar a quién aplica, elimínelo y créelo de nuevo.</div>
+
+    <div class="seccion">Vigencia y cantidades</div>
+    <div class="row g-2">
+      <div class="col-6 col-md-3">
+        <mat-form-field appearance="outline">
+          <mat-label>Desde (fecha)</mat-label>
+          <input matInput type="date" formControlName="fechaInicio" />
+        </mat-form-field>
+      </div>
+      <div class="col-6 col-md-3">
+        <mat-form-field appearance="outline">
+          <mat-label>Hasta (fecha)</mat-label>
+          <input matInput type="date" formControlName="fechaFin" />
+        </mat-form-field>
+      </div>
+      <div class="col-6 col-md-3">
+        <mat-form-field appearance="outline">
+          <mat-label>Cantidad mínima</mat-label>
+          <input matInput type="number" min="0" step="1" formControlName="cantMin" />
+        </mat-form-field>
+      </div>
+      <div class="col-6 col-md-3">
+        <mat-form-field appearance="outline">
+          <mat-label>Cantidad máxima</mat-label>
+          <input matInput type="number" min="0" step="1" formControlName="cantMax" />
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="error" *ngIf="form.errors?.['fechas']">La fecha «hasta» no puede ser anterior a «desde».</div>
+    <div class="error" *ngIf="form.errors?.['cantidades']">La cantidad mínima no puede ser mayor que la máxima.</div>
+
+    <div class="seccion">{{ cfg.esBonificacion ? "Bonificación" : "Descuento" }}</div>
+    <div class="row g-2">
+      <ng-container *ngFor="let c of cfg.valores">
+        <div class="col-12" [class.col-md-6]="c.tipo === 'articulo'" [class.col-md-3]="c.tipo !== 'articulo'">
+          <ng-container [ngSwitch]="c.tipo">
+            <ng-container *ngSwitchCase="'articulo'">
+              <app-buscador-erp tipo="articulo" [etiqueta]="c.etiqueta" [texto]="textos[c.clave] || ''" [requerido]="c.obligatorio"
+                (seleccion)="elegir(c, $event)"></app-buscador-erp>
+            </ng-container>
+            <mat-form-field appearance="outline" *ngSwitchCase="'tipoDescuento'">
+              <mat-label>{{ c.etiqueta }}</mat-label>
+              <mat-select [formControlName]="c.clave">
+                <mat-option value="P">Porcentaje (%)</mat-option>
+                <mat-option value="F">Monto fijo ($)</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" *ngSwitchDefault>
+              <mat-label>{{ c.clave === "monto" ? etiquetaMonto : c.etiqueta }}</mat-label>
+              <input matInput type="number" min="0" step="any" [formControlName]="c.clave" />
+              <span matSuffix *ngIf="c.tipo === 'porcentaje' || (c.clave === 'monto' && form.get('tipo')?.value === 'P')">%</span>
+              <mat-hint *ngIf="c.ayuda">{{ c.ayuda }}</mat-hint>
+            </mat-form-field>
+          </ng-container>
+          <div class="error" *ngIf="form.get(c.clave)?.touched && form.get(c.clave)?.invalid">
+            {{ form.get(c.clave)?.errors?.['max'] ? "Máximo 100" : form.get(c.clave)?.errors?.['min'] ? "Debe ser mayor o igual a 0" : "Obligatorio" }}
+          </div>
+        </div>
+      </ng-container>
+    </div>
+    <div class="error" *ngIf="form.errors?.['porcentaje']">Un descuento en porcentaje no puede pasar de 100.</div>
+
+    <div class="errores-backend" *ngIf="errores.length">
+      <mat-icon>error</mat-icon>
+      <ul>
+        <li *ngFor="let e of errores">{{ e }}</li>
+      </ul>
+    </div>
+  </div>
+
+  <div mat-dialog-actions [align]="'end'">
+    <button mat-raised-button type="button" mat-dialog-close [disabled]="guardando">Cancelar</button>
+    <button mat-raised-button color="warn" type="button" [disabled]="guardando" (click)="guardar()">
+      {{ guardando ? "Guardando…" : esEdicion ? "Guardar cambios" : "Guardar" }}
+    </button>
+  </div>
+</div>

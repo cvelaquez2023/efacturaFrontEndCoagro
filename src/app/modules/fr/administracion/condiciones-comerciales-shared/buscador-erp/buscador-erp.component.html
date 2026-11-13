@@ -1,0 +1,31 @@
+<mat-form-field appearance="outline" class="buscador-campo">
+  <mat-label>{{ etiqueta }}</mat-label>
+  <input
+    matInput
+    [formControl]="control"
+    [matAutocomplete]="auto"
+    [placeholder]="placeholder"
+    [required]="requerido"
+    autocomplete="off"
+    (focus)="alEnfocar()"
+    (blur)="alSalir()"
+  />
+  <button
+    *ngIf="control.value && !deshabilitado"
+    mat-icon-button
+    matSuffix
+    type="button"
+    aria-label="Limpiar"
+    (click)="limpiar()"
+  >
+    <mat-icon>close</mat-icon>
+  </button>
+  <mat-hint *ngIf="buscando">Buscando…</mat-hint>
+  <mat-hint *ngIf="!buscando && sinResultados" class="sin-resultados">Sin resultados para "{{ control.value }}"</mat-hint>
+  <mat-hint *ngIf="!buscando && !sinResultados && !control.value">Escriba al menos 2 letras del código o nombre y elija de la lista</mat-hint>
+  <mat-autocomplete #auto="matAutocomplete" [autoActiveFirstOption]="true" [displayWith]="mostrar" (optionSelected)="elegir($event)">
+    <mat-option *ngFor="let o of opciones" [value]="o">
+      <span class="codigo">{{ o.codigo }}</span> · {{ o.nombre }}
+    </mat-option>
+  </mat-autocomplete>
+</mat-form-field>

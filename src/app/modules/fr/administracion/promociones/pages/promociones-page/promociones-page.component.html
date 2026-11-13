@@ -1,0 +1,125 @@
+<div class="fr-page">
+<h2 class="fr-title">Promociones y Descuentos de Temporada</h2>
+
+<div class="aviso-prueba" *ngIf="modoPrueba" role="status">
+  <mat-icon>science</mat-icon>
+  <span>
+    Datos de prueba: falta el backend (ver docs/fr/backend-condiciones-promociones.md). Los cambios
+    no se guardan al recargar.
+  </span>
+</div>
+
+<div class="row g-3">
+  <div class="col-12 col-xl-4 order-xl-2">
+    <div class="vigentes-card">
+      <button type="button" class="vigentes-encabezado" (click)="verVigentes = !verVigentes" [attr.aria-expanded]="verVigentes">
+        <span>
+          <span class="vigentes-titulo">Promociones vigentes</span>
+          <span class="vigentes-sub">{{ vigentes.length }} promocion{{ vigentes.length === 1 ? "" : "es" }}</span>
+        </span>
+        <mat-icon>{{ verVigentes ? "expand_less" : "expand_more" }}</mat-icon>
+      </button>
+      <ng-container *ngIf="verVigentes">
+        <div class="promo" *ngFor="let p of vigentes">
+          <div class="promo-titulo">{{ p.TITULO }}</div>
+          <div class="promo-fecha">Hasta el {{ fmtFecha(p.FECHA_FIN) }}</div>
+        </div>
+        <div class="vacio" *ngIf="!vigentes.length">No hay promociones vigentes hoy.</div>
+        <div class="vigentes-nota">Así las verá el vendedor al entrar a la app.</div>
+      </ng-container>
+    </div>
+  </div>
+
+  <div class="col-12 col-xl-8 order-xl-1">
+    <div class="fr-card fr-toolbar">
+      <div class="row g-2 align-items-center w-100">
+        <div class="col-12 col-md-6">
+          <mat-form-field appearance="outline" class="campo">
+            <mat-label>Buscar promoción</mat-label>
+            <input matInput [(ngModel)]="filtroTexto" (ngModelChange)="aplicarFiltros()" />
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+        </div>
+        <div class="col-12 col-md-6 text-md-end">
+          <button mat-raised-button color="warn" type="button" (click)="abrir()">
+            <mat-icon>add</mat-icon> Nueva promoción
+          </button>
+        </div>
+        <div class="col-12 estado-filtro">
+          <mat-button-toggle-group [(ngModel)]="filtroEstado" (ngModelChange)="aplicarFiltros()" aria-label="Estado">
+            <mat-button-toggle *ngFor="let e of estados" [value]="e.codigo">{{ e.nombre }}</mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
+      </div>
+    </div>
+
+    <div class="fr-table-wrap">
+      <table mat-table [dataSource]="dataSource" matSort>
+        <ng-container matColumnDef="titulo">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Título</th>
+          <td mat-cell *matCellDef="let p">
+            <div class="titulo-celda">{{ p.TITULO }}</div>
+            <small class="text-muted" *ngIf="p.TIPO === 'B' && p.ARTICULO_BONIFICADO">
+              Regala {{ p.CANTIDAD_BONIFICADA }} × {{ p.ARTICULO_BONIFICADO_DESCRIPCION }}
+            </small>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="tipo">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Tipo</th>
+          <td mat-cell *matCellDef="let p">{{ nombreTipo(p) }}</td>
+        </ng-container>
+        <ng-container matColumnDef="desde">
+          <th mat-header-cell class="fr-center" *matHeaderCellDef mat-sort-header>Desde</th>
+          <td mat-cell class="fr-center" *matCellDef="let p">{{ fmtFecha(p.FECHA_INICIO) }}</td>
+        </ng-container>
+        <ng-container matColumnDef="hasta">
+          <th mat-header-cell class="fr-center" *matHeaderCellDef mat-sort-header>Hasta</th>
+          <td mat-cell class="fr-center" *matCellDef="let p">{{ fmtFecha(p.FECHA_FIN) }}</td>
+        </ng-container>
+        <ng-container matColumnDef="destino">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Destino</th>
+          <td mat-cell *matCellDef="let p">{{ textoDestino(p) }}</td>
+        </ng-container>
+        <ng-container matColumnDef="estado">
+          <th mat-header-cell class="fr-center" *matHeaderCellDef mat-sort-header>Estado</th>
+          <td mat-cell class="fr-center" *matCellDef="let p">
+            <span class="estado {{ p.ESTADO }}">{{ textoEstado(p.ESTADO) }}</span>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="acciones">
+          <th mat-header-cell class="fr-col-actions" *matHeaderCellDef>Acciones</th>
+          <td mat-cell class="fr-col-actions" *matCellDef="let p">
+            <button mat-icon-button type="button" (click)="abrir(p)" matTooltip="Editar" aria-label="Editar">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button type="button" (click)="abrir(p, true)" matTooltip="Duplicar (otra temporada)" aria-label="Duplicar">
+              <mat-icon>content_copy</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              type="button"
+              (click)="alternarActiva(p)"
+              [matTooltip]="p.ACTIVA === 'S' ? 'Desactivar' : 'Activar'"
+              [attr.aria-label]="p.ACTIVA === 'S' ? 'Desactivar' : 'Activar'"
+            >
+              <mat-icon>{{ p.ACTIVA === "S" ? "toggle_on" : "toggle_off" }}</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" type="button" (click)="eliminar(p)" matTooltip="Eliminar" aria-label="Eliminar">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns" (dblclick)="abrir(row)"></tr>
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell fr-empty" colspan="7">
+            {{ cargando ? "Cargando…" : "No hay promociones que coincidan con los filtros." }}
+          </td>
+        </tr>
+      </table>
+      <mat-paginator [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons></mat-paginator>
+    </div>
+  </div>
+</div>
+</div>

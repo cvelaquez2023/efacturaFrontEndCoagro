@@ -51,6 +51,11 @@ const COLORES_RUTA = [
 const SEGUNDOS_VIVO = 60;
 // Centro por defecto (El Salvador) mientras no hay puntos que encuadrar.
 const CENTRO_INICIAL: [number, number] = [13.7, -89.2];
+// Límites de El Salvador (con un pequeño margen): el mapa no deja alejarse ni moverse fuera.
+const LIMITES_SV: [[number, number], [number, number]] = [
+  [13.1, -90.2],
+  [14.5, -87.6],
+];
 
 const escapar = (texto: string): string =>
   texto.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
@@ -177,7 +182,10 @@ export class MapaVisitasComponent implements OnInit, OnChanges, OnDestroy {
         zoom: 8,
         preferCanvas: true,
         layers: [calles],
+        maxBounds: L.latLngBounds(LIMITES_SV),
+        maxBoundsViscosity: 1.0,
       });
+      this._ajustarZoomMinimo();
       this._capaRecorrido = L.layerGroup().addTo(this._mapa);
       this._capaClientes = L.layerGroup().addTo(this._mapa);
       this._capaVisitas = L.layerGroup().addTo(this._mapa);
@@ -195,7 +203,10 @@ export class MapaVisitasComponent implements OnInit, OnChanges, OnDestroy {
         .addTo(this._mapa);
       this._mapa.on("popupclose", () => this._capaRadio?.clearLayers());
       // El contenedor cambia de tamaño al apilar/desapilar columnas: Leaflet debe recalcular.
-      this._resize = new ResizeObserver(() => this._mapa?.invalidateSize());
+      this._resize = new ResizeObserver(() => {
+        this._mapa?.invalidateSize();
+        this._ajustarZoomMinimo();
+      });
       this._resize.observe(this.contenedor.nativeElement);
       this._dibujar();
     });
@@ -306,6 +317,17 @@ export class MapaVisitasComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
+  /** Zoom mínimo = el que muestra El Salvador completo en el tamaño actual del mapa (no se aleja más). */
+  private _ajustarZoomMinimo(): void {
+    const L = this._L;
+    if (!L || !this._mapa) return;
+    const tam = this._mapa.getSize();
+    if (!tam.x || !tam.y) return;
+    const zoom = this._mapa.getBoundsZoom(L.latLngBounds(LIMITES_SV), true);
+    this._mapa.setMinZoom(zoom);
+    if (this._mapa.getZoom() < zoom) this._mapa.setZoom(zoom);
+  }
+
   private _encuadrar(): void {
     const L = this._L;
     if (!L || !this._mapa) return;
@@ -317,7 +339,7 @@ export class MapaVisitasComponent implements OnInit, OnChanges, OnDestroy {
     if (coords.length) {
       this._mapa.fitBounds(L.latLngBounds(coords), { padding: [24, 24], maxZoom: 16 });
     } else {
-      this._mapa.setView(CENTRO_INICIAL, 8);
+      this._mapa.fitBounds(L.latLngBounds(LIMITES_SV));
     }
   }
 

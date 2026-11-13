@@ -4,6 +4,8 @@ const rutasPage = "rutas";
 const asignacionRutasPage = "asignacion-rutas";
 const devolucionesPage = "devoluciones";
 const aprobarDevolucionPage = "aprobar-devolucion";
+const cobrosPage = "cobros";
+const promocionalesPage = "promocionales";
 const documentosNoCargadosPage = "documentos-no-cargados";
 const bitacoraSincronizacionPage = "bitacora-sincronizacion";
 const clientesAbandonoPage = "clientes-abandono";
@@ -13,6 +15,7 @@ const documentosGeneradosFrPage = "documentos-generados-fr";
 const liquidacionAgentesPage = "liquidacion-agentes";
 const visitasDiaPage = "visitas-dia";
 const ubicacionesVisitaPage = "ubicaciones-visita";
+const motivosNoVentaPage = "motivos-no-venta";
 const cargaClientesPage = "carga-clientes";
 const cargaArticulosPage = "carga-articulos";
 const cargaBodegasPage = "carga-bodegas";
@@ -31,12 +34,14 @@ const sugeridosVentaPage = "sugeridos-venta";
 const asignacionSugeridosVentaPage = "asignacion-sugeridos-venta";
 const bodegasPage = "bodegas";
 const agentesPage = "agentes";
-const emmPage = "emm";
-const controlArchivosActualizacionesPage = "control-archivos-actualizaciones";
+const bonificacionesDescuentosPage = "bonificaciones-descuentos";
 const monitoreoDocumentosPage = "monitoreo-documentos";
 const parametrosModuloPage = "parametros-modulo";
 const dashboardGeneralPage = "dashboard-general";
 const metasVentaCobroPage = "metas-venta-cobro";
+const condicionesClientePage = "condiciones-cliente";
+const promocionesPage = "promociones";
+const consultaPreciosPage = "consulta-precios";
 const acercaDePage = "acerca-de";
 
 export const PATHS_FR_PAGES = {
@@ -55,6 +60,14 @@ export const PATHS_FR_PAGES = {
   devoluciones: {
     withSlash: `/${ModuloFRPage}/${devolucionesPage}`,
     onLyPath: devolucionesPage,
+  },
+  promocionales: {
+    withSlash: `/${ModuloFRPage}/${promocionalesPage}`,
+    onLyPath: promocionalesPage,
+  },
+  cobros: {
+    withSlash: `/${ModuloFRPage}/${cobrosPage}`,
+    onLyPath: cobrosPage,
   },
   aprobarDevolucion: {
     withSlash: `/${ModuloFRPage}/${aprobarDevolucionPage}`,
@@ -95,6 +108,10 @@ export const PATHS_FR_PAGES = {
   ubicacionesVisita: {
     withSlash: `/${ModuloFRPage}/${ubicacionesVisitaPage}`,
     onLyPath: ubicacionesVisitaPage,
+  },
+  motivosNoVenta: {
+    withSlash: `/${ModuloFRPage}/${motivosNoVentaPage}`,
+    onLyPath: motivosNoVentaPage,
   },
   cargaClientes: {
     withSlash: `/${ModuloFRPage}/${cargaClientesPage}`,
@@ -168,13 +185,9 @@ export const PATHS_FR_PAGES = {
     withSlash: `/${ModuloFRPage}/${agentesPage}`,
     onLyPath: agentesPage,
   },
-  emm: {
-    withSlash: `/${ModuloFRPage}/${emmPage}`,
-    onLyPath: emmPage,
-  },
-  controlArchivosActualizaciones: {
-    withSlash: `/${ModuloFRPage}/${controlArchivosActualizacionesPage}`,
-    onLyPath: controlArchivosActualizacionesPage,
+  bonificacionesDescuentos: {
+    withSlash: `/${ModuloFRPage}/${bonificacionesDescuentosPage}`,
+    onLyPath: bonificacionesDescuentosPage,
   },
   monitoreoDocumentos: {
     withSlash: `/${ModuloFRPage}/${monitoreoDocumentosPage}`,
@@ -191,6 +204,18 @@ export const PATHS_FR_PAGES = {
   metasVentaCobro: {
     withSlash: `/${ModuloFRPage}/${metasVentaCobroPage}`,
     onLyPath: metasVentaCobroPage,
+  },
+  condicionesCliente: {
+    withSlash: `/${ModuloFRPage}/${condicionesClientePage}`,
+    onLyPath: condicionesClientePage,
+  },
+  promociones: {
+    withSlash: `/${ModuloFRPage}/${promocionesPage}`,
+    onLyPath: promocionesPage,
+  },
+  consultaPrecios: {
+    withSlash: `/${ModuloFRPage}/${consultaPreciosPage}`,
+    onLyPath: consultaPreciosPage,
   },
   acercaDe: {
     withSlash: `/${ModuloFRPage}/${acercaDePage}`,

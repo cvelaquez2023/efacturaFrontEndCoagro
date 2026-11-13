@@ -1,0 +1,133 @@
+<div class="fr-page">
+  <h2 class="fr-title">Ventas Diarias</h2>
+
+  <div class="fr-card filtros" [formGroup]="filtros">
+    <div class="row g-2 align-items-start">
+      <div class="col-6 col-md-2">
+        <mat-form-field appearance="outline">
+          <mat-label>Año</mat-label>
+          <input matInput type="number" formControlName="anio" min="2000" max="2100" />
+        </mat-form-field>
+      </div>
+      <div class="col-6 col-md-2">
+        <mat-form-field appearance="outline">
+          <mat-label>Mes</mat-label>
+          <mat-select formControlName="mes">
+            <mat-option *ngFor="let m of meses; let i = index" [value]="i + 1">{{ m }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col-12 col-md-4">
+        <app-select-buscable
+          etiqueta="Vendedor"
+          formControlName="vendedor"
+          [opciones]="opcionesVendedores"
+          textoTodos="Todos (puede tardar unos segundos)"
+        ></app-select-buscable>
+      </div>
+      <div class="col-6 col-md-2">
+        <mat-form-field appearance="outline">
+          <mat-label>Artículo (código)</mat-label>
+          <input matInput formControlName="articulo" autocomplete="off" (keyup.enter)="consultar()" />
+        </mat-form-field>
+      </div>
+      <div class="col-6 col-md-2 acciones">
+        <button mat-raised-button color="warn" type="button" [disabled]="consultando" (click)="consultar()">
+          <mat-icon>search</mat-icon>{{ consultando ? "Consultando…" : "Consultar" }}
+        </button>
+      </div>
+    </div>
+    <div class="opciones">
+      <mat-button-toggle-group [(value)]="medida" aria-label="Medida">
+        <mat-button-toggle value="UNIDADES">Unidades</mat-button-toggle>
+        <mat-button-toggle value="VALOR">Valor ($)</mat-button-toggle>
+      </mat-button-toggle-group>
+      <mat-button-toggle-group [(value)]="columnas" aria-label="Columnas">
+        <mat-button-toggle value="semanas">Por semana</mat-button-toggle>
+        <mat-button-toggle value="dias">Por día</mat-button-toggle>
+      </mat-button-toggle-group>
+      <mat-checkbox formControlName="conMetas" color="primary">Comparar con las metas del mes</mat-checkbox>
+      <span class="espacio"></span>
+      <span class="cargando" *ngIf="consultando"><mat-spinner diameter="20"></mat-spinner> Consultando el ERP…</span>
+    </div>
+  </div>
+
+  <ng-container *ngIf="consultado">
+    <div class="encabezado-informe">
+      <h3>{{ titulo }}</h3>
+      <span class="espacio"></span>
+      <span class="contador">{{ filas.length }} artículo(s)</span>
+      <button mat-stroked-button type="button" (click)="exportar()" [disabled]="!filas.length">
+        <mat-icon>download</mat-icon>Excel
+      </button>
+    </div>
+
+    <div class="fr-table-wrap tabla-pivote" *ngIf="filas.length; else vacio">
+      <table>
+        <thead>
+          <tr>
+            <ng-container *ngIf="variosVendedores">
+              <th>Vendedor</th>
+            </ng-container>
+            <th class="col-articulo">Artículo</th>
+            <th class="periodo" [class.dia]="columnas === 'dias'" *ngFor="let e of encabezados">
+              {{ e.texto }}<br *ngIf="e.sub" /><small *ngIf="e.sub">{{ e.sub }}</small>
+            </th>
+            <th class="fr-num">Total {{ medida === "UNIDADES" ? "(u)" : "($)" }}</th>
+            <ng-container *ngIf="conMetas">
+              <th class="fr-num">Meta (u)</th>
+              <th class="fr-num">% avance</th>
+            </ng-container>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let f of filas">
+            <td *ngIf="variosVendedores">
+              <div class="nombre">{{ f.nombreVendedor }}</div>
+              <div class="codigo">{{ f.vendedor }}</div>
+            </td>
+            <td class="col-articulo">
+              <div class="nombre">{{ f.descripcion }}</div>
+              <div class="codigo">{{ f.articulo }}</div>
+            </td>
+            <td class="periodo fr-num" [class.negativo]="x < 0" *ngFor="let x of valores(f)">{{ formato(x) }}</td>
+            <td class="fr-num total" [class.negativo]="total(f) < 0">{{ formato(total(f)) || "0" }}</td>
+            <ng-container *ngIf="conMetas">
+              <td class="fr-num">
+                <span *ngIf="f.meta !== null">{{ f.meta | number: "1.0-2" }}</span>
+                <span *ngIf="f.meta === null" class="sin-meta">sin meta</span>
+              </td>
+              <td class="fr-num">
+                <ng-container *ngIf="avance(f) as a; else guion">
+                  <span [class.avance-ok]="a >= 1">{{ a | percent: "1.0-1" }}</span>
+                </ng-container>
+                <ng-template #guion>{{ f.meta ? "0%" : "-" }}</ng-template>
+              </td>
+            </ng-container>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td *ngIf="variosVendedores"></td>
+            <td class="col-articulo">TOTAL</td>
+            <td class="fr-num" *ngFor="let x of totales">{{ formato(x) }}</td>
+            <td class="fr-num">{{ formato(granTotal) || "0" }}</td>
+            <ng-container *ngIf="conMetas">
+              <td class="fr-num">{{ metaTotal | number: "1.0-2" }}</td>
+              <td></td>
+            </ng-container>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <ng-template #vacio>
+      <div class="fr-card vacio">No hay ventas{{ conMetas ? " ni metas" : "" }} para esos filtros.</div>
+    </ng-template>
+
+    <p class="nota">
+      Ventas del ERP en vivo (facturas menos devoluciones, sin anuladas); los valores negativos son días con
+      devoluciones. Semanas por días: 1–7, 8–14, 15–21, 22–28 y 29–fin de mes. La venta guardada en cada meta se
+      actualiza con «Actualizar ventas» en Metas.
+    </p>
+  </ng-container>
+</div>

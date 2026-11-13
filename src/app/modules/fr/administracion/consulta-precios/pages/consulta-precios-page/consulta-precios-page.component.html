@@ -1,0 +1,146 @@
+<div class="fr-page">
+<h2 class="fr-title">Consulta de Precios</h2>
+
+<div class="aviso-prueba" *ngIf="modoPrueba" role="status">
+  <mat-icon>science</mat-icon>
+  <span>
+    Datos de prueba: falta el backend (ver docs/fr/backend-condiciones-promociones.md). Los cambios
+    no se guardan al recargar. El precio base es de prueba (el real sale de ARTICULO_PRECIO por el
+    nivel de precio del cliente) y no se toma en cuenta el tipo de cliente.
+  </span>
+</div>
+
+<mat-card class="consulta-card">
+  <div class="seccion-titulo">¿Qué precio verá el vendedor?</div>
+  <form [formGroup]="form" (ngSubmit)="consultar()">
+    <div class="row g-3">
+      <div class="col-12 col-lg-6">
+        <app-buscador-erp
+          tipo="cliente"
+          etiqueta="Cliente"
+          placeholder="Código o nombre del cliente"
+          [requerido]="true"
+          (seleccion)="elegirCliente($event)"
+        ></app-buscador-erp>
+      </div>
+      <div class="col-12 col-lg-6">
+        <app-buscador-erp
+          tipo="articulo"
+          etiqueta="Artículo"
+          placeholder="Código o nombre del artículo"
+          [requerido]="true"
+          (seleccion)="elegirArticulo($event)"
+        ></app-buscador-erp>
+      </div>
+      <div class="col-6 col-md-3">
+        <mat-form-field appearance="outline" class="campo">
+          <mat-label>Fecha</mat-label>
+          <input matInput type="date" formControlName="fecha" required />
+        </mat-form-field>
+      </div>
+      <div class="col-6 col-md-3">
+        <mat-form-field appearance="outline" class="campo">
+          <mat-label>Cantidad</mat-label>
+          <input matInput type="number" min="1" step="1" formControlName="cantidad" placeholder="Opcional" />
+          <mat-hint>Para reglas "a partir de"</mat-hint>
+        </mat-form-field>
+      </div>
+      <div class="col-12 col-md-3" *ngIf="modoPrueba">
+        <mat-form-field appearance="outline" class="campo">
+          <mat-label>Precio base (prueba) $</mat-label>
+          <input matInput type="number" min="0" step="0.01" formControlName="precioBase" />
+          <mat-hint>Sin IVA</mat-hint>
+        </mat-form-field>
+      </div>
+      <div class="col-12 col-md-3 d-flex align-items-start">
+        <button mat-raised-button color="primary" type="submit" class="w-100" [disabled]="consultando">
+          <mat-icon>calculate</mat-icon> Consultar
+        </button>
+      </div>
+    </div>
+  </form>
+</mat-card>
+
+<ng-container *ngIf="resultado as r">
+  <div class="row g-3 mt-1">
+    <div class="col-12 col-md-4">
+      <div class="dato">
+        <div class="dato-etiqueta">Precio base</div>
+        <div class="dato-valor">{{ dinero(r.PRECIO_BASE) }}</div>
+        <div class="dato-sub">+IVA {{ dinero(r.PRECIO_BASE * (1 + r.IVA)) }}</div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="dato final">
+        <div class="dato-etiqueta">Precio final el {{ fmtFecha(r.FECHA) }}</div>
+        <div class="dato-valor">{{ dinero(r.PRECIO_FINAL) }}</div>
+        <div class="dato-sub">+IVA {{ dinero(r.PRECIO_FINAL_IVA) }}</div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="dato">
+        <div class="dato-etiqueta">Ahorro por unidad</div>
+        <div class="dato-valor">{{ dinero(ahorro) }}</div>
+        <div class="dato-sub">{{ r.REGLA_APLICADA ? (r.REGLA_APLICADA.ORIGEN === "CONDICION" ? "Condición del cliente" : "Promoción") : "Sin regla: precio base" }}</div>
+      </div>
+    </div>
+  </div>
+
+  <mat-card class="detalle-card mt-3">
+    <div class="detalle-encabezado">
+      <strong>{{ r.ARTICULO }} - {{ r.ARTICULO_DESCRIPCION }}</strong>
+      <span class="text-muted"> · {{ nombreLinea(r.LINEA) }}</span>
+      <div class="text-muted small">Cliente {{ r.CLIENTE }}{{ clienteNombre ? " - " + clienteNombre : "" }}</div>
+    </div>
+
+    <div class="seccion-titulo mt-3">Reglas que aplican ese día</div>
+    <div class="fr-table-wrap">
+      <table class="tabla-reglas">
+        <thead>
+          <tr>
+            <th>Origen</th>
+            <th>Regla</th>
+            <th>Beneficio</th>
+            <th class="fr-num">Precio resultante</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of r.REGLAS_CANDIDATAS" [class.ganadora]="esAplicada(c)">
+            <td>{{ c.ORIGEN === "CONDICION" ? "Condición cliente" : "Promoción" }}</td>
+            <td>
+              {{ c.DESCRIPCION }}
+              <span *ngIf="esAplicada(c)" class="estado VIGENTE ms-1">Se aplica</span>
+            </td>
+            <td>{{ textoRegla(c) }}</td>
+            <td class="fr-num">{{ dinero(c.PRECIO_RESULTANTE) }}</td>
+          </tr>
+          <tr *ngIf="!r.REGLAS_CANDIDATAS.length">
+            <td colspan="4" class="vacio">Ninguna regla aplica ese día: se cobra el precio base.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="nota" *ngIf="r.REGLAS_CANDIDATAS.length > 1">
+      Si aplican varias reglas gana la de <strong>precio más bajo</strong> (la mejor para el cliente);
+      los descuentos no se suman.
+    </div>
+    <div class="nota" *ngIf="r.REGLA_APLICADA?.ORIGEN === 'CONDICION' && r.REGLA_APLICADA?.DESCUENTO != null">
+      En condiciones del cliente el porcentaje es el <strong>máximo autorizado</strong>: el vendedor
+      puede dar menos.
+    </div>
+
+    <ng-container *ngIf="r.BONIFICACIONES.length">
+      <div class="seccion-titulo mt-3">Bonificaciones</div>
+      <div class="bonif" *ngFor="let b of r.BONIFICACIONES">
+        <mat-icon>redeem</mat-icon>
+        <div>
+          <div class="fw-semibold">{{ b.DESCRIPCION }}</div>
+          <div class="small text-muted">
+            Comprando {{ b.CANTIDAD_MIN || 1 }}, se regalan {{ b.CANTIDAD }} × {{ b.ARTICULO_DESCRIPCION || b.ARTICULO }}
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </mat-card>
+</ng-container>
+</div>

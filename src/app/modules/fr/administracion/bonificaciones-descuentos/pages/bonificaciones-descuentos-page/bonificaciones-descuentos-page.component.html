@@ -1,0 +1,17 @@
+<div class="fr-page">
+  <h2 class="fr-title">Bonificaciones y Descuentos</h2>
+  <p class="intro">
+    Descuentos y bonificaciones que la handheld aplica al vender, por rango de cantidades y de fechas. No puede haber
+    dos registros del mismo cliente (o nivel) y artículo cuyos rangos se crucen.
+  </p>
+  <mat-tab-group animationDuration="0ms">
+    <mat-tab *ngFor="let c of configs">
+      <ng-template mat-tab-label>
+        <mat-icon class="icono-tab">{{ c.icono }}</mat-icon>{{ c.titulo }}
+      </ng-template>
+      <ng-template matTabContent>
+        <app-tabla-bon-desc [config]="c"></app-tabla-bon-desc>
+      </ng-template>
+    </mat-tab>
+  </mat-tab-group>
+</div>

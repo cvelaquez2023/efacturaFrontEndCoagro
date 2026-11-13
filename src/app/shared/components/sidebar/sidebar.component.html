@@ -53,5 +53,13 @@
       </mat-expansion-panel-header>
       <app-tree-fr></app-tree-fr>
     </mat-expansion-panel>
+    <mat-expansion-panel (click)="Metasclick()">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>emoji_events</mat-icon> <span>Metas</span>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <app-tree-metas></app-tree-metas>
+    </mat-expansion-panel>
   </mat-accordion>
 </mat-nav-list>
