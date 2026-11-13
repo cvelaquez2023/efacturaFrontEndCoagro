@@ -11,6 +11,7 @@ import { PATHS_CG_PAGES } from "./config/path-page-cg";
 import { PATHS_DTE_PAGES } from "./config/path-page.dte";
 import { PATHS_PROVEE_PAGES } from "./config/path-page-prove";
 import { PATHS_FR_PAGES } from "./config/path-page-fr";
+import { PATHS_METAS_PAGES } from "./config/path-page-metas";
 
 const routes: Routes = [
   {
@@ -53,6 +54,11 @@ const routes: Routes = [
         path: PATHS_FR_PAGES.moduloFR.onLyPath,
         loadChildren: () =>
           import("./modules/fr/fr.module").then((m) => m.FrModule),
+      },
+      {
+        path: PATHS_METAS_PAGES.moduloMetas.onLyPath,
+        loadChildren: () =>
+          import("./modules/metas/modulo-metas.module").then((m) => m.ModuloMetasModule),
       },
     ],
   },

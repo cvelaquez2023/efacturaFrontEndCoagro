@@ -5,6 +5,7 @@ import {
   F1SelectorComponent,
   IF1Item,
 } from "../../rutas/shared/f1-selector/f1-selector.component";
+import { IPedidoReporte, IReporteVisita } from "./reportes-fr-model-interface";
 
 /** true si `codigo` cae dentro del rango Desde/Hasta (ambos opcionales e inclusivos), comparando
  *  como texto igual que los rangos de Softland. */
@@ -134,4 +135,42 @@ export const abrirSelectorF1 = (
       control?.setValue(item.codigo);
       nombre?.setValue(item.nombre);
     });
+};
+
+/** Margen al comparar la hora del pedido (HOR_INI) con el inicio/fin de la visita. */
+const MARGEN_PEDIDO_MS = 5 * 60000;
+
+/** Reparte los pedidos entre las visitas: primero por la misma ruta+cliente con HOR_INI dentro de
+ *  la visita (± MARGEN_PEDIDO_MS); los que no caen en ninguna se asignan a la primera visita de esa
+ *  ruta+cliente del mismo día. Cada pedido cuenta en una sola visita. */
+export const asignarPedidos = (
+  visitas: IReporteVisita[],
+  pedidos: IPedidoReporte[]
+): Map<IReporteVisita, IPedidoReporte[]> => {
+  const resultado = new Map<IReporteVisita, IPedidoReporte[]>();
+  const clave = (ruta: string, cliente: string) =>
+    `${String(ruta).trim()}|${String(cliente).trim()}`;
+  const porCliente = new Map<string, IReporteVisita[]>();
+  visitas.forEach((v) => {
+    const k = clave(v.RUTA, v.CLIENTE);
+    porCliente.set(k, [...(porCliente.get(k) ?? []), v]);
+  });
+  pedidos.forEach((p) => {
+    const candidatas = porCliente.get(clave(p.COD_ZON, p.COD_CLT)) ?? [];
+    const hora = new Date(p.HOR_INI ?? p.FEC_PED).getTime();
+    const visita =
+      candidatas.find((v) => {
+        const inicio = new Date(v.INICIO).getTime();
+        const fin = new Date(v.FIN ?? v.INICIO).getTime();
+        return (
+          hora >= inicio - MARGEN_PEDIDO_MS &&
+          hora <= Math.max(fin, inicio) + MARGEN_PEDIDO_MS
+        );
+      }) ??
+      candidatas
+        .filter((v) => claveDia(v.INICIO) === claveDia(p.HOR_INI ?? p.FEC_PED))
+        .sort((a, b) => a.INICIO.localeCompare(b.INICIO))[0];
+    if (visita) resultado.set(visita, [...(resultado.get(visita) ?? []), p]);
+  });
+  return resultado;
 };

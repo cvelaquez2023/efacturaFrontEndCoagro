@@ -38,6 +38,14 @@ const routes: Routes = [
         "../fr/documentos/aprobar-devolucion/aprobar-devolucion.module"
       ).then((m) => m.AprobarDevolucionModule),
   },
+  {
+    path: PATHS_FR_PAGES.promocionales.onLyPath,
+    loadChildren: () => import("../fr/documentos/promocionales/promocionales.module").then((m) => m.PromocionalesModule),
+  },
+  {
+    path: PATHS_FR_PAGES.cobros.onLyPath,
+    loadChildren: () => import("../fr/documentos/cobros/cobros.module").then((m) => m.CobrosModule),
+  },
   //Reportes
   {
     path: PATHS_FR_PAGES.documentosNoCargados.onLyPath,
@@ -101,6 +109,13 @@ const routes: Routes = [
       import(
         "../fr/reportes/ubicaciones-visita/ubicaciones-visita.module"
       ).then((m) => m.UbicacionesVisitaModule),
+  },
+  {
+    path: PATHS_FR_PAGES.motivosNoVenta.onLyPath,
+    loadChildren: () =>
+      import("../fr/reportes/motivos-no-venta/motivos-no-venta.module").then(
+        (m) => m.MotivosNoVentaModule
+      ),
   },
   //Procesos
   {
@@ -231,16 +246,11 @@ const routes: Routes = [
       ),
   },
   {
-    path: PATHS_FR_PAGES.emm.onLyPath,
+    path: PATHS_FR_PAGES.bonificacionesDescuentos.onLyPath,
     loadChildren: () =>
-      import("../fr/administracion/emm/emm.module").then((m) => m.EmmModule),
-  },
-  {
-    path: PATHS_FR_PAGES.controlArchivosActualizaciones.onLyPath,
-    loadChildren: () =>
-      import(
-        "../fr/administracion/control-archivos-actualizaciones/control-archivos-actualizaciones.module"
-      ).then((m) => m.ControlArchivosActualizacionesModule),
+      import("../fr/administracion/bonificaciones-descuentos/bonificaciones-descuentos.module").then(
+        (m) => m.BonificacionesDescuentosModule
+      ),
   },
   {
     path: PATHS_FR_PAGES.monitoreoDocumentos.onLyPath,
@@ -269,6 +279,27 @@ const routes: Routes = [
       import(
         "../fr/administracion/metas-venta-cobro/metas-venta-cobro.module"
       ).then((m) => m.MetasVentaCobroModule),
+  },
+  {
+    path: PATHS_FR_PAGES.condicionesCliente.onLyPath,
+    loadChildren: () =>
+      import("../fr/administracion/condiciones-cliente/condiciones-cliente.module").then(
+        (m) => m.CondicionesClienteModule
+      ),
+  },
+  {
+    path: PATHS_FR_PAGES.promociones.onLyPath,
+    loadChildren: () =>
+      import("../fr/administracion/promociones/promociones.module").then(
+        (m) => m.PromocionesModule
+      ),
+  },
+  {
+    path: PATHS_FR_PAGES.consultaPrecios.onLyPath,
+    loadChildren: () =>
+      import("../fr/administracion/consulta-precios/consulta-precios.module").then(
+        (m) => m.ConsultaPreciosModule
+      ),
   },
   //Acerca de
   {

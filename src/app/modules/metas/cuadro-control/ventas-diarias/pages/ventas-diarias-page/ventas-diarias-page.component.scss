@@ -1,0 +1,158 @@
+.filtros {
+  margin-bottom: 12px;
+
+  .acciones {
+    display: flex;
+    align-items: center;
+    min-height: 56px;
+  }
+
+  .opciones {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-top: 4px;
+  }
+
+  .espacio {
+    flex: 1 1 auto;
+  }
+
+  .cargando {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #5f6368;
+    font-size: 13px;
+  }
+}
+
+.encabezado-informe {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0;
+
+  h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a237e;
+  }
+
+  .espacio {
+    flex: 1 1 auto;
+  }
+
+  .contador {
+    color: #5f6368;
+    font-size: 13px;
+  }
+}
+
+.tabla-pivote {
+  max-height: 70vh;
+  overflow: auto;
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 6px 8px;
+    background: #1f2a5c;
+    color: #fff;
+    font-weight: 600;
+    text-align: center;
+    white-space: nowrap;
+
+    &.periodo {
+      background: #2e9e3e;
+    }
+
+    &.dia {
+      min-width: 44px;
+    }
+
+    small {
+      font-weight: 400;
+    }
+  }
+
+  td {
+    padding: 4px 8px;
+    border-bottom: 1px solid #e0e0e0;
+    white-space: nowrap;
+
+    &.periodo {
+      background: #fff8dc;
+    }
+
+    &.total {
+      font-weight: 700;
+    }
+
+    &.negativo {
+      color: #c62828;
+    }
+  }
+
+  tfoot td {
+    position: sticky;
+    bottom: 0;
+    background: #1f2a5c;
+    color: #fff;
+    font-weight: 700;
+  }
+
+  .col-articulo {
+    text-align: left;
+    white-space: normal;
+    min-width: 220px;
+  }
+
+  .fr-num {
+    text-align: right;
+  }
+
+  .nombre {
+    font-weight: 500;
+  }
+
+  .codigo {
+    font-size: 11px;
+    color: #5f6368;
+  }
+
+  .sin-meta {
+    padding: 1px 8px;
+    border-radius: 10px;
+    background: #eeeeee;
+    color: #757575;
+    font-size: 11px;
+  }
+
+  .avance-ok {
+    color: #2e7d32;
+    font-weight: 600;
+  }
+}
+
+.vacio {
+  padding: 16px;
+  text-align: center;
+  color: #5f6368;
+}
+
+.nota {
+  margin-top: 8px;
+  color: #5f6368;
+  font-size: 12px;
+}

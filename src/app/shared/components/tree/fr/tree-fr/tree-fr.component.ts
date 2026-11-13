@@ -37,6 +37,14 @@ const TREE_DATA: FrNode[] = [
         name: "Aprobar Devolución",
         constante: "_aprobarDevolucion",
       },
+      {
+        name: "Cobros",
+        constante: "_cobros",
+      },
+      {
+        name: "Promocionales",
+        constante: "_promocionales",
+      },
     ],
   },
   {
@@ -78,6 +86,10 @@ const TREE_DATA: FrNode[] = [
       {
         name: "Ubicaciones por Visita",
         constante: "_ubicacionesVisita",
+      },
+      {
+        name: "Motivos de No Venta",
+        constante: "_motivosNoVenta",
       },
     ],
   },
@@ -164,14 +176,6 @@ const TREE_DATA: FrNode[] = [
         constante: "_agentes",
       },
       {
-        name: "EMM",
-        constante: "_emm",
-      },
-      {
-        name: "Control de Archivos y Actualizaciones",
-        constante: "_controlArchivosActualizaciones",
-      },
-      {
         name: "Monitoreo Documentos",
         constante: "_monitoreoDocumentos",
       },
@@ -186,6 +190,22 @@ const TREE_DATA: FrNode[] = [
       {
         name: "Metas de Venta y Cobro",
         constante: "_metasVentaCobro",
+      },
+      {
+        name: "Bonificaciones y Descuentos",
+        constante: "_bonificacionesDescuentos",
+      },
+      {
+        name: "Condiciones Especiales por Cliente",
+        constante: "_condicionesCliente",
+      },
+      {
+        name: "Promociones y Descuentos de Temporada",
+        constante: "_promociones",
+      },
+      {
+        name: "Consulta de Precios",
+        constante: "_consultaPrecios",
       },
     ],
   },
@@ -273,6 +293,9 @@ export class TreeFrComponent implements OnInit {
           PATHS_FR_PAGES.ubicacionesVisita.withSlash
         );
         break;
+      case "_motivosNoVenta":
+        void this._router.navigateByUrl(PATHS_FR_PAGES.motivosNoVenta.withSlash);
+        break;
       case "_cargaClientes":
         void this._router.navigateByUrl(PATHS_FR_PAGES.cargaClientes.withSlash);
         break;
@@ -339,13 +362,14 @@ export class TreeFrComponent implements OnInit {
       case "_agentes":
         void this._router.navigateByUrl(PATHS_FR_PAGES.agentes.withSlash);
         break;
-      case "_emm":
-        void this._router.navigateByUrl(PATHS_FR_PAGES.emm.withSlash);
+      case "_promocionales":
+        void this._router.navigateByUrl(PATHS_FR_PAGES.promocionales.withSlash);
         break;
-      case "_controlArchivosActualizaciones":
-        void this._router.navigateByUrl(
-          PATHS_FR_PAGES.controlArchivosActualizaciones.withSlash
-        );
+      case "_cobros":
+        void this._router.navigateByUrl(PATHS_FR_PAGES.cobros.withSlash);
+        break;
+      case "_bonificacionesDescuentos":
+        void this._router.navigateByUrl(PATHS_FR_PAGES.bonificacionesDescuentos.withSlash);
         break;
       case "_monitoreoDocumentos":
         void this._router.navigateByUrl(
@@ -366,6 +390,15 @@ export class TreeFrComponent implements OnInit {
         void this._router.navigateByUrl(
           PATHS_FR_PAGES.metasVentaCobro.withSlash
         );
+        break;
+      case "_condicionesCliente":
+        void this._router.navigateByUrl(PATHS_FR_PAGES.condicionesCliente.withSlash);
+        break;
+      case "_promociones":
+        void this._router.navigateByUrl(PATHS_FR_PAGES.promociones.withSlash);
+        break;
+      case "_consultaPrecios":
+        void this._router.navigateByUrl(PATHS_FR_PAGES.consultaPrecios.withSlash);
         break;
       case "_acercaDe":
         void this._router.navigateByUrl(PATHS_FR_PAGES.acercaDe.withSlash);

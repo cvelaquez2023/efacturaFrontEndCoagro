@@ -1,0 +1,42 @@
+<div class="fr-page fr-dialog">
+  <h1 mat-dialog-title>{{ esEdicion ? "Editar" : "Nuevo" }} {{ config.singular }}</h1>
+  <div mat-dialog-content>
+    <form [formGroup]="form" (ngSubmit)="guardar()">
+      <div class="row g-3">
+        <div class="col-12 col-sm-4">
+          <mat-form-field appearance="outline">
+            <mat-label>Código</mat-label>
+            <input matInput formControlName="codigo" [maxlength]="config.codigoMax" autocomplete="off" />
+            <mat-hint align="end">{{ codigo.value?.length || 0 }}/{{ config.codigoMax }}</mat-hint>
+            <mat-error *ngIf="codigo.hasError('required')">El código es requerido</mat-error>
+            <mat-error *ngIf="codigo.hasError('maxlength')">Máximo {{ config.codigoMax }} caracteres</mat-error>
+          </mat-form-field>
+        </div>
+        <div class="col-12 col-sm-8">
+          <mat-form-field appearance="outline">
+            <mat-label>Nombre</mat-label>
+            <input matInput formControlName="nombre" maxlength="100" autocomplete="off" />
+            <mat-error *ngIf="nombre.hasError('required')">El nombre es requerido</mat-error>
+            <mat-error *ngIf="nombre.hasError('maxlength')">Máximo 100 caracteres</mat-error>
+          </mat-form-field>
+        </div>
+        <div class="col-12" *ngIf="config.conEmail">
+          <mat-form-field appearance="outline">
+            <mat-label>Email (opcional)</mat-label>
+            <input matInput formControlName="email" type="email" maxlength="100" autocomplete="off" />
+            <mat-error *ngIf="email.hasError('email')">El email no tiene un formato válido</mat-error>
+          </mat-form-field>
+        </div>
+        <div class="col-12">
+          <mat-checkbox formControlName="activo">Activo</mat-checkbox>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div mat-dialog-actions [align]="'end'">
+    <button mat-raised-button type="button" mat-dialog-close>Cerrar</button>
+    <button mat-raised-button color="warn" type="button" [disabled]="guardando" (click)="guardar()">
+      {{ guardando ? "Guardando…" : esEdicion ? "Guardar cambios" : "Guardar" }}
+    </button>
+  </div>
+</div>

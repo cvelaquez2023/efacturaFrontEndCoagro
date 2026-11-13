@@ -4,7 +4,8 @@ import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { SnotifyPosition, SnotifyService } from "ng-snotify";
-import { forkJoin } from "rxjs";
+import { forkJoin, of } from "rxjs";
+import { catchError } from "rxjs/operators";
 import { IF1Item } from "../../../../rutas/shared/f1-selector/f1-selector.component";
 import { RutaApiService } from "../../../../rutas/rutas/service/ruta-api.service";
 import { ClienteAsocRtApiService } from "../../../../administracion/clientes/service/cliente-asoc-rt-api.service";
@@ -30,6 +31,8 @@ import {
 interface IClienteAbandono {
   ruta: string;
   rutaDescripcion: string;
+  /** Vendedor (agente) asignado a la ruta en RUTA_ASIGNADA_RT, con su nombre. */
+  vendedor: string;
   cliente: string;
   nombre: string;
   dias: string;
@@ -50,13 +53,18 @@ interface IResumenRuta {
   nuncaVisitados: number;
 }
 
+/** Periodo por defecto para considerar a un cliente en abandono (acordado: 3 meses). */
+const PERIODO_DEFECTO = 3;
+const UNIDAD_DEFECTO: "meses" | "dias" = "meses";
+
 /** Visitas que se leen para hallar la última visita de cada cliente (las más recientes primero). */
 const TOP_VISITAS = 20000;
 
 /**
  * Clientes en Abandono (manual FRd pág. 77): clientes asignados a rutas (RUTA_CLIENTE) que no
- * tienen visitas registradas (VISITA) en los últimos N días. Filtros: rango de clientes, rango de
- * rutas y cantidad de días (obligatoria, >= 0). Sin compañía.
+ * tienen visitas registradas (VISITA) en el periodo indicado (por defecto los últimos 3 meses,
+ * modificable en días o meses). Filtros: rango de clientes, rango de rutas y vendedor(es): al elegir
+ * un vendedor se toman TODAS sus rutas (RUTA_ASIGNADA_RT.AGENTE). Sin compañía.
  */
 @Component({
   selector: "app-clientes-abandono-page",
@@ -78,11 +86,18 @@ export class ClientesAbandonoPageComponent implements OnInit, AfterViewInit {
   filtroForm!: FormGroup;
   clientesF1: IF1Item[] = [];
   rutasF1: IF1Item[] = [];
+  /** Vendedores (agentes) con sus rutas, para el filtro. */
+  vendedores: { codigo: string; nombre: string; rutas: string[] }[] = [];
+  /** Ruta → vendedor ("código · nombre"). */
+  private _vendedorDeRuta = new Map<string, string>();
+  /** Días equivalentes al periodo de la última consulta (para textos y reportes). */
+  diasUmbral = 90;
   consultado = false;
   resultados = new MatTableDataSource<IClienteAbandono>();
   displayedColumns: string[] = [
     "ruta",
     "rutaDescripcion",
+    "vendedor",
     "cliente",
     "nombre",
     "dias",
@@ -106,12 +121,34 @@ export class ClientesAbandonoPageComponent implements OnInit, AfterViewInit {
       clienteHasta: [""],
       rutaDesde: [""],
       rutaHasta: [""],
-      dias: [30, [Validators.required, Validators.min(0)]],
+      vendedores: [[] as string[]],
+      dias: [PERIODO_DEFECTO, [Validators.required, Validators.min(0)]],
+      unidad: [UNIDAD_DEFECTO],
     });
     forkJoin({
       clientes: this._clienteAsocApi.getClientesConNombre(),
       rutas: this._rutaApiService.getRutas(),
-    }).subscribe(({ clientes, rutas }) => {
+      asignadas: this._reportesApi.getRutasAsignadas().pipe(catchError(() => of([]))),
+      agentes: this._reportesApi.getAgentes().pipe(catchError(() => of([]))),
+    }).subscribe(({ clientes, rutas, asignadas, agentes }) => {
+      // Vendedor de cada ruta y rutas de cada vendedor.
+      const nombreAgente = new Map(agentes.map((a) => [a.codigo, a.nombre]));
+      const rutasDe = new Map<string, string[]>();
+      asignadas.forEach((r) => {
+        const ruta = String(r.RUTA).trim();
+        const agente = String(r.AGENTE ?? "").trim();
+        if (!agente) return;
+        rutasDe.set(agente, [...(rutasDe.get(agente) ?? []), ruta]);
+        const nombre = nombreAgente.get(agente);
+        this._vendedorDeRuta.set(ruta, nombre && nombre !== agente ? `${agente} · ${nombre}` : agente);
+      });
+      this.vendedores = Array.from(rutasDe.entries())
+        .map(([codigo, rutasAgente]) => ({
+          codigo,
+          nombre: nombreAgente.get(codigo) || codigo,
+          rutas: [...new Set(rutasAgente)].sort((a, b) => a.localeCompare(b, undefined, { numeric: true })),
+        }))
+        .sort((a, b) => a.nombre.localeCompare(b.nombre));
       this.clientesF1 = (clientes.result || []).map((c) => ({
         codigo: c.CODIGO,
         nombre: c.NOMBRE,
@@ -139,14 +176,19 @@ export class ClientesAbandonoPageComponent implements OnInit, AfterViewInit {
     if (this.filtroForm.invalid) {
       this.filtroForm.markAllAsTouched();
       this._snotifyService.warning(
-        "La cantidad de días es obligatoria y debe ser mayor o igual a cero",
+        "El periodo de abandono es obligatorio y debe ser mayor o igual a cero",
         { position: SnotifyPosition.rightTop }
       );
       return;
     }
     const f = this.filtroForm.value;
-    const dias = Number(f.dias);
     const hoy = hoyIso();
+    const dias = this._diasDelPeriodo(Number(f.dias), f.unidad, hoy);
+    this.diasUmbral = dias;
+    // Rutas de los vendedores elegidos (vacío = todas).
+    const rutasVendedor = new Set<string>(
+      (f.vendedores as string[]).flatMap((v) => this.vendedores.find((x) => x.codigo === v)?.rutas ?? [])
+    );
     forkJoin({
       asignaciones: this._reportesApi.getRutaClientes(),
       visitas: this._reportesApi.getVisitas({ hasta: hoy }, TOP_VISITAS),
@@ -184,6 +226,7 @@ export class ClientesAbandonoPageComponent implements OnInit, AfterViewInit {
         const porRutaCliente = new Map<string, IClienteAbandono & { dia: number[] }>();
         asignaciones
           .filter((a) => enRango(a.RUTA, f.rutaDesde, f.rutaHasta))
+          .filter((a) => !rutasVendedor.size || rutasVendedor.has(String(a.RUTA).trim()))
           .filter((a) => enRango(a.CLIENTE, f.clienteDesde, f.clienteHasta))
           .forEach((a) => {
             const ruta = String(a.RUTA).trim();
@@ -198,6 +241,7 @@ export class ClientesAbandonoPageComponent implements OnInit, AfterViewInit {
             porRutaCliente.set(clave, {
               ruta,
               rutaDescripcion: nombreRuta.get(ruta) ?? "",
+              vendedor: this._vendedorDeRuta.get(ruta) ?? "",
               cliente,
               nombre:
                 nombreCliente.get(cliente) || nombreVisita.get(cliente) || "",
@@ -244,6 +288,31 @@ export class ClientesAbandonoPageComponent implements OnInit, AfterViewInit {
     });
   }
 
+  /** Periodo → días: en meses se cuenta hacia atrás en el calendario (3 meses desde hoy). */
+  private _diasDelPeriodo(cantidad: number, unidad: string, hoyIsoTexto: string): number {
+    if (unidad !== "meses") return cantidad;
+    const [y, m, d] = hoyIsoTexto.split("-").map(Number);
+    const inicio = new Date(Date.UTC(y, m - 1 - cantidad, d));
+    const iso = inicio.toISOString().slice(0, 10);
+    return this._diasEntre(iso, hoyIsoTexto);
+  }
+
+  /** Texto del periodo elegido ("3 meses (92 días)" / "30 días"). */
+  get textoPeriodo(): string {
+    const f = this.filtroForm?.value;
+    if (!f) return "";
+    return f.unidad === "meses"
+      ? `${f.dias} mes(es) (${this.diasUmbral} días)`
+      : `${f.dias} día(s)`;
+  }
+
+  /** Nombres de los vendedores elegidos (para los reportes). */
+  get textoVendedores(): string {
+    const elegidos = (this.filtroForm?.value?.vendedores ?? []) as string[];
+    if (!elegidos.length) return "todos";
+    return elegidos.map((c) => this.vendedores.find((v) => v.codigo === c)?.nombre ?? c).join(", ");
+  }
+
   private _diasEntre(desdeIso: string, hastaIso: string): number {
     const aFecha = (iso: string) => {
       const [y, m, d] = iso.split("-").map(Number);
@@ -258,7 +327,9 @@ export class ClientesAbandonoPageComponent implements OnInit, AfterViewInit {
       clienteHasta: "",
       rutaDesde: "",
       rutaHasta: "",
-      dias: 30,
+      vendedores: [],
+      dias: PERIODO_DEFECTO,
+      unidad: UNIDAD_DEFECTO,
     });
     this.resultados.data = [];
     this._asignadosPorRuta = new Map();
@@ -340,7 +411,8 @@ export class ClientesAbandonoPageComponent implements OnInit, AfterViewInit {
       paginas: [
         {
           encabezado: [
-            `Clientes sin visita en más de ${f.dias} día(s), al día ${fmtFecha(hoyIso() + "T00:00")}.`,
+            `Clientes sin visita en más de ${this.textoPeriodo}, al día ${fmtFecha(hoyIso() + "T00:00")}.`,
+            `Vendedor(es): ${this.textoVendedores}.`,
             `Rutas: ${rango(f.rutaDesde, f.rutaHasta)}. Clientes: ${rango(f.clienteDesde, f.clienteHasta)}.`,
             "Montos en moneda dólar.",
             ...(this.pedidosDisponibles
@@ -414,7 +486,8 @@ export class ClientesAbandonoPageComponent implements OnInit, AfterViewInit {
       filtros: [
         `Clientes: ${rango(f.clienteDesde, f.clienteHasta)}`,
         `Rutas: ${rango(f.rutaDesde, f.rutaHasta)}`,
-        `Días en abandono: más de ${f.dias} día(s) sin visita`,
+        `Periodo en abandono: más de ${this.textoPeriodo} sin visita`,
+        `Vendedor(es): ${this.textoVendedores}`,
       ],
       horizontal: true,
       secciones: [{ columnas, filas: this.resultados.filteredData }],

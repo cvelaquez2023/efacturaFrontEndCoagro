@@ -1,0 +1,98 @@
+.tabla-bd {
+  margin-top: 12px;
+
+  .descripcion {
+    color: #5f6368;
+    font-size: 13px;
+    margin: 0 0 8px;
+  }
+
+  .filtros {
+    margin-bottom: 12px;
+
+    .acciones {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .espacio {
+      flex: 1 1 auto;
+    }
+  }
+
+  .tabla {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+
+    th {
+      padding: 8px 10px;
+      background: #1b2a5c;
+      color: #fff;
+      font-weight: 600;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 6px 10px;
+      border-bottom: 1px solid #e6e8eb;
+      vertical-align: middle;
+    }
+
+    tbody tr:nth-child(even) td {
+      background: #f4f5f7;
+    }
+
+    .centro {
+      text-align: center;
+    }
+
+    .nombre {
+      font-weight: 500;
+      color: #1b2a5c;
+    }
+
+    .codigo {
+      font-size: 11px;
+      color: #5f6368;
+    }
+
+    .valor {
+      font-weight: 600;
+      color: #1e6b3a;
+    }
+
+    .acciones-fila {
+      white-space: nowrap;
+    }
+
+    .vacio {
+      text-align: center;
+      color: #5f6368;
+      padding: 18px;
+    }
+  }
+
+  .estado {
+    display: inline-block;
+    margin-top: 2px;
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+
+    &.VIGENTE {
+      background: #c8e6d2;
+      color: #1e6b3a;
+    }
+    &.PROGRAMADA {
+      background: #e3f2fd;
+      color: #1565c0;
+    }
+    &.VENCIDA {
+      background: #eeeeee;
+      color: #757575;
+    }
+  }
+}

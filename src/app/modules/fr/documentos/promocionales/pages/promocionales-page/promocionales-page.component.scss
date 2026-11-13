@@ -1,0 +1,256 @@
+.promocionales {
+  .intro {
+    color: #5f6368;
+    font-size: 13px;
+    margin: -4px 0 10px;
+  }
+
+  .contadores {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .contador {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: #fff;
+    border: 1px solid #e6e8eb;
+    border-left: 5px solid #1b2a5c;
+    text-align: left;
+    cursor: pointer;
+    font: inherit;
+
+    div {
+      display: flex;
+      flex-direction: column;
+    }
+
+    span {
+      font-size: 11px;
+      color: #5f6368;
+      text-transform: uppercase;
+    }
+
+    strong {
+      font-size: 20px;
+      color: #1b2a5c;
+    }
+
+    &.activo {
+      box-shadow: 0 0 0 2px rgba(27, 42, 92, 0.25);
+    }
+
+    &.pendientes {
+      border-left-color: #f2a900;
+
+      mat-icon {
+        color: #f2a900;
+      }
+    }
+
+    &.vencidas {
+      border-left-color: #c62828;
+
+      mat-icon,
+      strong {
+        color: #c62828;
+      }
+    }
+
+    &.procesadas {
+      border-left-color: #3aaa35;
+
+      mat-icon {
+        color: #3aaa35;
+      }
+    }
+
+    &.todas mat-icon {
+      color: #1b2a5c;
+    }
+  }
+
+  .filtros {
+    margin-bottom: 12px;
+
+    .acciones {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .espacio {
+      flex: 1 1 auto;
+    }
+
+    .contador-sel {
+      color: #5f6368;
+      font-size: 13px;
+    }
+  }
+
+  .tabla {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+
+    th {
+      padding: 8px 10px;
+      background: #1b2a5c;
+      color: #fff;
+      font-weight: 600;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 7px 10px;
+      border-bottom: 1px solid #e6e8eb;
+      vertical-align: top;
+    }
+
+    tbody tr:nth-child(even) td {
+      background: #f4f5f7;
+    }
+
+    tr.procesada td {
+      color: #757575;
+    }
+
+    tr.marcada td {
+      background: #fdecea;
+    }
+
+    .col-sel {
+      width: 44px;
+    }
+
+    .col-notas {
+      min-width: 220px;
+      max-width: 380px;
+    }
+
+    .notas {
+      white-space: pre-wrap;
+      color: #1b2a5c;
+      font-weight: 500;
+    }
+
+    .centro {
+      text-align: center;
+    }
+
+    .nombre {
+      font-weight: 500;
+      color: #1b2a5c;
+    }
+
+    .codigo {
+      font-size: 11px;
+      color: #5f6368;
+    }
+
+    .accion {
+      white-space: nowrap;
+    }
+
+    .vacio {
+      text-align: center;
+      color: #5f6368;
+      padding: 20px;
+    }
+  }
+
+  .urgencia {
+    display: inline-block;
+    margin-top: 2px;
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    white-space: nowrap;
+
+    &.VENCIDA {
+      background: #fdecea;
+      color: #c62828;
+      font-weight: 600;
+    }
+    &.HOY {
+      background: #fff3c4;
+      color: #8d6e00;
+      font-weight: 600;
+    }
+    &.PRONTO {
+      background: #fff8e1;
+      color: #8d6e00;
+    }
+    &.A_TIEMPO {
+      background: #e3f2fd;
+      color: #1565c0;
+    }
+    &.PROCESADA {
+      background: #eeeeee;
+      color: #757575;
+    }
+  }
+
+  .estado {
+    padding: 1px 8px;
+    border-radius: 10px;
+    background: #fff3c4;
+    color: #8d6e00;
+    font-size: 11px;
+
+    &.ok {
+      background: #c8e6d2;
+      color: #1e6b3a;
+    }
+  }
+}
+
+.promocionales .filtros {
+  mat-form-field {
+    width: 100%;
+  }
+
+  ::ng-deep {
+    .mat-form-field-appearance-outline .mat-form-field-infix {
+      display: flex;
+      align-items: center;
+      min-height: 22px;
+      padding: 0.85em 0 0.85em;
+    }
+
+    // El input de fecha nativo es más alto que el resto: se iguala.
+    input[type="date"].mat-input-element {
+      height: 22px;
+      line-height: 22px;
+      padding: 0;
+    }
+
+    .mat-select,
+    .mat-input-element {
+      width: 100%;
+    }
+
+    .mat-select-trigger {
+      height: 22px;
+      line-height: 22px;
+    }
+
+    // Sin espacio reservado para mensajes bajo cada campo (no hay hints en los filtros).
+    .mat-form-field-wrapper {
+      padding-bottom: 0.4em;
+    }
+
+    .mat-form-field-subscript-wrapper {
+      display: none;
+    }
+  }
+}

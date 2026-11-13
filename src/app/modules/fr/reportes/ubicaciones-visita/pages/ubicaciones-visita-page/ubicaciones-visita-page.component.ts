@@ -22,7 +22,6 @@ import {
   fmtFecha,
   fmtHora,
   hoyIso,
-  sumarDias,
 } from "../../../shared/reporte-utils";
 import { abrirReportePdf, IColumnaPdf } from "../../../shared/reporte-pdf";
 import {
@@ -54,9 +53,8 @@ interface IUbicacionVisita {
 
 const TOP_VISITAS = 60000;
 
-/** Días hacia atrás del rango por defecto (Desde), para que siempre se vean las visitas recientes. */
-const DIAS_RANGO_DEFAULT = 30;
-const desdeDefault = (): string => sumarDias(hoyIso(), -DIAS_RANGO_DEFAULT);
+/** Desde por defecto = hoy (el día en que la persona entra a la pantalla). */
+const desdeDefault = (): string => hoyIso();
 
 const coordenada = (valor: unknown): number | null => {
   if (valor == null || valor === "") return null;

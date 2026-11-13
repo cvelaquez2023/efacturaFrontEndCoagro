@@ -1,0 +1,190 @@
+.cobros {
+  .intro {
+    color: #5f6368;
+    font-size: 13px;
+    margin: -4px 0 10px;
+  }
+
+  .filtros {
+    margin-bottom: 12px;
+
+    .acciones {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+
+  .totales {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+
+    .total {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: #fff;
+      border: 1px solid #e6e8eb;
+      border-left: 5px solid #2fa39a;
+
+      mat-icon {
+        color: #2fa39a;
+      }
+
+      div {
+        display: flex;
+        flex-direction: column;
+      }
+
+      span {
+        font-size: 11px;
+        color: #5f6368;
+        text-transform: uppercase;
+      }
+
+      strong {
+        font-size: 17px;
+        color: #1b2a5c;
+      }
+
+      small {
+        font-size: 11px;
+        color: #5f6368;
+      }
+
+      &.principal {
+        border-left-color: #1b2a5c;
+        background: #eef7ea;
+
+        mat-icon {
+          color: #1b2a5c;
+        }
+
+        strong {
+          font-size: 20px;
+          color: #1e6b3a;
+        }
+      }
+    }
+  }
+
+  .tabla {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+
+    th {
+      padding: 8px 10px;
+      background: #1b2a5c;
+      color: #fff;
+      font-weight: 600;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 6px 10px;
+      border-bottom: 1px solid #e6e8eb;
+      vertical-align: middle;
+    }
+
+    tbody tr:nth-child(even) td {
+      background: #f4f5f7;
+    }
+
+    .num {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .centro {
+      text-align: center;
+    }
+
+    .nombre {
+      font-weight: 500;
+      color: #1b2a5c;
+    }
+
+    .codigo {
+      font-size: 11px;
+      color: #5f6368;
+    }
+
+    .enlace {
+      color: #c62828;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .acciones-fila {
+      white-space: nowrap;
+    }
+
+    .vacio {
+      text-align: center;
+      color: #5f6368;
+      padding: 18px;
+    }
+  }
+
+  .estado {
+    padding: 1px 8px;
+    border-radius: 10px;
+    background: #fff3c4;
+    color: #8d6e00;
+    font-size: 11px;
+    white-space: nowrap;
+
+    &.aplicado {
+      background: #c8e6d2;
+      color: #1e6b3a;
+    }
+  }
+}
+
+.cobros .filtros {
+  mat-form-field {
+    width: 100%;
+  }
+
+  ::ng-deep {
+    .mat-form-field-appearance-outline .mat-form-field-infix {
+      display: flex;
+      align-items: center;
+      min-height: 22px;
+      padding: 0.85em 0 0.85em;
+    }
+
+    // El input de fecha nativo es más alto que el resto: se iguala.
+    input[type="date"].mat-input-element {
+      height: 22px;
+      line-height: 22px;
+      padding: 0;
+    }
+
+    .mat-select,
+    .mat-input-element {
+      width: 100%;
+    }
+
+    .mat-select-trigger {
+      height: 22px;
+      line-height: 22px;
+    }
+
+    // Sin espacio reservado para mensajes bajo cada campo (no hay hints en los filtros).
+    .mat-form-field-wrapper {
+      padding-bottom: 0.4em;
+    }
+
+    .mat-form-field-subscript-wrapper {
+      display: none;
+    }
+  }
+}

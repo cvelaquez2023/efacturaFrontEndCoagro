@@ -1,0 +1,211 @@
+<div class="fr-page fr-dialog">
+<h2 mat-dialog-title>
+  {{ editando ? "Editar promoción" : data.duplicar ? "Duplicar promoción" : "Nueva promoción" }}
+</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" id="formPromocion" (ngSubmit)="guardar()">
+    <div class="row g-3">
+      <div class="col-12">
+        <mat-form-field appearance="outline" class="campo">
+          <mat-label>Título (lo que verá el vendedor)</mat-label>
+          <input matInput formControlName="titulo" maxlength="120" required
+            placeholder="Ej. Compre 1 caja de Credelio y llévese 1 Jabón Asuntol bonificado" />
+          <mat-hint align="end">{{ form.get("titulo")?.value?.length || 0 }}/120</mat-hint>
+          <mat-error>El título es obligatorio</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="col-12 col-md-6">
+        <mat-form-field appearance="outline" class="campo">
+          <mat-label>Tipo</mat-label>
+          <mat-select formControlName="tipo">
+            <mat-option *ngFor="let t of tipos" [value]="t.codigo">{{ t.nombre }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col-6 col-md-3">
+        <mat-form-field appearance="outline" class="campo">
+          <mat-label>Desde</mat-label>
+          <input matInput type="date" formControlName="fechaInicio" required />
+          <mat-error>Obligatoria</mat-error>
+        </mat-form-field>
+      </div>
+      <div class="col-6 col-md-3">
+        <mat-form-field appearance="outline" class="campo">
+          <mat-label>Hasta</mat-label>
+          <input matInput type="date" formControlName="fechaFin" required />
+          <mat-error>Obligatoria</mat-error>
+        </mat-form-field>
+      </div>
+      <div class="col-12" *ngIf="form.errors?.['fechas']">
+        <div class="error-campo">La fecha "hasta" no puede ser menor que la fecha "desde".</div>
+      </div>
+
+      <div class="col-12">
+        <mat-form-field appearance="outline" class="campo">
+          <mat-label>Descripción (opcional)</mat-label>
+          <textarea matInput formControlName="descripcion" rows="2" maxlength="500"></textarea>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Productos -->
+    <div class="bloque">
+      <div class="bloque-titulo">
+        <span>
+          {{ tipo === "B" ? "Productos que hay que comprar" : "Productos a los que aplica" }}
+        </span>
+        <button mat-stroked-button type="button" color="primary" (click)="agregarProducto()">
+          <mat-icon>add</mat-icon> Producto
+        </button>
+      </div>
+
+      <div class="fila-producto" *ngFor="let fila of productos.controls; let i = index" [formGroup]="filaProducto(i)">
+        <div class="row g-2 align-items-start">
+          <div class="col-12 col-md-3">
+            <mat-form-field appearance="outline" class="campo">
+              <mat-label>Aplica a</mat-label>
+              <mat-select formControlName="alcance">
+                <mat-option *ngFor="let a of alcances" [value]="a.codigo">{{ a.nombre }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="col-12 col-md-5" [ngSwitch]="filaProducto(i).get('alcance')?.value">
+            <app-buscador-erp
+              *ngSwitchCase="'A'"
+              tipo="articulo"
+              etiqueta="Artículo"
+              placeholder="Código o nombre"
+              [texto]="textosProducto[i] || ''"
+              [requerido]="true"
+              (seleccion)="elegirArticuloProducto(i, $event)"
+            ></app-buscador-erp>
+            <mat-form-field *ngSwitchCase="'L'" appearance="outline" class="campo">
+              <mat-label>Línea</mat-label>
+              <mat-select formControlName="valor" required>
+                <mat-option *ngFor="let l of lineas" [value]="l.codigo">{{ l.nombre }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field *ngSwitchCase="'T'" appearance="outline" class="campo">
+              <mat-label>Nombre contiene</mat-label>
+              <input matInput formControlName="valor" placeholder="Ej. CREDELIO" required />
+            </mat-form-field>
+          </div>
+          <div class="col-4 col-md-1">
+            <mat-form-field appearance="outline" class="campo">
+              <mat-label>{{ tipo === "B" ? "Compre" : "Mín." }}</mat-label>
+              <input matInput type="number" min="1" step="1" formControlName="cantidadMin" />
+            </mat-form-field>
+          </div>
+          <div class="col-6 col-md-2" *ngIf="tipo === 'D'">
+            <mat-form-field appearance="outline" class="campo">
+              <mat-label>Descuento %</mat-label>
+              <input matInput type="number" min="0" max="100" step="0.5" formControlName="descuento" required />
+            </mat-form-field>
+          </div>
+          <div class="col-6 col-md-2" *ngIf="tipo === 'P'">
+            <mat-form-field appearance="outline" class="campo">
+              <mat-label>Precio $ sin IVA</mat-label>
+              <input matInput type="number" min="0" step="0.01" formControlName="precioEspecial" required />
+            </mat-form-field>
+          </div>
+          <div class="col-2 col-md-1 d-flex justify-content-end">
+            <button
+              mat-icon-button
+              color="warn"
+              type="button"
+              (click)="quitarProducto(i)"
+              [disabled]="productos.length === 1"
+              matTooltip="Quitar producto"
+              aria-label="Quitar producto"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bonificación -->
+    <div class="bloque" *ngIf="tipo === 'B'">
+      <div class="bloque-titulo"><span>Producto que se regala</span></div>
+      <div class="row g-2">
+        <div class="col-12 col-md-9">
+          <app-buscador-erp
+            tipo="articulo"
+            etiqueta="Artículo bonificado"
+            placeholder="Código o nombre"
+            [texto]="textoBonificado"
+            [requerido]="true"
+            (seleccion)="elegirBonificado($event)"
+          ></app-buscador-erp>
+        </div>
+        <div class="col-12 col-md-3">
+          <mat-form-field appearance="outline" class="campo">
+            <mat-label>Cantidad gratis</mat-label>
+            <input matInput type="number" min="1" step="1" formControlName="cantidadBonificada" />
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+
+    <!-- Destino -->
+    <div class="bloque">
+      <div class="bloque-titulo"><span>¿A quién aplica?</span></div>
+      <div class="row g-2">
+        <div class="col-12 col-md-5">
+          <mat-form-field appearance="outline" class="campo">
+            <mat-label>Destino</mat-label>
+            <mat-select formControlName="destino">
+              <mat-option *ngFor="let d of destinos" [value]="d.codigo">{{ d.nombre }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="col-12 col-md-7" [ngSwitch]="destino">
+          <mat-form-field *ngSwitchCase="'R'" appearance="outline" class="campo">
+            <mat-label>Rutas</mat-label>
+            <mat-select formControlName="rutas" multiple>
+              <mat-option *ngFor="let r of rutas" [value]="r.codigo">{{ r.codigo }} - {{ r.nombre }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field *ngSwitchCase="'K'" appearance="outline" class="campo">
+            <mat-label>Tipos de cliente</mat-label>
+            <mat-select formControlName="tiposCliente" multiple>
+              <mat-option *ngFor="let t of tiposCliente" [value]="t.codigo">{{ t.nombre }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <div *ngSwitchCase="'C'">
+            <app-buscador-erp
+              tipo="cliente"
+              etiqueta="Agregar cliente"
+              placeholder="Código o nombre del cliente"
+              (seleccion)="agregarCliente($event)"
+            ></app-buscador-erp>
+            <mat-chip-list aria-label="Clientes elegidos">
+              <mat-chip *ngFor="let c of clientes" (removed)="quitarCliente(c.codigo)">
+                {{ c.codigo }} - {{ c.nombre }}
+                <button matChipRemove type="button" [attr.aria-label]="'Quitar ' + c.nombre">
+                  <mat-icon>cancel</mat-icon>
+                </button>
+              </mat-chip>
+            </mat-chip-list>
+          </div>
+          <div *ngSwitchDefault class="texto-ayuda pt-2">
+            Aplica a todos los clientes de todas las rutas.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <mat-checkbox formControlName="activa" color="primary">Activa</mat-checkbox>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button type="button" (click)="cerrar()">Cancelar</button>
+  <button mat-raised-button color="primary" type="submit" form="formPromocion" [disabled]="guardando">
+    <mat-icon>save</mat-icon> Guardar
+  </button>
+</mat-dialog-actions>
+</div>

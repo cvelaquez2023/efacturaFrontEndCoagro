@@ -1,0 +1,68 @@
+// Panel "Promociones vigentes" como en la app del vendedor (tarjetas amarillas).
+.vigentes-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 6px 14px 14px;
+}
+
+.vigentes-encabezado {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  background: transparent;
+  border: 0;
+  padding: 10px 2px;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.vigentes-titulo {
+  display: block;
+  font-weight: 700;
+  font-size: 17px;
+  color: #111827;
+}
+
+.vigentes-sub {
+  display: block;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.promo {
+  background: #fef3c7;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-top: 8px;
+}
+
+.promo-titulo {
+  font-weight: 600;
+  color: #5b3d00;
+}
+
+.promo-fecha {
+  font-size: 12.5px;
+  color: #8a6d1f;
+}
+
+.vigentes-nota {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 10px;
+}
+
+.estado-filtro {
+  overflow-x: auto;
+
+  mat-button-toggle-group {
+    font-size: 12px;
+  }
+}
+
+.titulo-celda {
+  font-weight: 500;
+}

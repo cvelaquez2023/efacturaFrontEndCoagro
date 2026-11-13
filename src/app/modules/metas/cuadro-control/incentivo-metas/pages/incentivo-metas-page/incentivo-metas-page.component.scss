@@ -1,0 +1,226 @@
+.filtros {
+  margin-bottom: 12px;
+
+  .acciones {
+    display: flex;
+    align-items: center;
+    min-height: 56px;
+  }
+}
+
+.aviso {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: #fff8e1;
+  color: #8d6e00;
+  font-size: 13px;
+
+  code {
+    font-size: 12px;
+  }
+}
+
+.encabezado-informe {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0;
+
+  h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a237e;
+  }
+
+  .pct {
+    color: #5f6368;
+    font-size: 13px;
+
+    strong {
+      color: #1565c0;
+    }
+  }
+
+  .espacio {
+    flex: 1 1 auto;
+  }
+}
+
+.resumen {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 12px;
+
+  .dato {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: #f5f5f5;
+    font-size: 13px;
+
+    strong {
+      font-size: 16px;
+      color: #1a237e;
+    }
+
+    &.ganado {
+      background: #e8f5e9;
+    }
+  }
+}
+
+.tabla-informe {
+  max-height: 70vh;
+  overflow: auto;
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 6px 8px;
+    background: #1f2a5c;
+    color: #fff;
+    font-weight: 600;
+    text-align: center;
+    white-space: nowrap;
+
+    &.semana {
+      background: #2e9e3e;
+    }
+
+    small {
+      font-weight: 400;
+    }
+  }
+
+  td {
+    padding: 4px 8px;
+    border-bottom: 1px solid #e0e0e0;
+    white-space: nowrap;
+
+    &.semana {
+      background: #fff3c4;
+    }
+
+    &.incentivo {
+      color: #2e7d32;
+    }
+
+    &.meta {
+      color: #1565c0;
+    }
+  }
+
+  .col-producto {
+    text-align: left;
+    white-space: normal;
+    min-width: 220px;
+  }
+
+  .fr-num {
+    text-align: right;
+  }
+
+  .fr-center {
+    text-align: center;
+  }
+
+  tr.cumplida td {
+    background: #e8f5e9;
+  }
+
+  .col-avance {
+    min-width: 110px;
+
+    .barra {
+      display: inline-block;
+      width: 60px;
+      height: 10px;
+      margin-right: 6px;
+      border-radius: 5px;
+      background: #eceff1;
+      vertical-align: middle;
+      overflow: hidden;
+    }
+
+    .relleno {
+      height: 100%;
+      background: linear-gradient(90deg, #26a69a, #80cbc4);
+    }
+  }
+
+  .estado {
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+
+    &.NO_PAGA {
+      color: #757575;
+    }
+    &.PAGA {
+      background: #e3f2fd;
+      color: #1565c0;
+    }
+    &.CUMPLIDA {
+      background: #c8e6c9;
+      color: #1b5e20;
+    }
+  }
+}
+
+.vacio {
+  padding: 16px;
+  text-align: center;
+  color: #5f6368;
+}
+
+.nota {
+  margin-top: 8px;
+  color: #5f6368;
+  font-size: 12px;
+}
+
+// Fila TOTAL (como el informe de Excel: fondo azul oscuro, texto blanco)
+.tabla-informe tfoot td {
+  position: sticky;
+  bottom: 0;
+  padding: 6px 8px;
+  background: #1f2a5c;
+  color: #fff;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.tabla-informe tr.fila-clic {
+  cursor: pointer;
+
+  &:hover td {
+    background: #fdecea;
+  }
+}
+
+.pendiente {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: #fff8e1;
+  color: #8d6e00;
+  font-size: 13px;
+}

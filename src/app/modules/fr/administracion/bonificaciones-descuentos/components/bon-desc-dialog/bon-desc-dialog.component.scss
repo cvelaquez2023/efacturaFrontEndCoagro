@@ -1,0 +1,47 @@
+.dialogo {
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    mat-icon {
+      color: #c62828;
+    }
+  }
+
+  .seccion {
+    margin: 14px 0 6px;
+    font-weight: 700;
+    color: #1b2a5c;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .nota {
+    color: #5f6368;
+    font-size: 12px;
+  }
+
+  .error {
+    color: #c62828;
+    font-size: 12px;
+    margin-top: -6px;
+  }
+
+  .errores-backend {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    background: #fdecea;
+    color: #c62828;
+    font-size: 13px;
+
+    ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+  }
+}
