@@ -70,13 +70,37 @@
     <div class="title_box">
       <div id="title">Datos Obligatorios</div>
       <div id="content">
+        <div class="tipo-anulacion">
+          <mat-form-field appearance="outline" class="campo-tipo">
+            <mat-label>Tipo de invalidación</mat-label>
+            <mat-select formControlName="tipoAnulacion">
+              <mat-option *ngFor="let t of tiposAnulacion" [value]="t.valor">{{ t.texto }}</mat-option>
+            </mat-select>
+            <mat-hint>{{ ayudaTipo }}</mat-hint>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="campo-reemplazo" *ngIf="requiereReemplazo">
+            <mat-label>Código de generación del DTE que reemplaza</mat-label>
+            <input
+              formControlName="codigoGeneracionR"
+              matInput
+              maxlength="36"
+              autocomplete="off"
+              placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+              style="text-transform: uppercase"
+            />
+            <mat-error *ngIf="codigoGeneracionRField.hasError('required')">Obligatorio para este tipo de invalidación</mat-error>
+            <mat-error *ngIf="codigoGeneracionRField.hasError('pattern')">Formato inválido: 36 caracteres (8-4-4-4-12)</mat-error>
+          </mat-form-field>
+        </div>
         <mat-form-field appearance="outline">
           <mat-label>Motivo de Invalidación</mat-label>
           <input
             style="text-transform: uppercase"
             formControlName="motivo"
             matInput
+            maxlength="200"
           />
+          <mat-hint align="end">{{ motivoField.value?.length || 0 }}/200</mat-hint>
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Persona Responsable</mat-label>
@@ -162,7 +186,7 @@
 </div>
 <div mat-dialog-actions [align]="'end'">
   <button mat-raised-button color="basic" mat-dialog-close>Cerrar</button>
-  <button mat-raised-button color="warn" (click)="clickSave()">
-    {{ actionBtn }}
+  <button mat-raised-button color="warn" [disabled]="enviando" (click)="clickSave()">
+    {{ enviando ? "Enviando…" : actionBtn }}
   </button>
 </div>

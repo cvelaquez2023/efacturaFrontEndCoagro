@@ -186,7 +186,10 @@ export interface IResponseDteInvalidaciones {
 }
 export interface IResponseCrearInvalidacion {
   documento: string;
+  /** CAT-024: 1 = error en la información, 2 = rescindir la operación, 3 = otro. */
   tipoAnulacion: number;
+  /** Código de generación del DTE que reemplaza al invalidado (tipos 1 y 3); null en tipo 2. */
+  codigoGeneracionR?: string | null;
   motivoAnulacion: string;
   nombreResponsable: string;
   tipoDocResponsable: string;
