@@ -17,11 +17,12 @@ import {
   FormGroup,
   Validators,
 } from "@angular/forms";
-import { MatCheckboxChange } from "@angular/material/checkbox";
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
+import { IProveedorBusqueda } from "@app/modules/as/tablas/funcionarios/vendedores/services/vendedor-api-model-interface";
+import { BuscarProveedorComponent } from "../buscar-proveedor/buscar-proveedor.component";
 import { VendedorApiService } from "@app/modules/as/tablas/funcionarios/vendedores/services/vendedor-api.service";
 import { SnotifyPosition, SnotifyService } from "ng-snotify";
-import { IResponseDTE14 } from "../../model/sujetoExcluido_DTE_interface";
+import { IDireccionMh, IResponseDTE14 } from "../../model/sujetoExcluido_DTE_interface";
 
 @Component({
   selector: "app-add-sujeto-excluido",
@@ -29,17 +30,32 @@ import { IResponseDTE14 } from "../../model/sujetoExcluido_DTE_interface";
   styleUrls: ["./add-sujeto-excluido.component.scss"],
 })
 export class AddSujetoExcluidoComponent {
+  /** Retención de renta a sujetos excluidos (10 %). */
+  static readonly PORCENTAJE_RENTA = 0.1;
+  /** Formato moneda: $ 11,000.00 (el control guarda el número, sin símbolo ni comas). */
+  readonly opcionesMoneda = {
+    prefix: "$ ",
+    thousands: ",",
+    decimal: ".",
+    precision: 2,
+    align: "left",
+    allowNegative: false,
+  };
+
   vendedorForm!: FormGroup;
   _dui: string = "";
-  _renta: number = 0.0;
-  _monto: number = 0.0;
-  _total: number = 0.0;
-  activo = true;
   _fecha = new Date();
   _dte: string = "";
   guardar = false;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   proveedor: any;
+  /** Dirección del proveedor en formato MH v2 (columnas _MH de dte_proveedor). */
+  direccionMh: IDireccionMh | null = null;
+  /**
+   * Aviso cuando el proveedor no tiene los datos que exige el DTE v2 (ej. "SIN DISTRITO").
+   * No bloquea: mientras la empresa siga en v1 el documento se emite igual.
+   */
+  avisoV2 = "";
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   valueChange: any;
   constructor(
@@ -49,7 +65,8 @@ export class AddSujetoExcluidoComponent {
     private _snotifyService: SnotifyService,
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     @Inject(MAT_DIALOG_DATA) public ediData: any,
-    private _dialogRef: MatDialogRef<AddSujetoExcluidoComponent>
+    private _dialogRef: MatDialogRef<AddSujetoExcluidoComponent>,
+    private _dialog: MatDialog
   ) {
     this._loadFormGroup();
   }
@@ -61,6 +78,7 @@ export class AddSujetoExcluidoComponent {
       correo: [""],
       departamento: [""],
       municipio: [""],
+      distrito: [""],
       direccion: [""],
       telefono: [""],
       aplicacion: ["", Validators.required],
@@ -70,6 +88,64 @@ export class AddSujetoExcluidoComponent {
       aplica: [true, Validators.required],
       fecha: ["", Validators.required],
     });
+    // Renta y total se recalculan al cambiar el monto o el check "Aplica Renta".
+    this.montoField.valueChanges.subscribe(() => this._calcular());
+    this.aplicaField.valueChanges.subscribe(() => this._calcular());
+  }
+
+  /** Redondeo a centavos (evita 1100.0000000002 y similares). */
+  private _redondear(valor: number): number {
+    return Math.round((valor + Number.EPSILON) * 100) / 100;
+  }
+
+  /** Texto recortado, o null si queda vacío o no llega al mínimo de caracteres (reglas del esquema MH v2). */
+  private _textoMh(valor: unknown, minimo: number, maximo: number): string | null {
+    const texto = String(valor ?? "").trim();
+    return texto.length >= minimo ? texto.slice(0, maximo) : null;
+  }
+
+  /** Correo válido para MH (6..100 y con "@"), o null. */
+  private _correoMh(valor: unknown): string | null {
+    const correo = this._textoMh(valor, 6, 100);
+    return correo && correo.indexOf("@") > 0 ? correo : null;
+  }
+
+  /** Últimos 2 dígitos de un código del ERP ("0614" -> "14"), o null. */
+  private _codigoMh(valor: unknown): string | null {
+    const texto = String(valor ?? "").trim();
+    return texto ? texto.slice(-2) : null;
+  }
+
+  /** Borra los datos del proveedor anterior (al cambiar de DUI o si no se encuentra). */
+  private _limpiarProveedor(): void {
+    this.proveedor = null;
+    this.direccionMh = null;
+    this.avisoV2 = "";
+    this.vendedorForm.patchValue({
+      nombre: "",
+      direccion: "",
+      departamento: "",
+      municipio: "",
+      distrito: "",
+      telefono: "",
+      correo: "",
+    });
+  }
+
+  /** Monto como número (el control puede traer número o, por si acaso, texto con $ y comas). */
+  private _numero(valor: unknown): number {
+    if (typeof valor === "number") return Number.isFinite(valor) ? valor : 0;
+    const n = parseFloat(String(valor ?? "").replace(/[^\d.-]/g, ""));
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  /** Renta = 10 % del monto (si aplica); total a pagar = monto − renta. */
+  private _calcular(): void {
+    const monto = this._numero(this.montoField.value);
+    const renta = this.aplicaField.value ? this._redondear(monto * AddSujetoExcluidoComponent.PORCENTAJE_RENTA) : 0;
+    const total = this._redondear(monto - renta);
+    this.rentaField.setValue(renta, { emitEvent: false });
+    this.totalField.setValue(total, { emitEvent: false });
   }
 
   clickSave(): void {
@@ -79,7 +155,7 @@ export class AddSujetoExcluidoComponent {
       });
       return;
     }
-    if (this.totalField.value === "$0.00" || this.totalField.value === "0.00") {
+    if (this._numero(this.totalField.value) <= 0) {
       this._snotifyService.error("El total tiene que ser Mayor a Cero", {
         position: SnotifyPosition.rightTop,
       });
@@ -97,25 +173,30 @@ export class AddSujetoExcluidoComponent {
           } else {
             tipo = "36";
           }
-          const renta = parseFloat(this.rentaField.value.replace("$", ""));
-          const total = parseFloat(this.totalField.value);
-          const monto = renta + total;
+          // Valores numéricos del formulario (antes se leía el texto "$1,100.00" y parseFloat cortaba en la coma).
+          const monto = this._redondear(this._numero(this.montoField.value));
+          const renta = this._redondear(this._numero(this.rentaField.value));
+          const total = this._redondear(monto - renta);
           const data: IResponseDTE14 = {
             tipoDocumento: "13",
             numDocumento: this.duiField.value,
             nombre: this.nombreField.value,
+            // Departamento y municipio igual que siempre (v1); el distrito solo lo usa el backend en v2.
             direccion: {
               departamento: this.departamentoField.value,
               municipio: this.municipioField.value,
+              distrito: this.direccionMh?.distrito ?? null,
               complemento: this.direcionField.value,
             },
-            telefono: this.telefonoField.value,
-            correo: this.correoField.value,
+            direccionMh: this.direccionMh,
+            // v2 acepta null pero no textos vacíos o cortos
+            telefono: this._textoMh(this.proveedor?.TELEFONO_MH ?? this.telefonoField.value, 8, 30),
+            correo: this._correoMh(this.proveedor?.CORREO_MH ?? this.correoField.value),
             aplicacion: {
               descripcion: this.aplicacionField.value,
               monto: monto,
               renta: renta,
-              total: parseFloat(this.totalField.value),
+              total: total,
               fecha: this.fechaField.value,
               dte: this._dte,
             },
@@ -158,12 +239,57 @@ export class AddSujetoExcluidoComponent {
       },
     });
   }
+  /** Lupa: abre el buscador de proveedores y carga el elegido. */
+  abrirBuscador(): void {
+    this._dialog
+      .open(BuscarProveedorComponent, {
+        width: "620px",
+        maxWidth: "95vw",
+        autoFocus: true,
+        data: { texto: String(this.duiField.value ?? "").trim() },
+      })
+      .afterClosed()
+      .subscribe((p?: IProveedorBusqueda) => {
+        if (!p) return;
+        const doc = String(p.CONTRIBUYENTE ?? "").trim();
+        if (!doc) {
+          this._snotifyService.warning(
+            `El proveedor ${p.PROVEEDOR} · ${p.NOMBRE} no tiene DUI/NIT (contribuyente) en el ERP`,
+            { position: SnotifyPosition.rightTop }
+          );
+          return;
+        }
+        this._dui = doc;
+        this.duiField.setValue(doc);
+        this.onChangeDui(null, p);
+      });
+  }
+
+  /**
+   * Carga los datos del proveedor por su DUI/NIT. `elegido` es la fila de la lupa: si el ERP no
+   * devuelve el detalle, al menos se llenan nombre y documento con ella.
+   */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
-  onChangeDui($event: any) {
+  onChangeDui($event: any, elegido?: IProveedorBusqueda) {
+    this._dui = String(this._dui ?? "").trim();
+    if (!this._dui) return;
     this._vendedorApiService.getproveedor(this._dui).subscribe({
       next: (respose) => {
+        this._limpiarProveedor();
         if (respose.success == true) {
           this.proveedor = respose.result[0];
+          const p = this.proveedor;
+          // Formato MH v2: columnas _MH del procedimiento; si aún no existen, se derivan del ERP.
+          this.direccionMh = {
+            departamento: p.DEPTO_MH ?? (String(p.DIVISION_GEOGRAFICA1 ?? "").trim() || null),
+            municipio: p.MUNI_MH ?? this._codigoMh(p.DIVISION_GEOGRAFICA2),
+            distrito: p.DISTRITO_MH ?? this._codigoMh(p.DIVISION_GEOGRAFICA3),
+            complemento: p.DIRECCION_MH ?? this._textoMh(String(p.DIRECCION ?? "").replace("DETALLE:", ""), 1, 200),
+          };
+          this.vendedorForm.controls["distrito"].setValue(this.direccionMh.distrito ?? "");
+          this.avisoV2 =
+            p.PROBLEMA_MH ||
+            (!this.direccionMh.distrito ? "SIN DISTRITO" : !this.direccionMh.complemento ? "SIN DIRECCION" : "");
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const dire = this.proveedor.DIRECCION;
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -180,6 +306,11 @@ export class AddSujetoExcluidoComponent {
             this.proveedor.TELEFONO1
           );
           this.vendedorForm.controls["correo"].setValue(this.proveedor.E_MAIL);
+        } else if (elegido) {
+          this.vendedorForm.controls["nombre"].setValue(elegido.NOMBRE);
+          this._snotifyService.warning("No se encontró el detalle (dirección, teléfono) del proveedor elegido", {
+            position: SnotifyPosition.rightTop,
+          });
         } else {
           this._snotifyService.error("Proveedor No Existe", {
             position: SnotifyPosition.rightTop,
@@ -187,47 +318,6 @@ export class AddSujetoExcluidoComponent {
         }
       },
     });
-  }
-  validateFormat(event: any) {
-    let key;
-    if (event.type === "paste") {
-      key = event.clipboardData.getData("text/plain");
-    } else {
-      key = event.keyCode;
-      key = String.fromCharCode(key);
-    }
-    const regex = /[0-9]|\./;
-    if (!regex.test(key)) {
-      event.returnValue = false;
-      if (event.preventDefault) {
-        event.preventDefault();
-      }
-    }
-  }
-
-  updateCurrencyField(value: string): void {
-    const onlyNumbers = value.replace(/[^\d.-]/g, "");
-    if (this.activo == true) {
-      this._renta = parseFloat(onlyNumbers) * 0.1;
-    }
-    this.vendedorForm.controls["renta"].setValue(this._renta.toFixed(2));
-    const total = parseFloat(onlyNumbers) - this._renta;
-    this.vendedorForm.controls["total"].setValue(total.toFixed(2));
-  }
-  toggle(event: MatCheckboxChange) {
-    this.activo = event.source.checked;
-    if (this.activo == true) {
-      this._renta = this.montoField.value * 0.1;
-      this.vendedorForm.controls["renta"].setValue(this._renta.toFixed(2));
-      this._total = this.montoField.value - this._renta;
-      this.vendedorForm.controls["total"].setValue(this._total);
-    } else {
-      this._renta = 0.0;
-      this.vendedorForm.controls["renta"].setValue(this._renta.toFixed(2));
-      this._total = this.montoField.value;
-
-      this.vendedorForm.controls["total"].setValue(this._total);
-    }
   }
 
   get duiField(): AbstractControl {

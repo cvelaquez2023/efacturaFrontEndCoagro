@@ -1,12 +1,14 @@
 import { IResponse } from "./../../../../../../shared/api-models-base-interface";
 import { Observable } from "rxjs";
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpContext, HttpParams } from "@angular/common/http";
+import { SIN_CARGADOR } from "@app/interceptors/error-api.interceptor";
 import { Injectable } from "@angular/core";
 import { environment } from "src/environments/environment";
 import {
   IResponseVendedor,
   IRequestCreateVendedor,
   IResponseProveedor,
+  IProveedorBusqueda,
 } from "./vendedor-api-model-interface";
 import { url } from "inspector";
 
@@ -27,8 +29,15 @@ export class VendedorApiService {
     return this._httpClient.get<IResponse<IResponseVendedor[]>>(url);
   }
   getproveedor(contri: string): Observable<IResponse<IResponseProveedor[]>> {
-    const url = URL_PROVEEDOR + "/" + contri;
+    const url = URL_PROVEEDOR + "/" + encodeURIComponent(contri);
     return this._httpClient.get<IResponse<IResponseProveedor[]>>(url);
+  }
+  /** Proveedores del ERP por código, nombre, alias o contribuyente (GET /proveedor?q=). */
+  buscarProveedores(texto: string, limite = 30): Observable<IResponse<IProveedorBusqueda[]>> {
+    const params = new HttpParams().set("q", texto.trim()).set("limit", limite);
+    // Búsqueda mientras se escribe: sin el cargador de pantalla completa.
+    const context = new HttpContext().set(SIN_CARGADOR, true);
+    return this._httpClient.get<IResponse<IProveedorBusqueda[]>>(URL_PROVEEDOR, { params, context });
   }
   createVendedor(
     vendedor: IRequestCreateVendedor

@@ -12,8 +12,21 @@
               placeholder="DUI Proveedor"
               style="font-weight: bold; color: black; font-size: large"
               (blur)="onChangeDui($event.target)"
+              (keydown.f2)="abrirBuscador()"
               [(ngModel)]="_dui"
             />
+            <button
+              mat-icon-button
+              matSuffix
+              type="button"
+              color="warn"
+              matTooltip="Buscar proveedor (F2)"
+              aria-label="Buscar proveedor"
+              (mousedown)="$event.preventDefault()"
+              (click)="abrirBuscador()"
+            >
+              <mat-icon>search</mat-icon>
+            </button>
           </mat-form-field>
         </div>
         <div fxFlex="75" fxFlex.lt-md="100" fxLayout="column">
@@ -45,7 +58,7 @@
         />
       </mat-form-field>
       <div fxLayout="row wrap">
-        <div fxFlex="50" fxFlex.lt-md="100" fxLayout="column">
+        <div fxFlex="33" fxFlex.lt-md="100" fxLayout="column">
           <mat-form-field appearance="outline">
             <mat-label>Departamento</mat-label>
             <input
@@ -61,7 +74,7 @@
             />
           </mat-form-field>
         </div>
-        <div fxFlex="50" fxFlex.lt-md="100" fxLayout="column">
+        <div fxFlex="34" fxFlex.lt-md="100" fxLayout="column">
           <mat-form-field appearance="outline">
             <mat-label>Municipio</mat-label>
             <input
@@ -77,6 +90,25 @@
             />
           </mat-form-field>
         </div>
+        <div fxFlex="33" fxFlex.lt-md="100" fxLayout="column">
+          <mat-form-field appearance="outline">
+            <mat-label>Distrito</mat-label>
+            <input
+              formControlName="distrito"
+              matInput
+              style="font-weight: bold; color: black; font-size: large"
+              readonly
+            />
+            <mat-hint>Código MH (CAT-008), requerido en DTE v2</mat-hint>
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="aviso-v2" *ngIf="avisoV2" role="status">
+        <mat-icon>warning_amber</mat-icon>
+        <span>
+          <strong>Proveedor incompleto para DTE v2: {{ avisoV2 }}.</strong>
+          Se puede emitir mientras la empresa siga en v1; corrija el proveedor en el ERP antes de activar la v2.
+        </span>
       </div>
       <div fxLayout="row wrap">
         <div fxFlex="20" fxFlex.lt-md="100" fxLayout="column">
@@ -112,7 +144,7 @@
         <div id="content">
           <div fxLayout="row wrap">
             <div fxFlex="50" fxFlex.lt-md="100" fxLayout="column">
-              <mat-checkbox formControlName="aplica" (change)="toggle($event)"
+              <mat-checkbox formControlName="aplica"
                 >Aplica Renta</mat-checkbox
               >
             </div>
@@ -156,28 +188,29 @@
                 <input
                   formControlName="monto"
                   type="text"
+                  inputmode="decimal"
                   matInput
+                  currencyMask
+                  [options]="opcionesMoneda"
                   style="
                     font-weight: bold;
                     color: black;
                     font-size: large;
-                    text-transform: uppercase;
                   "
-                  [ngModel]="_monto | currency: 'USD'"
-                  (ngModelChange)="updateCurrencyField($event)"
-                  (keypress)="validateFormat($event)"
                 />
               </mat-form-field>
             </div>
             <div fxFlex="30" fxFlex.lt-md="100" fxLayout="column">
               <mat-form-field appearance="outline">
-                <mat-label>Renta</mat-label>
+                <mat-label>Renta (10 %)</mat-label>
                 <input
                   formControlName="renta"
                   matInput
                   type="text"
                   readonly
-                  [ngModel]="_renta | currency: 'USD'"
+                  tabindex="-1"
+                  currencyMask
+                  [options]="opcionesMoneda"
                   style="
                     font-weight: bold;
                     color: black;
@@ -195,7 +228,9 @@
                   matInput
                   type="text"
                   readonly
-                  [ngModel]="_total | currency: 'USD'"
+                  tabindex="-1"
+                  currencyMask
+                  [options]="opcionesMoneda"
                   style="
                     font-weight: bold;
                     color: black;
