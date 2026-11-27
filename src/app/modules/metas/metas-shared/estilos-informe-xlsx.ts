@@ -48,6 +48,10 @@ export const E = {
   ENTERO: 38, // #,##0 normal
   ENTERO_ALT: 39,
   TOTAL_VACIO: 40, // celda azul sin valor
+  SUB_TEXTO: 41, // fila de subtotal (por línea): negrita azul marino sobre azul claro
+  SUB_ENTERO: 42,
+  SUB_PCT: 43,
+  SUB_MONEDA: 44,
 } as const;
 
 /** Formatos condicionales (dxf). */
@@ -81,7 +85,7 @@ const F = {
   GRIS_I10: 12,
 };
 // Rellenos (0 y 1 son los obligatorios de Excel)
-const R = { NADA: 0, GRIS: 2, VERDE_CLARO: 3, MARINO: 4, VERDE: 5, AMARILLO: 6 };
+const R = { NADA: 0, GRIS: 2, VERDE_CLARO: 3, MARINO: 4, VERDE: 5, AMARILLO: 6, AZUL_CLARO: 7 };
 
 /** styles.xml completo. */
 export const ESTILOS_INFORME_XML =
@@ -109,7 +113,7 @@ export const ESTILOS_INFORME_XML =
   `<font><sz val="10"/><color rgb="FF008000"/><name val="Arial"/><family val="2"/></font>` +
   `<font><i/><sz val="10"/><color rgb="FF6B7280"/><name val="Arial"/><family val="2"/></font>` +
   `</fonts>` +
-  `<fills count="7">` +
+  `<fills count="8">` +
   `<fill><patternFill patternType="none"/></fill>` +
   `<fill><patternFill patternType="gray125"/></fill>` +
   `<fill><patternFill patternType="solid"><fgColor rgb="FFF4F5F7"/><bgColor indexed="64"/></patternFill></fill>` +
@@ -117,6 +121,7 @@ export const ESTILOS_INFORME_XML =
   `<fill><patternFill patternType="solid"><fgColor rgb="FF1B2A5C"/><bgColor indexed="64"/></patternFill></fill>` +
   `<fill><patternFill patternType="solid"><fgColor rgb="FF3AAA35"/><bgColor indexed="64"/></patternFill></fill>` +
   `<fill><patternFill patternType="solid"><fgColor rgb="FFFFF2B3"/><bgColor indexed="64"/></patternFill></fill>` +
+  `<fill><patternFill patternType="solid"><fgColor rgb="FFE3E8F4"/><bgColor indexed="64"/></patternFill></fill>` +
   `</fills>` +
   `<borders count="2">` +
   `<border><left/><right/><top/><bottom/><diagonal/></border>` +
@@ -124,7 +129,7 @@ export const ESTILOS_INFORME_XML =
   `<top style="thin"><color rgb="FFD9DCE1"/></top><bottom style="thin"><color rgb="FFD9DCE1"/></bottom><diagonal/></border>` +
   `</borders>` +
   `<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>` +
-  `<cellXfs count="41">` +
+  `<cellXfs count="45">` +
   xf(0, F.BASE, R.NADA, 0) + // 0 NORMAL
   xf(0, F.TITULO, R.NADA, 0, alinear("left")) + // 1 TITULO
   xf(0, F.GRIS9, R.NADA, 0, alinear("right")) + // 2 ETIQUETA_GRIS
@@ -166,6 +171,10 @@ export const ESTILOS_INFORME_XML =
   xf(3, F.MARINO10, R.NADA, borde, alinear("right")) + // 38 ENTERO
   xf(3, F.MARINO10, R.GRIS, borde, alinear("right")) + // 39 ENTERO_ALT
   xf(0, F.BLANCO_B10, R.MARINO, borde) + // 40 TOTAL_VACIO
+  xf(0, F.MARINO_B10, R.AZUL_CLARO, borde, alinear("left")) + // 41 SUB_TEXTO
+  xf(3, F.MARINO_B10, R.AZUL_CLARO, borde, alinear("right")) + // 42 SUB_ENTERO
+  xf(9, F.MARINO_B10, R.AZUL_CLARO, borde, alinear("right")) + // 43 SUB_PCT
+  xf(165, F.MARINO_B10, R.AZUL_CLARO, borde, alinear("right")) + // 44 SUB_MONEDA
   `</cellXfs>` +
   `<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>` +
   `<dxfs count="3">` +

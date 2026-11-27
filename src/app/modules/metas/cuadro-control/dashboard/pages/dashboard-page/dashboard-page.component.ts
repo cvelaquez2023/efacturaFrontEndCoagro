@@ -5,33 +5,18 @@ import * as Highcharts from "highcharts";
 import NoDataToDisplay from "highcharts/modules/no-data-to-display";
 import { forkJoin, from, Observable, of } from "rxjs";
 import { catchError, debounceTime, finalize, map, mergeMap, tap, toArray } from "rxjs/operators";
-import { ReportesFrApiService } from "@app/modules/fr/reportes/shared/reportes-fr-api.service";
-import { asignarPedidos } from "@app/modules/fr/reportes/shared/reporte-utils";
-import {
-  IAgenteReporte,
-  IPedidoReporte,
-  IReporteVisita,
-  IRutaAsignadaReporte,
-} from "@app/modules/fr/reportes/shared/reportes-fr-model-interface";
 import { descargarBlob } from "../../../../metas-shared/escribir-xlsx";
 import { crearXlsxRico, ICeldaRica, IHojaRica } from "../../../../metas-shared/escribir-xlsx-rico";
 import { cfBarraAvance, E, ESTILOS_INFORME_XML } from "../../../../metas-shared/estilos-informe-xlsx";
 import { MetasApiService, mensajeErrorHttp } from "../../../../metas-shared/metas-api.service";
 import { aNumero, IMetaVenta, IVentaDia, MESES, nombreMes } from "../../../../metas-shared/metas.model";
 import { IOpcionBuscable } from "../../../../metas-shared/select-buscable/select-buscable.component";
-import {
-  COLORES,
-  graficoApilado,
-  graficoAvanceMetas,
-  graficoDona,
-  graficoRanking,
-  graficoTendencia,
-} from "../../graficos";
+import { COLORES, graficoAvance, graficoDona, graficoEvolucionAnio, graficoEvolucionMes } from "../../graficos";
 
 NoDataToDisplay(Highcharts);
 Highcharts.setOptions({
   lang: {
-    noData: "Sin datos para los filtros elegidos",
+    noData: "Sin metas para los filtros elegidos",
     thousandsSep: ",",
     decimalPoint: ".",
     months: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
@@ -40,12 +25,50 @@ Highcharts.setOptions({
 });
 
 type Periodo = "mes" | "anio";
+export type EstadoMeta = "cumplida" | "progreso" | "rezagada" | "sinVenta";
 
-/** Venta con el mes (en consultas de un año) y con proveedor/línea resueltos. */
-interface IVentaDash extends IVentaDia {
+/** Venta del ERP con el mes de la consulta (en consultas de un año llegan varios meses). */
+interface IVentaMes extends IVentaDia {
   MES: number;
+}
+
+/** Una meta (vendedor × artículo × mes) con lo vendido y su estado. */
+export interface IFilaMeta {
+  mes: number;
+  vendedor: string;
+  nombreVendedor: string;
+  lider: string;
+  articulo: string;
+  producto: string;
   proveedor: string;
   linea: string;
+  meta: number;
+  vendido: number;
+  faltan: number;
+  avance: number;
+  estado: EstadoMeta;
+  incentivo: number;
+  ganado: number;
+  aMeta: number;
+}
+
+/** Metas agrupadas (por vendedor, producto, proveedor, línea o líder). */
+export interface IGrupoMeta {
+  clave: string;
+  nombre: string;
+  /** Texto secundario: líder del vendedor, o proveedor · línea del producto. */
+  detalle: string;
+  metas: number;
+  meta: number;
+  vendido: number;
+  faltan: number;
+  avance: number;
+  cumplidas: number;
+  /** Vendedores distintos (en productos). */
+  vendedores: number;
+  ganado: number;
+  aMeta: number;
+  estado: EstadoMeta;
 }
 
 interface IKpi {
@@ -53,45 +76,36 @@ interface IKpi {
   valor: string;
   icono: string;
   detalle?: string;
-  /** Variación contra el periodo anterior (fracción). */
-  variacion?: number | null;
   color: "marino" | "rojo" | "verde" | "turquesa" | "ambar" | "gris";
-  pendiente?: boolean;
-}
-
-export interface IFilaVendedor {
-  codigo: string;
-  nombre: string;
-  ventas: number;
-  unidades: number;
-  costo: number | null;
-  devoluciones: number;
-  productos: number;
-  clientesVisitados: number;
-  meta: number;
-  vendidoMeta: number;
-  avance: number | null;
-}
-
-export interface IFilaProducto {
-  codigo: string;
-  descripcion: string;
-  proveedor: string;
-  unidades: number;
-  ventas: number;
-  costo: number | null;
-  precioPromedio: number;
-  vendedores: number;
+  /** Barra de progreso (fracción, 0..1+). */
+  progreso?: number | null;
+  /** Marca de lo esperado a la fecha (fracción) sobre la barra. */
+  marca?: number | null;
 }
 
 const ABREV_MES = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
-const SIN_DATO = "(sin meta)";
+const SIN_DATO = "(sin dato)";
+
+export const TEXTO_ESTADO: Record<EstadoMeta, string> = {
+  cumplida: "Cumplida",
+  progreso: "En progreso",
+  rezagada: "Rezagada",
+  sinVenta: "Sin venta",
+};
+
+/** Cumplida ≥ 100 %, En progreso ≥ 50 %, Rezagada con venta por debajo del 50 %, Sin venta. */
+const estadoDe = (vendido: number, meta: number): EstadoMeta => {
+  if (meta > 0 && vendido >= meta) return "cumplida";
+  if (vendido <= 0) return "sinVenta";
+  return meta > 0 && vendido / meta >= 0.5 ? "progreso" : "rezagada";
+};
 
 /**
- * Cuadro de Control → Dashboard. Vista general de la operación de rutas: ventas del ERP (por día,
- * vendedor, producto, proveedor y línea), avance contra las metas, visitas y pedidos de la app de
- * ruteo. El periodo (mes o año) se consulta al backend; los demás filtros (vendedor, proveedor, línea,
- * artículo) se aplican al instante sobre lo ya cargado.
+ * Cuadro de Control → Dashboard de Metas. Muestra únicamente el cumplimiento de las metas de venta
+ * (unidades) del periodo: avance general, ritmo y proyección, metas cumplidas, avance por vendedor,
+ * proveedor, línea y líder, y el detalle por producto. Lo vendido sale de las ventas del ERP para el
+ * mismo vendedor + artículo + mes de cada meta (si el endpoint no está, de Venta_Unidades de la meta).
+ * El periodo (mes o año) se consulta al backend; los demás filtros se aplican al instante.
  */
 @Component({
   selector: "app-dashboard-page",
@@ -101,57 +115,54 @@ const SIN_DATO = "(sin meta)";
 export class DashboardPageComponent implements OnInit {
   readonly Highcharts: typeof Highcharts = Highcharts;
   readonly meses = MESES;
+  readonly textoEstado = TEXTO_ESTADO;
+  readonly ventasEnVivo = MetasApiService.VENTAS_BACKEND_DISPONIBLE;
+  readonly estados: (EstadoMeta | "todas")[] = ["todas", "cumplida", "progreso", "rezagada", "sinVenta"];
 
   filtros: FormGroup;
   opcionesVendedores: IOpcionBuscable[] = [];
   opcionesProveedores: IOpcionBuscable[] = [];
   opcionesLineas: IOpcionBuscable[] = [];
+  opcionesLideres: IOpcionBuscable[] = [];
 
   cargando = false;
   progreso = "";
   cargado = false;
-  /** El backend envía COSTO en ventasDiarias (margen y ganancia disponibles). */
-  hayCosto = false;
 
   kpis: IKpi[] = [];
-  vendedores: IFilaVendedor[] = [];
-  productos: IFilaProducto[] = [];
-  motivosNoVenta: { motivo: string; visitas: number }[] = [];
+  /** Avance general (fracción) para el encabezado de resultados. */
+  avanceGeneral = 0;
+  vendedores: IGrupoMeta[] = [];
+  productos: IGrupoMeta[] = [];
+  conteoEstados: Record<EstadoMeta, number> = { cumplida: 0, progreso: 0, rezagada: 0, sinVenta: 0 };
+  /** Productos (metas agrupadas por artículo) en cada estado, para los chips de la tabla. */
+  conteoProductos: Record<EstadoMeta, number> = { cumplida: 0, progreso: 0, rezagada: 0, sinVenta: 0 };
+  filtroEstado: EstadoMeta | "todas" = "todas";
   verTodosProductos = false;
+  hayIncentivo = false;
 
   // Gráficos
-  gTendencia: Highcharts.Options = {};
+  gEvolucion: Highcharts.Options = {};
+  gEstados: Highcharts.Options = {};
   gVendedores: Highcharts.Options = {};
-  gAvance: Highcharts.Options = {};
   gProveedores: Highcharts.Options = {};
   gLineas: Highcharts.Options = {};
-  gProductos: Highcharts.Options = {};
-  gVisitas: Highcharts.Options = {};
-  gMotivos: Highcharts.Options = {};
-  gMargen: Highcharts.Options = {};
+  gLideres: Highcharts.Options = {};
 
-  // Datos cargados del periodo
-  private _ventas: IVentaDash[] = [];
-  private _ventasAnteriores: IVentaDash[] = [];
   private _metas: IMetaVenta[] = [];
-  private _visitas: IReporteVisita[] = [];
-  private _pedidos: IPedidoReporte[] = [];
-  private _vendedorDeRuta = new Map<string, string>();
+  private _ventas: IVentaMes[] = [];
+  private _filas: IFilaMeta[] = [];
   private _nombreVendedor = new Map<string, string>();
   private _consulta: { periodo: Periodo; anio: number; mes: number; meses: number[] } | null = null;
 
-  constructor(
-    fb: FormBuilder,
-    private _api: MetasApiService,
-    private _reportes: ReportesFrApiService,
-    private _snotify: SnotifyService
-  ) {
+  constructor(fb: FormBuilder, private _api: MetasApiService, private _snotify: SnotifyService) {
     const hoy = new Date();
     this.filtros = fb.group({
       periodo: ["mes" as Periodo],
       anio: [hoy.getFullYear(), [Validators.required, Validators.min(2000), Validators.max(2100)]],
       mes: [hoy.getMonth() + 1],
       vendedor: [null],
+      lider: [null],
       proveedor: [null],
       linea: [null],
       articulo: [""],
@@ -159,13 +170,19 @@ export class DashboardPageComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Filtros que se aplican al instante sobre lo ya cargado (sin volver a consultar).
-    for (const campo of ["vendedor", "proveedor", "linea"]) {
+    for (const campo of ["vendedor", "lider", "proveedor", "linea"]) {
       this.filtros.get(campo)?.valueChanges.subscribe(() => this.recalcular());
     }
     this.filtros.get("articulo")?.valueChanges.pipe(debounceTime(350)).subscribe(() => this.recalcular());
     this._api.todosVendedores().subscribe({
-      next: (lista) => lista.forEach((v) => this._nombreVendedor.set(v.codigo, v.nombre)),
+      next: (lista) => {
+        lista.forEach((v) => this._nombreVendedor.set(v.codigo, v.nombre));
+        if (this.cargado) {
+          this._armarFilas();
+          this._opcionesFiltros();
+          this.recalcular();
+        }
+      },
       error: () => undefined,
     });
     this.consultar();
@@ -181,9 +198,27 @@ export class DashboardPageComponent implements OnInit {
     return c.periodo === "anio" ? `Año ${c.anio}` : `${nombreMes(c.mes)} ${c.anio}`;
   }
 
+  get hayFiltros(): boolean {
+    const f = this.filtros.value;
+    return !!(f.vendedor || f.lider || f.proveedor || f.linea || String(f.articulo ?? "").trim());
+  }
+
+  get productosFiltrados(): IGrupoMeta[] {
+    return this.filtroEstado === "todas" ? this.productos : this.productos.filter((p) => p.estado === this.filtroEstado);
+  }
+
+  get productosVisibles(): IGrupoMeta[] {
+    const lista = this.productosFiltrados;
+    return this.verTodosProductos ? lista : lista.slice(0, 25);
+  }
+
+  get totalMetas(): number {
+    return this.conteoEstados.cumplida + this.conteoEstados.progreso + this.conteoEstados.rezagada + this.conteoEstados.sinVenta;
+  }
+
   // ------------------------------------------------------------------ carga
 
-  /** Consulta el periodo al backend (ventas, metas, visitas y pedidos). */
+  /** Consulta al backend las metas del periodo y las ventas del ERP de esos meses. */
   consultar(): void {
     if (this.filtros.invalid || this.cargando) return;
     const f = this.filtros.value;
@@ -194,32 +229,23 @@ export class DashboardPageComponent implements OnInit {
     const hastaMes = anio < hoy.getFullYear() ? 12 : anio === hoy.getFullYear() ? hoy.getMonth() + 1 : 0;
     const meses = periodo === "anio" ? Array.from({ length: hastaMes }, (_, i) => i + 1) : [mes];
     if (!meses.length) {
-      this._snotify.warning("Ese año todavía no tiene ventas", { position: SnotifyPosition.rightTop });
+      this._snotify.warning("Ese año todavía no ha comenzado", { position: SnotifyPosition.rightTop });
       return;
     }
-    const desde = `${anio}-${String(meses[0]).padStart(2, "0")}-01`;
-    const ultimoMes = meses[meses.length - 1];
-    const hasta = `${anio}-${String(ultimoMes).padStart(2, "0")}-${new Date(anio, ultimoMes, 0).getDate()}`;
-    const anterior = periodo === "mes" ? (mes === 1 ? { anio: anio - 1, mes: 12 } : { anio, mes: mes - 1 }) : null;
 
     this.cargando = true;
     let listos = 0;
-    this.progreso = `Consultando ventas del ERP (0/${meses.length})…`;
-    const ventasMes = (a: number, m: number): Observable<IVentaDash[]> =>
-      this._api.ventasDelMes(a, m).pipe(map((lista) => lista.map((v) => ({ ...v, MES: m, proveedor: "", linea: "" }))));
+    this.progreso = this.ventasEnVivo ? `Consultando metas y ventas (0/${meses.length})…` : "Consultando metas…";
+    const ventasMes = (m: number): Observable<IVentaMes[]> =>
+      this._api.ventasDelMes(anio, m).pipe(map((lista) => lista.map((v) => ({ ...v, MES: m }))));
 
     forkJoin({
+      metas: this._api.todasLasMetas({ anio, mes: periodo === "mes" ? mes : null }),
       ventas: from(meses).pipe(
-        mergeMap((m) => ventasMes(anio, m).pipe(tap(() => (this.progreso = `Consultando ventas del ERP (${++listos}/${meses.length})…`))), 3),
+        mergeMap((m) => ventasMes(m).pipe(tap(() => (this.progreso = `Consultando metas y ventas (${++listos}/${meses.length})…`))), 3),
         toArray(),
         map((partes) => partes.flat())
       ),
-      anteriores: anterior ? ventasMes(anterior.anio, anterior.mes).pipe(catchError(() => of([] as IVentaDash[]))) : of([] as IVentaDash[]),
-      metas: this._api.todasLasMetas({ anio, mes: periodo === "mes" ? mes : null }).pipe(catchError(() => of([] as IMetaVenta[]))),
-      visitas: this._reportes.getVisitas({ desde, hasta }, 20000).pipe(catchError(() => of([] as IReporteVisita[]))),
-      pedidos: this._reportes.getPedidos({ desde, hasta }, 20000).pipe(catchError(() => of([] as IPedidoReporte[]))),
-      rutas: this._reportes.getRutasAsignadas().pipe(catchError(() => of([] as IRutaAsignadaReporte[]))),
-      agentes: this._reportes.getAgentes().pipe(catchError(() => of([] as IAgenteReporte[]))),
     })
       .pipe(
         finalize(() => {
@@ -230,509 +256,441 @@ export class DashboardPageComponent implements OnInit {
       .subscribe({
         next: (d) => {
           this._consulta = { periodo, anio, mes, meses };
-          this._metas = d.metas;
-          this._visitas = d.visitas;
-          this._pedidos = d.pedidos;
-          // Ruta → agente FR (RUTA_ASIGNADA_RT) → vendedor del ERP (AGENTE_ASOC_RT).
-          const vendedorDeAgente = new Map(d.agentes.map((a) => [a.codigo, a.vendedor]));
-          d.agentes.forEach((a) => a.nombre && this._nombreVendedor.set(a.vendedor, a.nombre));
-          this._vendedorDeRuta = new Map(
-            d.rutas.map((r) => {
-              const agente = String(r.AGENTE ?? "").trim();
-              return [String(r.RUTA).trim(), vendedorDeAgente.get(agente) ?? agente];
-            })
-          );
-          this._ventas = this._resolverClasificacion(d.ventas);
-          this._ventasAnteriores = this._resolverClasificacion(d.anteriores);
-          this.hayCosto = this._ventas.some((v) => v.COSTO !== null && v.COSTO !== undefined);
+          this._metas = d.metas.filter((m) => meses.includes(Number(m.Mes)));
+          this._ventas = d.ventas;
+          this._armarFilas();
           this._opcionesFiltros();
+          this.filtroEstado = "todas";
           this.cargado = true;
           this.recalcular();
+          if (!this._metas.length) {
+            this._snotify.info(`No hay metas cargadas para ${this.tituloPeriodo.toLowerCase()}`, { position: SnotifyPosition.rightTop });
+          }
         },
         error: (e) => this._snotify.error(mensajeErrorHttp(e), { position: SnotifyPosition.rightTop, timeout: 8000 }),
       });
   }
 
-  /**
-   * Proveedor y línea de cada venta. El backend ya los envía (de las metas si el artículo tiene meta;
-   * si no, del ERP): con meta se muestra el código de metas (CALOX); del ERP, el nombre del proveedor.
-   * Si no vienen, se toman de las metas del periodo.
-   */
-  private _resolverClasificacion(ventas: IVentaDash[]): IVentaDash[] {
-    const deMeta = new Map<string, { proveedor: string; linea: string }>();
-    this._metas.forEach((m) =>
-      deMeta.set(String(m.Articulo).trim().toUpperCase(), {
-        proveedor: m.proveedor?.codigo?.trim() || SIN_DATO,
-        linea: m.lineaNegocio?.nombre?.trim() || SIN_DATO,
-      })
-    );
-    return ventas.map((v) => {
-      const meta = deMeta.get(v.ARTICULO.toUpperCase());
-      const txt = (x: string | null | undefined) => (x ? String(x).trim() : "");
-      const deErp = txt(v.ORIGEN_CLASIFICACION).toUpperCase() === "ERP";
-      const proveedor = deErp
-        ? txt(v.NOMBRE_PROVEEDOR) || txt(v.PROVEEDOR)
-        : txt(v.PROVEEDOR) || txt(v.NOMBRE_PROVEEDOR);
-      const linea = txt(v.NOMBRE_LINEA) || txt(v.LINEA_DESCRIPCION) || txt(v.LINEA);
+  /** Cruza cada meta con lo vendido por ese vendedor de ese artículo en ese mes. */
+  private _armarFilas(): void {
+    const vendidoPor = new Map<string, number>();
+    this._ventas.forEach((v) => {
+      const k = this._clave(v.VENDEDOR, v.ARTICULO, v.MES);
+      vendidoPor.set(k, (vendidoPor.get(k) ?? 0) + (Number(v.UNIDADES) || 0));
+    });
+    this._filas = this._metas.map((m) => {
+      const vendedor = String(m.Vendedor).trim();
+      const articulo = String(m.Articulo).trim();
+      const mes = Number(m.Mes);
+      const meta = aNumero(m.Meta_Unidades) ?? 0;
+      const vendido = this.ventasEnVivo ? vendidoPor.get(this._clave(vendedor, articulo, mes)) ?? 0 : aNumero(m.Venta_Unidades) ?? 0;
+      const incentivo = aNumero(m.Incentivo) ?? 0;
+      const minimo = aNumero(m.minimo) ?? meta;
       return {
-        ...v,
-        proveedor: proveedor || meta?.proveedor || SIN_DATO,
-        linea: linea || meta?.linea || SIN_DATO,
+        mes,
+        vendedor,
+        nombreVendedor: this._nombreVendedor.get(vendedor) || m.vendedor?.NOMBRE?.trim() || vendedor,
+        lider: m.lider?.nombre?.trim() || SIN_DATO,
+        articulo,
+        producto: m.articulo?.DESCRIPCION?.trim() || articulo,
+        proveedor: m.proveedor?.codigo?.trim() || m.proveedor?.nombre?.trim() || SIN_DATO,
+        linea: m.lineaNegocio?.nombre?.trim() || SIN_DATO,
+        meta,
+        vendido,
+        faltan: Math.max(meta - vendido, 0),
+        avance: meta > 0 ? vendido / meta : 0,
+        estado: estadoDe(vendido, meta),
+        incentivo,
+        ganado: vendido >= minimo ? vendido * incentivo : 0,
+        aMeta: meta * incentivo,
       };
     });
+    this.hayIncentivo = this._filas.some((f) => f.incentivo > 0);
+  }
+
+  private _clave(vendedor: string, articulo: string, mes: number): string {
+    return `${String(vendedor).trim()}|${String(articulo).trim()}|${mes}`.toUpperCase();
   }
 
   private _opcionesFiltros(): void {
     const vend = new Map<string, string>();
-    this._ventas.forEach((v) => vend.set(v.VENDEDOR, v.NOMBRE_VENDEDOR?.trim() || this._nombreVendedor.get(v.VENDEDOR) || v.VENDEDOR));
-    this._metas.forEach((m) => {
-      const c = String(m.Vendedor).trim();
-      if (!vend.has(c)) vend.set(c, m.vendedor?.NOMBRE?.trim() || this._nombreVendedor.get(c) || c);
-    });
+    this._filas.forEach((f) => vend.set(f.vendedor, f.nombreVendedor));
     this.opcionesVendedores = [...vend.entries()]
       .sort((a, b) => a[1].localeCompare(b[1]))
       .map(([c, n]) => ({ valor: c, texto: `${c} · ${n}` }));
     const unicos = (lista: string[]) => [...new Set(lista)].filter(Boolean).sort((a, b) => a.localeCompare(b));
-    this.opcionesProveedores = unicos(this._ventas.map((v) => v.proveedor)).map((p) => ({ valor: p, texto: p }));
-    this.opcionesLineas = unicos(this._ventas.map((v) => v.linea)).map((l) => ({ valor: l, texto: l }));
+    const opciones = (lista: string[]) => unicos(lista).map((x) => ({ valor: x, texto: x }));
+    this.opcionesProveedores = opciones(this._filas.map((f) => f.proveedor));
+    this.opcionesLineas = opciones(this._filas.map((f) => f.linea));
+    this.opcionesLideres = opciones(this._filas.map((f) => f.lider));
   }
 
   // ------------------------------------------------------------------ cálculo
 
   limpiarFiltros(): void {
-    this.filtros.patchValue({ vendedor: null, proveedor: null, linea: null, articulo: "" });
+    this.filtros.patchValue({ vendedor: null, lider: null, proveedor: null, linea: null, articulo: "" }, { emitEvent: false });
     this.recalcular();
   }
 
-  private _filtrar(ventas: IVentaDash[]): IVentaDash[] {
+  /** Desde la tabla o el ranking: filtra el dashboard por ese vendedor (o lo quita si ya estaba). */
+  verVendedor(codigo: string): void {
+    const actual = this.filtros.value.vendedor;
+    this.filtros.patchValue({ vendedor: actual === codigo ? null : codigo });
+  }
+
+  elegirEstado(e: EstadoMeta | "todas"): void {
+    this.filtroEstado = e;
+    this.verTodosProductos = false;
+  }
+
+  private _filasFiltradas(): IFilaMeta[] {
     const f = this.filtros.value;
     const texto = String(f.articulo ?? "").trim().toUpperCase();
-    return ventas.filter(
-      (v) =>
-        (!f.vendedor || v.VENDEDOR === f.vendedor) &&
-        (!f.proveedor || v.proveedor === f.proveedor) &&
-        (!f.linea || v.linea === f.linea) &&
-        (!texto || v.ARTICULO.toUpperCase().includes(texto) || String(v.DESCRIPCION_ARTICULO ?? "").toUpperCase().includes(texto))
+    return this._filas.filter(
+      (x) =>
+        (!f.vendedor || x.vendedor === f.vendedor) &&
+        (!f.lider || x.lider === f.lider) &&
+        (!f.proveedor || x.proveedor === f.proveedor) &&
+        (!f.linea || x.linea === f.linea) &&
+        (!texto || x.articulo.toUpperCase().includes(texto) || x.producto.toUpperCase().includes(texto))
     );
   }
 
-  private _metasFiltradas(): IMetaVenta[] {
-    const f = this.filtros.value;
-    const texto = String(f.articulo ?? "").trim().toUpperCase();
-    return this._metas.filter((m) => {
-      const prov = m.proveedor?.codigo?.trim() || SIN_DATO;
-      const linea = m.lineaNegocio?.nombre?.trim() || SIN_DATO;
-      return (
-        (!f.vendedor || String(m.Vendedor).trim() === f.vendedor) &&
-        (!f.proveedor || prov === f.proveedor) &&
-        (!f.linea || linea === f.linea) &&
-        (!texto ||
-          String(m.Articulo).toUpperCase().includes(texto) ||
-          String(m.articulo?.DESCRIPCION ?? "").toUpperCase().includes(texto))
-      );
+  /** Agrupa metas sumando meta, vendido y faltante (el faltante no se compensa entre metas). */
+  private _agrupar(filas: IFilaMeta[], clave: (f: IFilaMeta) => string, nombre: (f: IFilaMeta) => string, detalle: (f: IFilaMeta) => string): IGrupoMeta[] {
+    const grupos = new Map<string, IGrupoMeta & { _vend: Set<string> }>();
+    filas.forEach((f) => {
+      const k = clave(f);
+      const g =
+        grupos.get(k) ??
+        ({
+          clave: k,
+          nombre: nombre(f),
+          detalle: detalle(f),
+          metas: 0,
+          meta: 0,
+          vendido: 0,
+          faltan: 0,
+          avance: 0,
+          cumplidas: 0,
+          vendedores: 0,
+          ganado: 0,
+          aMeta: 0,
+          estado: "sinVenta",
+          _vend: new Set<string>(),
+        } as IGrupoMeta & { _vend: Set<string> });
+      g.metas++;
+      g.meta += f.meta;
+      g.vendido += f.vendido;
+      g.faltan += f.faltan;
+      g.ganado += f.ganado;
+      g.aMeta += f.aMeta;
+      if (f.estado === "cumplida") g.cumplidas++;
+      g._vend.add(f.vendedor);
+      grupos.set(k, g);
     });
+    return [...grupos.values()].map(({ _vend, ...g }) => ({
+      ...g,
+      vendedores: _vend.size,
+      avance: g.meta > 0 ? g.vendido / g.meta : 0,
+      estado: estadoDe(g.vendido, g.meta),
+    }));
   }
 
-  /** Aplica los filtros a lo cargado y rearma indicadores, gráficos y tablas. */
+  /** Aplica los filtros y rearma indicadores, gráficos y tablas. */
   recalcular(): void {
     if (!this._consulta) return;
     const c = this._consulta;
-    const ventas = this._filtrar(this._ventas);
-    const anteriores = this._filtrar(this._ventasAnteriores);
-    const metas = this._metasFiltradas();
-    const suma = (lista: IVentaDash[], fn: (v: IVentaDash) => number) => lista.reduce((t, v) => t + fn(v), 0);
+    const filas = this._filasFiltradas();
+    const suma = (fn: (f: IFilaMeta) => number) => filas.reduce((t, f) => t + fn(f), 0);
+    const fmtN = (v: number) => v.toLocaleString("en-US", { maximumFractionDigits: 0 });
+    const fmt$ = (v: number) => "$" + v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const fmtP = (v: number) => `${(v * 100).toFixed(1)}%`;
 
-    const totalVentas = suma(ventas, (v) => v.VALOR);
-    const totalUnidades = suma(ventas, (v) => v.UNIDADES);
-    const totalCosto = this.hayCosto ? suma(ventas, (v) => Number(v.COSTO) || 0) : null;
-    const devoluciones = suma(ventas.filter((v) => v.VALOR < 0), (v) => v.VALOR);
-    const ventasAnt = suma(anteriores, (v) => v.VALOR);
+    const meta = suma((f) => f.meta);
+    const vendido = suma((f) => f.vendido);
+    const faltan = suma((f) => f.faltan);
+    const avance = meta > 0 ? vendido / meta : 0;
+    this.avanceGeneral = avance;
 
-    // Metas contra lo vendido de cada vendedor + artículo
-    const vendidoPor = new Map<string, number>();
-    ventas.forEach((v) => vendidoPor.set(`${v.VENDEDOR}|${v.ARTICULO}`.toUpperCase(), (vendidoPor.get(`${v.VENDEDOR}|${v.ARTICULO}`.toUpperCase()) ?? 0) + v.UNIDADES));
-    let metaTotal = 0;
-    let vendidoMetaTotal = 0;
-    const metaPorVendedor = new Map<string, { meta: number; vendido: number }>();
-    metas.forEach((m) => {
-      const vend = String(m.Vendedor).trim();
-      const meta = aNumero(m.Meta_Unidades) ?? 0;
-      const vendido = vendidoPor.get(`${vend}|${String(m.Articulo).trim()}`.toUpperCase()) ?? 0;
-      metaTotal += meta;
-      vendidoMetaTotal += vendido;
-      const acc = metaPorVendedor.get(vend) ?? { meta: 0, vendido: 0 };
-      acc.meta += meta;
-      acc.vendido += vendido;
-      metaPorVendedor.set(vend, acc);
-    });
+    this.conteoEstados = { cumplida: 0, progreso: 0, rezagada: 0, sinVenta: 0 };
+    filas.forEach((f) => this.conteoEstados[f.estado]++);
 
-    // Visitas (filtradas por vendedor según la ruta) y pedidos
-    const fVend = this.filtros.value.vendedor as string | null;
-    const visitas = this._visitas.filter((v) => !fVend || this._vendedorDeRuta.get(String(v.RUTA).trim()) === fVend);
-    const pedidos = this._pedidos.filter((p) => !fVend || this._vendedorDeRuta.get(String(p.COD_ZON).trim()) === fVend);
-    const pedidosPorVisita = asignarPedidos(visitas, pedidos);
-    const conPedido = (v: IReporteVisita) => (pedidosPorVisita.get(v)?.length ?? 0) > 0 || !!v.DOC_PRO;
-    const visitasConPedido = visitas.filter(conPedido).length;
-    const efectividad = visitas.length ? visitasConPedido / visitas.length : null;
-    const montoPedidos = pedidos.reduce((t, p) => t + (Number(p.MON_SIV) || 0), 0);
+    // ---------- Grupos
+    this.vendedores = this._agrupar(filas, (f) => f.vendedor, (f) => f.nombreVendedor, (f) => f.lider)
+      .sort((a, b) => b.avance - a.avance || b.vendido - a.vendido);
+    this.productos = this._agrupar(filas, (f) => f.articulo.toUpperCase(), (f) => f.producto, (f) => `${f.proveedor} · ${f.linea}`)
+      .sort((a, b) => b.meta - a.meta || b.avance - a.avance);
+    this.conteoProductos = { cumplida: 0, progreso: 0, rezagada: 0, sinVenta: 0 };
+    this.productos.forEach((p) => this.conteoProductos[p.estado]++);
+    const proveedores = this._agrupar(filas, (f) => f.proveedor, (f) => f.proveedor, () => "").sort((a, b) => b.avance - a.avance);
+    const lineas = this._agrupar(filas, (f) => f.linea, (f) => f.linea, () => "").sort((a, b) => b.avance - a.avance);
+    const lideres = this._agrupar(filas, (f) => f.lider, (f) => f.lider, () => "").sort((a, b) => b.avance - a.avance);
+    const vendCumplen = this.vendedores.filter((v) => v.estado === "cumplida").length;
+
+    // ---------- Ritmo del mes (solo un mes; el actual se proyecta al cierre)
+    const hoy = new Date();
+    let esperado: number | null = null;
+    let proyeccion: number | null = null;
+    if (c.periodo === "mes") {
+      const diasMes = new Date(c.anio, c.mes, 0).getDate();
+      const esActual = c.anio === hoy.getFullYear() && c.mes === hoy.getMonth() + 1;
+      const pasado = c.anio < hoy.getFullYear() || (c.anio === hoy.getFullYear() && c.mes < hoy.getMonth() + 1);
+      if (esActual) {
+        esperado = hoy.getDate() / diasMes;
+        proyeccion = meta > 0 ? (vendido / hoy.getDate()) * diasMes / meta : null;
+      } else if (pasado) {
+        esperado = 1;
+      }
+    }
 
     // ---------- Indicadores
-    const fmt$ = (v: number) => "$" + v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const fmtN = (v: number) => v.toLocaleString("en-US", { maximumFractionDigits: 0 });
-    const vendedoresConVenta = new Set(ventas.filter((v) => v.VALOR > 0).map((v) => v.VENDEDOR)).size;
-    const productosVendidos = new Set(ventas.filter((v) => v.UNIDADES > 0).map((v) => v.ARTICULO)).size;
+    const colorAv = (a: number): IKpi["color"] => (a >= 1 ? "verde" : a >= 0.5 ? "ambar" : "rojo");
+    const ganado = suma((f) => f.ganado);
+    const aMeta = suma((f) => f.aMeta);
     this.kpis = [
       {
-        titulo: "Ventas netas",
-        valor: fmt$(totalVentas),
-        icono: "payments",
-        color: "marino",
-        variacion: c.periodo === "mes" && ventasAnt ? (totalVentas - ventasAnt) / Math.abs(ventasAnt) : null,
-        detalle: c.periodo === "mes" ? `Mes anterior: ${fmt$(ventasAnt)}` : "Facturas menos devoluciones",
+        titulo: "Cumplimiento de metas",
+        valor: meta ? fmtP(avance) : "—",
+        icono: "flag",
+        color: meta ? colorAv(avance) : "gris",
+        progreso: meta ? avance : null,
+        marca: esperado !== null && esperado < 1 ? esperado : null,
+        detalle: meta
+          ? esperado !== null && esperado < 1
+            ? `Esperado a hoy: ${fmtP(esperado)} (${avance >= esperado ? "en ritmo" : "por debajo del ritmo"})`
+            : `${fmtN(vendido)} de ${fmtN(meta)} unidades`
+          : "Sin metas cargadas en el periodo",
       },
-      { titulo: "Unidades vendidas", valor: fmtN(totalUnidades), icono: "inventory_2", color: "turquesa", detalle: `${productosVendidos} productos distintos` },
       {
-        titulo: "Precio promedio",
-        valor: totalUnidades ? fmt$(totalVentas / totalUnidades) : "—",
-        icono: "sell",
-        color: "ambar",
-        detalle: "Venta ÷ unidades",
+        titulo: "Unidades meta",
+        valor: fmtN(meta),
+        icono: "track_changes",
+        color: "marino",
+        detalle: `${fmtN(filas.length)} metas · ${fmtN(this.productos.length)} productos`,
       },
-      totalCosto !== null
+      {
+        titulo: "Unidades vendidas",
+        valor: fmtN(vendido),
+        icono: "inventory_2",
+        color: "turquesa",
+        detalle: faltan ? `Faltan ${fmtN(faltan)} u para completar todas` : meta ? "Todas las metas completas" : "—",
+      },
+      {
+        titulo: "Metas cumplidas",
+        valor: `${fmtN(this.conteoEstados.cumplida)} / ${fmtN(filas.length)}`,
+        icono: "task_alt",
+        color: "verde",
+        progreso: filas.length ? this.conteoEstados.cumplida / filas.length : null,
+        detalle: filas.length ? `${fmtP(this.conteoEstados.cumplida / filas.length)} de las metas al 100 %` : "—",
+      },
+      {
+        titulo: "Vendedores en meta",
+        valor: `${fmtN(vendCumplen)} / ${fmtN(this.vendedores.length)}`,
+        icono: "groups",
+        color: "marino",
+        progreso: this.vendedores.length ? vendCumplen / this.vendedores.length : null,
+        detalle: "Con avance total ≥ 100 %",
+      },
+      proyeccion !== null
         ? {
-            titulo: "Ganancia bruta",
-            valor: fmt$(totalVentas - totalCosto),
-            icono: "trending_up",
-            color: "verde",
-            detalle: `Margen ${totalVentas ? ((1 - totalCosto / totalVentas) * 100).toFixed(1) : "0"}% · costo ${fmt$(totalCosto)}`,
+            titulo: "Proyección al cierre",
+            valor: fmtP(proyeccion),
+            icono: "insights",
+            color: colorAv(proyeccion),
+            detalle: `Al ritmo actual: ${fmtN(proyeccion * meta)} de ${fmtN(meta)} u`,
+          }
+        : this.hayIncentivo
+        ? {
+            titulo: "Incentivo ganado",
+            valor: fmt$(ganado),
+            icono: "paid",
+            color: "ambar",
+            progreso: aMeta ? ganado / aMeta : null,
+            detalle: `De ${fmt$(aMeta)} posibles al 100 %`,
           }
         : {
-            titulo: "Ganancia bruta",
-            valor: "Pendiente",
-            icono: "trending_up",
-            color: "gris",
-            pendiente: true,
-            detalle: "Falta el costo en ventasDiarias (backend)",
+            titulo: "Metas sin venta",
+            valor: fmtN(this.conteoEstados.sinVenta),
+            icono: "report",
+            color: this.conteoEstados.sinVenta ? "rojo" : "gris",
+            detalle: "Productos con meta y 0 unidades",
           },
-      {
-        titulo: "Avance contra metas",
-        valor: metaTotal ? `${((vendidoMetaTotal / metaTotal) * 100).toFixed(1)}%` : "—",
-        icono: "flag",
-        color: metaTotal && vendidoMetaTotal >= metaTotal ? "verde" : "rojo",
-        detalle: metaTotal ? `${fmtN(vendidoMetaTotal)} de ${fmtN(metaTotal)} unidades meta` : "Sin metas cargadas en el periodo",
-      },
-      { titulo: "Vendedores con venta", valor: String(vendedoresConVenta), icono: "badge", color: "marino", detalle: `${metaPorVendedor.size} con metas` },
-      {
-        titulo: "Visitas de ruta",
-        valor: fmtN(visitas.length),
-        icono: "storefront",
-        color: "turquesa",
-        detalle: efectividad === null ? "Sin visitas registradas" : `Efectividad ${(efectividad * 100).toFixed(1)}% (${visitasConPedido} con pedido)`,
-      },
-      { titulo: "Devoluciones", valor: fmt$(Math.abs(devoluciones)), icono: "assignment_return", color: "rojo", detalle: `Pedidos de ruta: ${pedidos.length} · ${fmt$(montoPedidos)}` },
     ];
 
-    // ---------- Tendencia
+    // ---------- Evolución
     if (c.periodo === "anio") {
-      const porMes = c.meses.map((m) => ventas.filter((v) => v.MES === m));
-      this.gTendencia = graficoTendencia(
-        c.meses.map((m) => ABREV_MES[m - 1]),
-        porMes.map((l) => Number(suma(l, (v) => v.VALOR).toFixed(2))),
-        porMes.map((l) => suma(l, (v) => v.UNIDADES)),
-        "Mes"
-      );
+      const metaMes = c.meses.map((m) => filas.filter((f) => f.mes === m).reduce((t, f) => t + f.meta, 0));
+      const vendMes = c.meses.map((m) => filas.filter((f) => f.mes === m).reduce((t, f) => t + f.vendido, 0));
+      this.gEvolucion = graficoEvolucionAnio(c.meses.map((m) => ABREV_MES[m - 1]), metaMes, vendMes);
     } else {
       const dias = new Date(c.anio, c.mes, 0).getDate();
-      const vDia = Array(dias).fill(0);
-      const uDia = Array(dias).fill(0);
-      ventas.forEach((v) => {
-        const d = Math.min(Math.max(Number(v.DIA), 1), dias) - 1;
-        vDia[d] += v.VALOR;
-        uDia[d] += v.UNIDADES;
+      const porDia = Array(dias).fill(0);
+      const claves = new Set(filas.map((f) => this._clave(f.vendedor, f.articulo, f.mes)));
+      this._ventas.forEach((v) => {
+        if (!claves.has(this._clave(v.VENDEDOR, v.ARTICULO, v.MES))) return;
+        const d = Math.min(Math.max(Number(v.DIA) || Number(String(v.FECHA).slice(8, 10)) || 1, 1), dias) - 1;
+        porDia[d] += Number(v.UNIDADES) || 0;
       });
-      this.gTendencia = graficoTendencia(
+      const esActual = c.anio === hoy.getFullYear() && c.mes === hoy.getMonth() + 1;
+      const corte = esActual ? hoy.getDate() : dias;
+      let acc = 0;
+      const acumulado = porDia.map((u, i) => (i < corte ? (acc += u) : null));
+      this.gEvolucion = graficoEvolucionMes(
         Array.from({ length: dias }, (_, i) => String(i + 1)),
-        vDia.map((x) => Number(x.toFixed(2))),
-        uDia,
-        "Día del mes"
+        this.ventasEnVivo ? acumulado : [],
+        meta
       );
     }
 
-    // ---------- Vendedores
-    const porVend = new Map<string, IFilaVendedor & { _productos: Set<string> }>();
-    ventas.forEach((v) => {
-      const f =
-        porVend.get(v.VENDEDOR) ??
-        ({
-          codigo: v.VENDEDOR,
-          nombre: v.NOMBRE_VENDEDOR?.trim() || this._nombreVendedor.get(v.VENDEDOR) || v.VENDEDOR,
-          ventas: 0,
-          unidades: 0,
-          costo: this.hayCosto ? 0 : null,
-          devoluciones: 0,
-          productos: 0,
-          clientesVisitados: 0,
-          meta: 0,
-          vendidoMeta: 0,
-          avance: null,
-          _productos: new Set<string>(),
-        } as IFilaVendedor & { _productos: Set<string> });
-      f.ventas += v.VALOR;
-      f.unidades += v.UNIDADES;
-      if (f.costo !== null) f.costo += Number(v.COSTO) || 0;
-      if (v.VALOR < 0) f.devoluciones += v.VALOR;
-      if (v.UNIDADES > 0) f._productos.add(v.ARTICULO);
-      porVend.set(v.VENDEDOR, f);
-    });
-    metaPorVendedor.forEach((m, cod) => {
-      if (!porVend.has(cod)) {
-        porVend.set(cod, {
-          codigo: cod,
-          nombre: this._nombreVendedor.get(cod) || cod,
-          ventas: 0,
-          unidades: 0,
-          costo: this.hayCosto ? 0 : null,
-          devoluciones: 0,
-          productos: 0,
-          clientesVisitados: 0,
-          meta: 0,
-          vendidoMeta: 0,
-          avance: null,
-          _productos: new Set<string>(),
-        });
-      }
-    });
-    const clientesPorVend = new Map<string, Set<string>>();
-    visitas.forEach((v) => {
-      const vend = this._vendedorDeRuta.get(String(v.RUTA).trim());
-      if (!vend) return;
-      const s = clientesPorVend.get(vend) ?? new Set<string>();
-      s.add(String(v.CLIENTE).trim());
-      clientesPorVend.set(vend, s);
-    });
-    this.vendedores = [...porVend.values()]
-      .map(({ _productos, ...f }) => {
-        const m = metaPorVendedor.get(f.codigo);
-        return {
-          ...f,
-          productos: _productos.size,
-          clientesVisitados: clientesPorVend.get(f.codigo)?.size ?? 0,
-          meta: m?.meta ?? 0,
-          vendidoMeta: m?.vendido ?? 0,
-          avance: m && m.meta ? m.vendido / m.meta : null,
-        };
-      })
-      .sort((a, b) => b.ventas - a.ventas);
-
-    const topV = this.vendedores.filter((v) => v.ventas > 0).slice(0, 15);
-    this.gVendedores = graficoRanking(
-      topV.map((v) => v.nombre),
-      topV.map((v) => Number(v.ventas.toFixed(2))),
-      topV.map((v) => `${fmtN(v.unidades)} unidades · ${v.productos} productos`)
-    );
-    const conMeta = this.vendedores.filter((v) => v.avance !== null).sort((a, b) => (b.avance ?? 0) - (a.avance ?? 0));
-    this.gAvance = graficoAvanceMetas(
-      conMeta.map((v) => v.nombre),
-      conMeta.map((v) => v.avance ?? 0),
-      conMeta.map((v) => `${fmtN(v.vendidoMeta)} de ${fmtN(v.meta)} unidades`)
-    );
-
-    // ---------- Proveedores y líneas
-    const agrupar = (clave: (v: IVentaDash) => string) => {
-      const m = new Map<string, number>();
-      ventas.forEach((v) => m.set(clave(v), (m.get(clave(v)) ?? 0) + v.VALOR));
-      return [...m.entries()].map(([nombre, valor]) => ({ nombre, valor }));
-    };
-    this.gProveedores = graficoDona(agrupar((v) => v.proveedor));
-    this.gLineas = graficoDona(agrupar((v) => v.linea), true, 6);
-
-    // ---------- Productos
-    const porProd = new Map<string, IFilaProducto & { _vend: Set<string> }>();
-    ventas.forEach((v) => {
-      const p =
-        porProd.get(v.ARTICULO) ??
-        ({
-          codigo: v.ARTICULO,
-          descripcion: v.DESCRIPCION_ARTICULO?.trim() || v.ARTICULO,
-          proveedor: v.proveedor,
-          unidades: 0,
-          ventas: 0,
-          costo: this.hayCosto ? 0 : null,
-          precioPromedio: 0,
-          vendedores: 0,
-          _vend: new Set<string>(),
-        } as IFilaProducto & { _vend: Set<string> });
-      p.unidades += v.UNIDADES;
-      p.ventas += v.VALOR;
-      if (p.costo !== null) p.costo += Number(v.COSTO) || 0;
-      p._vend.add(v.VENDEDOR);
-      porProd.set(v.ARTICULO, p);
-    });
-    this.productos = [...porProd.values()]
-      .map(({ _vend, ...p }) => ({ ...p, vendedores: _vend.size, precioPromedio: p.unidades ? p.ventas / p.unidades : 0 }))
-      .sort((a, b) => b.ventas - a.ventas);
-    const topP = this.productos.slice(0, 10);
-    this.gProductos = graficoRanking(
-      topP.map((p) => p.descripcion),
-      topP.map((p) => Number(p.ventas.toFixed(2))),
-      topP.map((p) => `${fmtN(p.unidades)} u · precio prom. ${fmt$(p.precioPromedio)}`),
-      COLORES.turquesa
-    );
-
-    // ---------- Margen por vendedor (solo con costo)
-    if (this.hayCosto) {
-      const conCosto = this.vendedores.filter((v) => v.ventas > 0 && v.costo !== null).slice(0, 15);
-      this.gMargen = graficoRanking(
-        conCosto.map((v) => v.nombre),
-        conCosto.map((v) => Number((v.ventas - (v.costo ?? 0)).toFixed(2))),
-        conCosto.map((v) => `Margen ${v.ventas ? ((1 - (v.costo ?? 0) / v.ventas) * 100).toFixed(1) : "0"}%`),
-        COLORES.verde
-      );
-    }
-
-    // ---------- Visitas
-    const claveDia = (iso: string) => (c.periodo === "anio" ? Number(iso.slice(5, 7)) : Number(iso.slice(8, 10)));
-    const categorias =
-      c.periodo === "anio"
-        ? c.meses.map((m) => ABREV_MES[m - 1])
-        : Array.from({ length: new Date(c.anio, c.mes, 0).getDate() }, (_, i) => String(i + 1));
-    const con = Array(categorias.length).fill(0);
-    const sin = Array(categorias.length).fill(0);
-    visitas.forEach((v) => {
-      const i = c.periodo === "anio" ? c.meses.indexOf(claveDia(v.INICIO)) : claveDia(v.INICIO) - 1;
-      if (i < 0 || i >= categorias.length) return;
-      if (conPedido(v)) con[i]++;
-      else sin[i]++;
-    });
-    this.gVisitas = graficoApilado(
-      categorias,
+    // ---------- Estados
+    this.gEstados = graficoDona(
       [
-        { nombre: "Con pedido", datos: con, color: COLORES.verde },
-        { nombre: "Sin pedido", datos: sin, color: COLORES.rojo },
+        { nombre: TEXTO_ESTADO.cumplida, valor: this.conteoEstados.cumplida, color: COLORES.verde },
+        { nombre: TEXTO_ESTADO.progreso, valor: this.conteoEstados.progreso, color: COLORES.ambar },
+        { nombre: TEXTO_ESTADO.rezagada, valor: this.conteoEstados.rezagada, color: COLORES.rojo },
+        { nombre: TEXTO_ESTADO.sinVenta, valor: this.conteoEstados.sinVenta, color: COLORES.gris },
       ],
-      c.periodo === "anio" ? "Mes" : "Día del mes"
+      filas.length ? `<div style="text-align:center"><span style="font-size:26px;font-weight:700;color:${COLORES.marino}">${fmtN(filas.length)}</span><br/>metas</div>` : ""
     );
-    const motivos = new Map<string, number>();
-    visitas
-      .filter((v) => !conPedido(v))
-      .forEach((v) => {
-        const m = v.RAZON_DESCRIPCION?.trim() || v.RAZON?.trim() || "Sin motivo registrado";
-        motivos.set(m, (motivos.get(m) ?? 0) + 1);
-      });
-    this.motivosNoVenta = [...motivos.entries()].map(([motivo, n]) => ({ motivo, visitas: n })).sort((a, b) => b.visitas - a.visitas);
-    this.gMotivos = graficoDona(
-      this.motivosNoVenta.map((m) => ({ nombre: m.motivo, valor: m.visitas })),
-      false,
-      6
-    );
+
+    // ---------- Avance por grupo
+    const detalle = (g: IGrupoMeta) => `${fmtN(g.vendido)} de ${fmtN(g.meta)} u · ${g.cumplidas}/${g.metas} metas cumplidas`;
+    const avanceDe = (lista: IGrupoMeta[]) =>
+      graficoAvance(
+        lista.map((g) => g.nombre),
+        lista.map((g) => g.avance),
+        lista.map(detalle)
+      );
+    this.gVendedores = avanceDe(this.vendedores);
+    this.gProveedores = avanceDe(proveedores);
+    this.gLineas = avanceDe(lineas);
+    this.gLideres = avanceDe(lideres);
   }
 
-  get productosVisibles(): IFilaProducto[] {
-    return this.verTodosProductos ? this.productos : this.productos.slice(0, 20);
-  }
-
-  margen(ventas: number, costo: number | null): number | null {
-    return costo === null || !ventas ? null : 1 - costo / ventas;
-  }
-
-  anchoBarra(avance: number | null): number {
-    return Math.min(Math.round((avance ?? 0) * 100), 100);
+  anchoBarra(avance: number | null | undefined): number {
+    return Math.min(Math.max(Math.round((avance ?? 0) * 100), 0), 100);
   }
 
   // ------------------------------------------------------------------ Excel
 
-  /** Excel con el formato de los informes de COAGRO: hoja de vendedores y hoja de productos. */
+  /** Excel con el formato de los informes de COAGRO: vendedores, productos y detalle de metas. */
   exportar(): void {
     if (!this._consulta) return;
-    const titulo = `DASHBOARD DE RUTAS · ${this.tituloPeriodo.toUpperCase()}`;
-    const hojaVend: (ICeldaRica | null)[][] = [];
-    const hojaProd: (ICeldaRica | null)[][] = [];
+    const titulo = `DASHBOARD DE METAS · ${this.tituloPeriodo.toUpperCase()}`;
+    const filtros = `Filtros: ${this._textoFiltros()}`;
     const poner = (h: (ICeldaRica | null)[][], fila: number, col: number, celda: ICeldaRica) => ((h[fila - 1] ??= [])[col] = celda);
-
-    const encV = ["Código", "Vendedor", "Ventas ($)", "Unidades", "Precio prom.", "Productos", "Devoluciones ($)", "Clientes visitados", "Meta (u)", "Vendido en meta (u)", "Avance", ...(this.hayCosto ? ["Ganancia ($)", "Margen"] : [])];
-    poner(hojaVend, 1, 0, { v: titulo, s: E.TITULO });
-    poner(hojaVend, 2, 0, { v: `Vendedores · filtros: ${this._textoFiltros()}`, s: E.ETIQUETA_GRIS });
-    encV.forEach((t, i) => poner(hojaVend, 4, i, { v: t, s: E.ENC }));
-    this.vendedores.forEach((v, i) => {
-      const r = 5 + i;
-      const alt = i % 2 === 1;
-      const s = (a: number, b: number) => (alt ? b : a);
-      const fila: ICeldaRica[] = [
-        { v: v.codigo, s: s(E.CODIGO, E.CODIGO_ALT) },
-        { v: v.nombre, s: s(E.TEXTO, E.TEXTO_ALT) },
-        { v: Number(v.ventas.toFixed(2)), s: s(E.MONEDA_NEGRITA, E.MONEDA_NEGRITA_ALT) },
-        { v: v.unidades, s: s(E.ENTERO, E.ENTERO_ALT) },
-        { v: v.unidades ? Number((v.ventas / v.unidades).toFixed(2)) : null, s: s(E.MONEDA, E.MONEDA_ALT) },
-        { v: v.productos, s: s(E.ENTERO, E.ENTERO_ALT) },
-        { v: Number(Math.abs(v.devoluciones).toFixed(2)), s: s(E.MONEDA, E.MONEDA_ALT) },
-        { v: v.clientesVisitados, s: s(E.ENTERO, E.ENTERO_ALT) },
-        { v: v.meta || null, s: s(E.META, E.META_ALT) },
-        { v: v.vendidoMeta || null, s: s(E.ENTERO_NEGRITA, E.ENTERO_NEGRITA_ALT) },
-        { v: v.avance ?? null, s: s(E.PCT, E.PCT_ALT) },
-        ...(this.hayCosto
-          ? [
-              { v: Number((v.ventas - (v.costo ?? 0)).toFixed(2)), s: s(E.MONEDA_NEGRITA, E.MONEDA_NEGRITA_ALT) },
-              { v: this.margen(v.ventas, v.costo), s: s(E.PCT, E.PCT_ALT) },
-            ]
-          : []),
-      ];
-      fila.forEach((celda, col) => poner(hojaVend, r, col, celda));
-    });
-
-    const encP = ["Código", "Producto", "Proveedor", "Unidades", "Ventas ($)", "Precio prom.", "Vendedores", ...(this.hayCosto ? ["Ganancia ($)", "Margen"] : [])];
-    poner(hojaProd, 1, 0, { v: titulo, s: E.TITULO });
-    poner(hojaProd, 2, 0, { v: `Productos · filtros: ${this._textoFiltros()}`, s: E.ETIQUETA_GRIS });
-    encP.forEach((t, i) => poner(hojaProd, 4, i, { v: t, s: E.ENC }));
-    this.productos.forEach((p, i) => {
-      const r = 5 + i;
-      const alt = i % 2 === 1;
-      const s = (a: number, b: number) => (alt ? b : a);
-      const fila: ICeldaRica[] = [
-        { v: p.codigo, s: s(E.CODIGO, E.CODIGO_ALT) },
-        { v: p.descripcion, s: s(E.TEXTO, E.TEXTO_ALT) },
-        { v: p.proveedor, s: s(E.TEXTO, E.TEXTO_ALT) },
-        { v: p.unidades, s: s(E.ENTERO, E.ENTERO_ALT) },
-        { v: Number(p.ventas.toFixed(2)), s: s(E.MONEDA_NEGRITA, E.MONEDA_NEGRITA_ALT) },
-        { v: Number(p.precioPromedio.toFixed(2)), s: s(E.MONEDA, E.MONEDA_ALT) },
-        { v: p.vendedores, s: s(E.ENTERO, E.ENTERO_ALT) },
-        ...(this.hayCosto
-          ? [
-              { v: Number((p.ventas - (p.costo ?? 0)).toFixed(2)), s: s(E.MONEDA_NEGRITA, E.MONEDA_NEGRITA_ALT) },
-              { v: this.margen(p.ventas, p.costo), s: s(E.PCT, E.PCT_ALT) },
-            ]
-          : []),
-      ];
-      fila.forEach((celda, col) => poner(hojaProd, r, col, celda));
-    });
-
     const letra = (i: number) => String.fromCharCode(65 + i);
-    const hoja = (nombre: string, filas: (ICeldaRica | null)[][], cols: number, n: number, anchos: number[], colAvance: number | null): IHojaRica => ({
-      nombre,
-      filas,
-      anchos,
-      altos: { 1: 23.25, 4: 30 },
-      fijar: { columnas: 2, filas: 4 },
-      autoFiltro: `A4:${letra(cols - 1)}${4 + Math.max(n, 1)}`,
-      formatoCondicionalXml: colAvance !== null && n ? cfBarraAvance(`${letra(colAvance)}5:${letra(colAvance)}${4 + n}`) : "",
-      sinCuadricula: true,
-      ajustarPagina: true,
-      filasTituloImpresion: "$4:$4",
-    });
-    const blob = crearXlsxRico(
-      [
-        hoja("Vendedores", hojaVend, encV.length, this.vendedores.length, [10, 30, 13, 10, 11, 10, 13, 11, 10, 12, 10, 13, 10], 10),
-        hoja("Productos", hojaProd, encP.length, this.productos.length, [10, 38, 14, 10, 13, 11, 10, 13, 10], null),
-      ],
-      ESTILOS_INFORME_XML
+
+    const armar = (
+      nombre: string,
+      encabezados: string[],
+      filas: ICeldaRica[][],
+      anchos: number[],
+      colAvance: number
+    ): IHojaRica => {
+      const h: (ICeldaRica | null)[][] = [];
+      poner(h, 1, 0, { v: titulo, s: E.TITULO });
+      poner(h, 2, 0, { v: `${nombre} · ${filtros}`, s: E.ETIQUETA_GRIS });
+      encabezados.forEach((t, i) => poner(h, 4, i, { v: t, s: E.ENC }));
+      filas.forEach((fila, i) => fila.forEach((celda, col) => poner(h, 5 + i, col, celda)));
+      const n = filas.length;
+      return {
+        nombre,
+        filas: h,
+        anchos,
+        altos: { 1: 23.25, 4: 30 },
+        fijar: { columnas: 2, filas: 4 },
+        autoFiltro: `A4:${letra(encabezados.length - 1)}${4 + Math.max(n, 1)}`,
+        formatoCondicionalXml: n ? cfBarraAvance(`${letra(colAvance)}5:${letra(colAvance)}${4 + n}`) : "",
+        sinCuadricula: true,
+        ajustarPagina: true,
+        filasTituloImpresion: "$4:$4",
+      };
+    };
+    const alterna = (i: number) => (a: number, b: number) => (i % 2 === 1 ? b : a);
+
+    const hojaVend = armar(
+      "Vendedores",
+      ["Código", "Vendedor", "Líder", "Metas", "Cumplidas", "Meta (u)", "Vendido (u)", "Faltan (u)", "Avance", ...(this.hayIncentivo ? ["Incentivo ganado ($)"] : [])],
+      this.vendedores.map((v, i) => {
+        const s = alterna(i);
+        return [
+          { v: v.clave, s: s(E.CODIGO, E.CODIGO_ALT) },
+          { v: v.nombre, s: s(E.TEXTO, E.TEXTO_ALT) },
+          { v: v.detalle, s: s(E.TEXTO, E.TEXTO_ALT) },
+          { v: v.metas, s: s(E.ENTERO, E.ENTERO_ALT) },
+          { v: v.cumplidas, s: s(E.ENTERO, E.ENTERO_ALT) },
+          { v: v.meta, s: s(E.META, E.META_ALT) },
+          { v: v.vendido, s: s(E.ENTERO_NEGRITA, E.ENTERO_NEGRITA_ALT) },
+          { v: v.faltan, s: s(E.FALTAN, E.FALTAN_ALT) },
+          { v: v.avance, s: s(E.PCT, E.PCT_ALT) },
+          ...(this.hayIncentivo ? [{ v: Number(v.ganado.toFixed(2)), s: s(E.MONEDA, E.MONEDA_ALT) }] : []),
+        ];
+      }),
+      [10, 30, 18, 8, 10, 11, 11, 11, 10, 14],
+      8
     );
+
+    const hojaProd = armar(
+      "Productos",
+      ["Código", "Producto", "Proveedor · línea", "Vendedores", "Metas", "Cumplidas", "Meta (u)", "Vendido (u)", "Faltan (u)", "Avance"],
+      this.productos.map((p, i) => {
+        const s = alterna(i);
+        return [
+          { v: p.clave, s: s(E.CODIGO, E.CODIGO_ALT) },
+          { v: p.nombre, s: s(E.TEXTO, E.TEXTO_ALT) },
+          { v: p.detalle, s: s(E.TEXTO, E.TEXTO_ALT) },
+          { v: p.vendedores, s: s(E.ENTERO, E.ENTERO_ALT) },
+          { v: p.metas, s: s(E.ENTERO, E.ENTERO_ALT) },
+          { v: p.cumplidas, s: s(E.ENTERO, E.ENTERO_ALT) },
+          { v: p.meta, s: s(E.META, E.META_ALT) },
+          { v: p.vendido, s: s(E.ENTERO_NEGRITA, E.ENTERO_NEGRITA_ALT) },
+          { v: p.faltan, s: s(E.FALTAN, E.FALTAN_ALT) },
+          { v: p.avance, s: s(E.PCT, E.PCT_ALT) },
+        ];
+      }),
+      [12, 38, 26, 11, 8, 10, 11, 11, 11, 10],
+      9
+    );
+
+    const detalle = this._filasFiltradas().sort(
+      (a, b) => a.mes - b.mes || a.nombreVendedor.localeCompare(b.nombreVendedor) || a.producto.localeCompare(b.producto)
+    );
+    const hojaDet = armar(
+      "Detalle de metas",
+      ["Código", "Producto", "Mes", "Vendedor", "Líder", "Proveedor", "Línea", "Meta (u)", "Vendido (u)", "Faltan (u)", "Avance", "Estado"],
+      detalle.map((f, i) => {
+        const s = alterna(i);
+        return [
+          { v: f.articulo, s: s(E.CODIGO, E.CODIGO_ALT) },
+          { v: f.producto, s: s(E.TEXTO, E.TEXTO_ALT) },
+          { v: nombreMes(f.mes), s: s(E.TEXTO, E.TEXTO_ALT) },
+          { v: `${f.vendedor} · ${f.nombreVendedor}`, s: s(E.TEXTO, E.TEXTO_ALT) },
+          { v: f.lider, s: s(E.TEXTO, E.TEXTO_ALT) },
+          { v: f.proveedor, s: s(E.TEXTO, E.TEXTO_ALT) },
+          { v: f.linea, s: s(E.TEXTO, E.TEXTO_ALT) },
+          { v: f.meta, s: s(E.META, E.META_ALT) },
+          { v: f.vendido, s: s(E.ENTERO_NEGRITA, E.ENTERO_NEGRITA_ALT) },
+          { v: f.faltan, s: s(E.FALTAN, E.FALTAN_ALT) },
+          { v: f.avance, s: s(E.PCT, E.PCT_ALT) },
+          { v: TEXTO_ESTADO[f.estado], s: s(E.TEXTO, E.TEXTO_ALT) },
+        ];
+      }),
+      [12, 36, 11, 30, 16, 12, 16, 10, 11, 10, 10, 13],
+      10
+    );
+
+    const blob = crearXlsxRico([hojaVend, hojaProd, hojaDet], ESTILOS_INFORME_XML);
     const c = this._consulta;
-    descargarBlob(blob, `Dashboard_Rutas_${c.anio}${c.periodo === "mes" ? "-" + String(c.mes).padStart(2, "0") : ""}.xlsx`);
+    descargarBlob(blob, `Dashboard_Metas_${c.anio}${c.periodo === "mes" ? "-" + String(c.mes).padStart(2, "0") : ""}.xlsx`);
   }
 
   private _textoFiltros(): string {
     const f = this.filtros.value;
     const partes = [
       f.vendedor ? `vendedor ${f.vendedor}` : "",
+      f.lider ? `líder ${f.lider}` : "",
       f.proveedor ? `proveedor ${f.proveedor}` : "",
       f.linea ? `línea ${f.linea}` : "",
       f.articulo ? `artículo «${f.articulo}»` : "",
