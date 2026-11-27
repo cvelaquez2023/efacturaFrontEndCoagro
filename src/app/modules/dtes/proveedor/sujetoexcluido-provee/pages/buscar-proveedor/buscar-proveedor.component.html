@@ -1,0 +1,39 @@
+<h2 mat-dialog-title class="titulo"><mat-icon>search</mat-icon>Buscar proveedor</h2>
+
+<div mat-dialog-content class="contenido">
+  <mat-form-field appearance="outline" class="campo">
+    <mat-label>Código, nombre o DUI / NIT</mat-label>
+    <mat-icon matPrefix class="prefijo">search</mat-icon>
+    <input matInput [formControl]="texto" cdkFocusInitial autocomplete="off" (keydown.enter)="alEnter()" />
+    <button *ngIf="texto.value" mat-icon-button matSuffix type="button" aria-label="Limpiar" (click)="limpiar()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </mat-form-field>
+
+  <div class="aviso buscando" *ngIf="buscando">Buscando…</div>
+  <div class="aviso error" *ngIf="error">{{ error }}</div>
+
+  <div class="lista" role="listbox" aria-label="Proveedores">
+    <button type="button" class="fila" *ngFor="let p of proveedores" [class.inactivo]="inactivo(p)" (click)="elegir(p)">
+      <div class="principal">
+        <span class="nombre">{{ p.NOMBRE }}</span>
+        <span class="alias" *ngIf="p.ALIAS && p.ALIAS !== p.NOMBRE">{{ p.ALIAS }}</span>
+      </div>
+      <div class="datos">
+        <span class="chip">Código {{ p.PROVEEDOR }}</span>
+        <span class="chip doc" *ngIf="p.CONTRIBUYENTE">DUI/NIT {{ p.CONTRIBUYENTE }}</span>
+        <span class="chip sin-doc" *ngIf="!p.CONTRIBUYENTE">Sin DUI/NIT</span>
+        <span class="chip estado" *ngIf="inactivo(p)">Inactivo</span>
+      </div>
+    </button>
+
+    <div class="aviso" *ngIf="!buscando && !error && !proveedores.length && texto.value">
+      Sin proveedores que coincidan con «{{ texto.value }}».
+    </div>
+  </div>
+  <div class="pie" *ngIf="proveedores.length >= 30">Se muestran los primeros 30; escriba más para afinar la búsqueda.</div>
+</div>
+
+<div mat-dialog-actions align="end">
+  <button mat-button type="button" mat-dialog-close>Cancelar</button>
+</div>

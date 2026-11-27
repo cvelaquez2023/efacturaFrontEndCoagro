@@ -174,3 +174,18 @@ justify-content: center;
 .mat-dialog-content {
   padding: 10px !important;
 }
+// Tipo de invalidación + código del DTE de reemplazo (en una línea; apilados en celular)
+.tipo-anulacion {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 10px;
+  margin-bottom: 10px;
+
+  .campo-tipo {
+    flex: 1 1 260px;
+  }
+
+  .campo-reemplazo {
+    flex: 1 1 320px;
+  }
+}

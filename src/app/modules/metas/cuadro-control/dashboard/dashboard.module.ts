@@ -10,7 +10,7 @@ import { DashboardPageComponent } from "./pages/dashboard-page/dashboard-page.co
 
 const routes: Routes = [{ path: "", component: DashboardPageComponent, canActivate: [AuthGuard] }];
 
-/** Cuadro de Control → Dashboard: vista general de ventas, metas, visitas y pedidos de rutas. */
+/** Cuadro de Control → Dashboard: cumplimiento de las metas de venta (unidades) del periodo. */
 @NgModule({
   declarations: [DashboardPageComponent],
   imports: [

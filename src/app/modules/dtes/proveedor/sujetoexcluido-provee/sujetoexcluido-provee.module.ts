@@ -10,12 +10,15 @@ import { AngularMaterialModule } from "@app/angular-material-modulo";
 import { MatInputModule } from "@angular/material/input";
 import { AddSujetoExcluidoComponent } from "./pages/add-sujeto-excluido/add-sujeto-excluido.component";
 import { AddSujetoExcluidoCHComponent } from "./pages/add-sujeto-excluido-ch/add-sujeto-excluido-ch.component";
+import { CurrencyMaskModule } from "ng2-currency-mask";
+import { BuscarProveedorComponent } from "./pages/buscar-proveedor/buscar-proveedor.component";
 
 @NgModule({
   declarations: [
     ListarSujetoExcluidoComponent,
     AddSujetoExcluidoComponent,
     AddSujetoExcluidoCHComponent,
+    BuscarProveedorComponent,
   ],
   imports: [
     CommonModule,
@@ -26,6 +29,7 @@ import { AddSujetoExcluidoCHComponent } from "./pages/add-sujeto-excluido-ch/add
     AngularMaterialModule,
     ReactiveFormsModule,
     MatInputModule,
+    CurrencyMaskModule,
   ],
 })
 export class SujetoexcluidoProveeModule {}

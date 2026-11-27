@@ -4,11 +4,19 @@ import { SnotifyPosition, SnotifyService } from "ng-snotify";
 import { forkJoin } from "rxjs";
 import { finalize } from "rxjs/operators";
 import { descargarBlob } from "../../../../metas-shared/escribir-xlsx";
-import { crearXlsxRico, ICeldaRica } from "../../../../metas-shared/escribir-xlsx-rico";
+import { crearXlsxRico, ICeldaRica, IHojaRica } from "../../../../metas-shared/escribir-xlsx-rico";
 import { cfBarraAvance, E, ESTILOS_INFORME_XML } from "../../../../metas-shared/estilos-informe-xlsx";
 import { crearInformeIncentivoXlsx } from "./informe-incentivo-xlsx";
 import { MetasApiService, mensajeErrorHttp } from "../../../../metas-shared/metas-api.service";
-import { aNumero, IMetaVenta, IVentaDia, MESES, nombreMes } from "../../../../metas-shared/metas.model";
+import {
+  aNumero,
+  CATALOGO_LIDERES,
+  CATALOGO_LINEAS_NEGOCIO,
+  IMetaVenta,
+  IVentaDia,
+  MESES,
+  nombreMes,
+} from "../../../../metas-shared/metas.model";
 import { IOpcionBuscable } from "../../../../metas-shared/select-buscable/select-buscable.component";
 
 /** Semana del mes: lunes a sábado (los domingos cuentan con la semana anterior). */
@@ -25,6 +33,11 @@ export interface IFilaIncentivo {
   codigo: string;
   producto: string;
   proveedor: string;
+  /** Línea de negocio de la meta (Veterinaria 1…). */
+  linea: string;
+  /** Código de la línea, para ordenar los grupos. */
+  lineaCodigo: string;
+  lider: string;
   incentivo: number;
   meta: number;
   /** Mínimo cargado en la meta (igual a la meta si no se indicó). */
@@ -58,7 +71,28 @@ export interface IResumenIncentivo {
 export interface IResumenVendedor extends IResumenIncentivo {
   vendedor: string;
   nombre: string;
+  /** Líder(es) de las metas del vendedor. */
+  lider: string;
 }
+
+/** Metas de una línea de negocio con su subtotal (detalle de un vendedor o totales de todos). */
+export interface IResumenLinea extends IResumenIncentivo {
+  linea: string;
+  lineaCodigo: string;
+  /** Líder(es) de la línea. */
+  lider: string;
+  /** Vendedores distintos con metas en la línea. */
+  vendedores: number;
+  filas: IFilaIncentivo[];
+}
+
+const SIN_LINEA = "(sin línea)";
+
+/** % del mínimo cargado que hay que vender para cobrar (fijo: el mínimo completo). */
+const PCT_MINIMO = 100;
+
+/** Valores distintos (sin vacíos) unidos con " / ". */
+const distintos = (lista: string[]): string => [...new Set(lista.filter(Boolean))].join(" / ");
 
 const ABREV_MES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
 
@@ -115,6 +149,8 @@ export class IncentivoMetasPageComponent implements OnInit {
 
   filtros: FormGroup;
   opcionesVendedores: IOpcionBuscable[] = [];
+  opcionesLideres: IOpcionBuscable[] = [];
+  opcionesLineas: IOpcionBuscable[] = [];
   private _nombreVendedor = new Map<string, string>();
 
   consultando = false;
@@ -126,6 +162,8 @@ export class IncentivoMetasPageComponent implements OnInit {
   /** Consulta sin vendedor: una fila por vendedor. */
   vendedores: IResumenVendedor[] = [];
   totalVendedores: IResumenIncentivo | null = null;
+  /** Productos agrupados por línea de negocio con su subtotal: del vendedor elegido o de todos. */
+  lineas: IResumenLinea[] = [];
   /** Título del informe de la última consulta. */
   titulo = "";
   /** Mes/año/vendedor/% de la última consulta (para recalcular y exportar con lo que se ve). */
@@ -139,11 +177,28 @@ export class IncentivoMetasPageComponent implements OnInit {
       anio: [hoy.getFullYear(), [Validators.required, Validators.min(2000), Validators.max(2100)]],
       mes: [hoy.getMonth() + 1, Validators.required],
       vendedor: [null],
-      pctMinimo: [100, [Validators.required, Validators.min(0), Validators.max(1000)]],
+      lider: [null],
+      linea: [null],
     });
   }
 
   ngOnInit(): void {
+    // Líder y línea se aplican al instante sobre lo ya consultado.
+    for (const campo of ["lider", "linea"]) {
+      this.filtros.get(campo)?.valueChanges.subscribe(() => this.recalcular());
+    }
+    const opcionesCatalogo = (lista: { id: number; codigo: string; nombre: string }[]) =>
+      [...lista]
+        .sort((a, b) => String(a.codigo).localeCompare(String(b.codigo)))
+        .map((x) => ({ valor: x.id, texto: `${String(x.codigo).trim()} · ${String(x.nombre).trim()}` }));
+    this._api.todosCatalogo(CATALOGO_LIDERES).subscribe({
+      next: (lista) => (this.opcionesLideres = opcionesCatalogo(lista)),
+      error: (e) => this._error(`Líderes: ${mensajeErrorHttp(e)}`),
+    });
+    this._api.todosCatalogo(CATALOGO_LINEAS_NEGOCIO).subscribe({
+      next: (lista) => (this.opcionesLineas = opcionesCatalogo(lista)),
+      error: (e) => this._error(`Líneas de negocio: ${mensajeErrorHttp(e)}`),
+    });
     this._api.todosVendedores().subscribe({
       next: (lista) => {
         lista.forEach((v) => this._nombreVendedor.set(v.codigo, v.nombre));
@@ -167,7 +222,7 @@ export class IncentivoMetasPageComponent implements OnInit {
     const anio = Number(f.anio);
     const mes = Number(f.mes);
     const vendedor: string | null = f.vendedor ? String(f.vendedor) : null;
-    const pct = Number(f.pctMinimo);
+    const pct = PCT_MINIMO;
     this.consultando = true;
     forkJoin({
       metas: this._api.todasLasMetas({ anio, mes, vendedor }),
@@ -194,11 +249,36 @@ export class IncentivoMetasPageComponent implements OnInit {
       });
   }
 
-  /** Recalcula estados e incentivos al cambiar el % mínimo (sin volver a consultar). */
+  /** Vuelve a armar el informe al cambiar el líder o la línea (sin volver a consultar). */
   recalcular(): void {
-    if (!this._consulta || this.filtros.get("pctMinimo")?.invalid) return;
-    this._consulta.pct = Number(this.filtros.value.pctMinimo);
+    if (!this._consulta) return;
     this._armar();
+  }
+
+  get hayFiltroLiderLinea(): boolean {
+    return !!(this.filtros.value.lider || this.filtros.value.linea);
+  }
+
+  quitarFiltroLiderLinea(): void {
+    this.filtros.patchValue({ lider: null, linea: null });
+  }
+
+  /** Metas consultadas que cumplen el filtro de líder y línea. */
+  private _metasFiltradas(): IMetaVenta[] {
+    const { lider, linea } = this.filtros.value;
+    return this._metas.filter(
+      (m) => (!lider || Number(m.IdLider) === Number(lider)) && (!linea || Number(m.IdLineaNegocio) === Number(linea))
+    );
+  }
+
+  /** " · LÍNEA VETERINARIA 1 · LÍDER DOUGLAS" según los filtros (para el título y el Excel). */
+  private _sufijoFiltros(): string {
+    const { lider, linea } = this.filtros.value;
+    const texto = (opciones: IOpcionBuscable[], valor: unknown) =>
+      (opciones.find((o) => o.valor === valor)?.texto ?? String(valor)).replace(/^.*? · /, "");
+    return [linea ? ` · LÍNEA ${texto(this.opcionesLineas, linea)}` : "", lider ? ` · LÍDER ${texto(this.opcionesLideres, lider)}` : ""]
+      .join("")
+      .toUpperCase();
   }
 
   /** Desde el resumen por vendedor: abre el detalle de ese vendedor. */
@@ -216,8 +296,10 @@ export class IncentivoMetasPageComponent implements OnInit {
 
   private _armar(): void {
     const c = this._consulta!;
+    const metas = this._metasFiltradas();
+    const sufijo = this._sufijoFiltros();
     const porVendedor = new Map<string, IMetaVenta[]>();
-    this._metas.forEach((m) => {
+    metas.forEach((m) => {
       const v = String(m.Vendedor).trim();
       porVendedor.set(v, [...(porVendedor.get(v) ?? []), m]);
     });
@@ -225,26 +307,52 @@ export class IncentivoMetasPageComponent implements OnInit {
       this._ventas.filter((x) => String(x.VENDEDOR).trim().toUpperCase() === vendedor.toUpperCase());
 
     if (c.vendedor) {
-      this.filas = this._filas(this._metas, ventasDe(c.vendedor), c.pct);
+      const filas = this._filas(metas, ventasDe(c.vendedor), c.pct);
+      this.lineas = this._porLinea(filas.map((f) => ({ ...f, vendedor: c.vendedor! })));
+      // Los productos se muestran agrupados por línea (dentro de cada línea, en el orden de carga).
+      this.filas = this.lineas.flatMap((l) => l.filas);
       this.resumen = this._resumir(this.filas);
       const nombre = this._nombreVendedor.get(c.vendedor) ?? c.vendedor;
-      this.titulo = `META E INCENTIVO · ${nombreMes(c.mes).toUpperCase()} ${c.anio} · ${nombre.toUpperCase()}`;
+      this.titulo = `META E INCENTIVO · ${nombreMes(c.mes).toUpperCase()} ${c.anio} · ${nombre.toUpperCase()}${sufijo}`;
       this.vendedores = [];
       this.totalVendedores = null;
       return;
     }
 
+    const todas: (IFilaIncentivo & { vendedor: string })[] = [];
     this.vendedores = Array.from(porVendedor.entries())
-      .map(([vendedor, metas]) => ({
-        vendedor,
-        nombre: this._nombreVendedor.get(vendedor) ?? metas[0]?.vendedor?.NOMBRE ?? vendedor,
-        ...this._resumir(this._filas(metas, ventasDe(vendedor), c.pct)),
-      }))
+      .map(([vendedor, metas]) => {
+        const filas = this._filas(metas, ventasDe(vendedor), c.pct);
+        filas.forEach((f) => todas.push({ ...f, vendedor }));
+        return {
+          vendedor,
+          nombre: this._nombreVendedor.get(vendedor) ?? metas[0]?.vendedor?.NOMBRE ?? vendedor,
+          lider: distintos(filas.map((f) => f.lider)),
+          ...this._resumir(filas),
+        };
+      })
       .sort((a, b) => a.nombre.localeCompare(b.nombre));
     this.totalVendedores = this._sumar(this.vendedores);
-    this.titulo = `META E INCENTIVO · ${nombreMes(c.mes).toUpperCase()} ${c.anio} · TODOS LOS VENDEDORES`;
+    this.lineas = this._porLinea(todas);
+    this.titulo = `META E INCENTIVO · ${nombreMes(c.mes).toUpperCase()} ${c.anio} · TODOS LOS VENDEDORES${sufijo}`;
     this.filas = [];
     this.resumen = null;
+  }
+
+  /** Agrupa por línea de negocio (ordenadas por código) y totaliza cada una. */
+  private _porLinea(filas: (IFilaIncentivo & { vendedor: string })[]): IResumenLinea[] {
+    const grupos = new Map<string, (IFilaIncentivo & { vendedor: string })[]>();
+    filas.forEach((f) => grupos.set(f.linea, [...(grupos.get(f.linea) ?? []), f]));
+    return Array.from(grupos.entries())
+      .map(([linea, lista]) => ({
+        linea,
+        lineaCodigo: lista[0].lineaCodigo,
+        lider: distintos(lista.map((f) => f.lider)),
+        vendedores: new Set(lista.map((f) => f.vendedor)).size,
+        filas: lista.map(({ vendedor, ...f }) => f),
+        ...this._resumir(lista),
+      }))
+      .sort((a, b) => (a.linea === SIN_LINEA ? 1 : b.linea === SIN_LINEA ? -1 : a.lineaCodigo.localeCompare(b.lineaCodigo) || a.linea.localeCompare(b.linea)));
   }
 
   private _filas(metas: IMetaVenta[], ventas: IVentaDia[], pct: number): IFilaIncentivo[] {
@@ -275,6 +383,9 @@ export class IncentivoMetasPageComponent implements OnInit {
         codigo,
         producto: m.articulo?.DESCRIPCION?.trim() || codigo,
         proveedor: m.proveedor?.codigo?.trim() || "",
+        linea: m.lineaNegocio?.nombre?.trim() || m.lineaNegocio?.codigo?.trim() || SIN_LINEA,
+        lineaCodigo: m.lineaNegocio?.codigo?.trim() || "",
+        lider: m.lider?.nombre?.trim() || m.lider?.codigo?.trim() || "",
         incentivo,
         meta,
         minimoBase,
@@ -368,10 +479,15 @@ export class IncentivoMetasPageComponent implements OnInit {
         titulo: this.titulo,
         pct: c.pct,
         semanas,
-        filas: this.filas.map((f) => ({
+        grupos: this.lineas.map((l) => ({
+          linea: l.linea,
+          lider: l.lider,
+          filas: l.filas.map((f) => ({
           codigo: f.codigo,
           producto: f.producto,
-          linea: f.proveedor,
+          proveedor: f.proveedor,
+          linea: f.linea,
+          lider: f.lider,
           incentivo: f.incentivo,
           meta: f.meta,
           minimoBase: f.minimoBase,
@@ -383,6 +499,7 @@ export class IncentivoMetasPageComponent implements OnInit {
           estadoTexto: this.textoEstado(f.estado),
           ganado: f.ganado,
           aMeta: f.aMeta,
+          })),
         })),
         resumen: {
           meta: r.meta,
@@ -399,63 +516,98 @@ export class IncentivoMetasPageComponent implements OnInit {
       return;
     }
 
-    // ---------- Resumen por vendedor (mismo estilo)
+    // ---------- Resumen por vendedor y totales por línea (mismo estilo)
     const t = this.totalVendedores;
     if (!t) return;
+    const hojaVendedores = this._hojaResumen(
+      "Resumen por vendedor",
+      ["Vendedor", "Nombre", "Líder", "Productos"],
+      this.vendedores.map((v) => ({ inicio: [v.vendedor, v.nombre, v.lider, v.productos], r: v })),
+      t,
+      semanas,
+      [10, 30, 16, 10]
+    );
+    const hojaLineas = this._hojaResumen(
+      "Totales por línea",
+      ["Línea", "Líder", "Vendedores", "Metas"],
+      this.lineas.map((l) => ({ inicio: [l.linea, l.lider, l.vendedores, l.productos], r: l })),
+      t,
+      semanas,
+      [22, 18, 11, 10],
+      new Set(this.vendedores.map((v) => v.vendedor)).size
+    );
+    const blob = crearXlsxRico([hojaVendedores, hojaLineas], ESTILOS_INFORME_XML);
+    descargarBlob(blob, `${c.anio}-${String(c.mes).padStart(2, "0")}_Meta-Incentivo_Resumen.xlsx`);
+  }
+
+  /**
+   * Hoja de resumen con el formato del informe: 4 columnas iniciales (texto/código y conteos), meta,
+   * semanas, vendido, avance, cumplidas, incentivo ganado e incentivo a meta, y la fila TOTAL.
+   */
+  private _hojaResumen(
+    nombre: string,
+    iniciales: string[],
+    filas: { inicio: (string | number)[]; r: IResumenIncentivo }[],
+    total: IResumenIncentivo,
+    semanas: string[],
+    anchosIniciales: number[],
+    /** Valor de la 3.ª columna en el TOTAL (p. ej. vendedores distintos); por defecto vacío. */
+    totalTercera: number | null = null
+  ): IHojaRica {
+    const c = this._consulta!;
     const hoja: (ICeldaRica | null)[][] = [];
     const poner = (fila: number, col: number, celda: ICeldaRica) => ((hoja[fila - 1] ??= [])[col] = celda);
     const n = semanas.length;
-    const colV = 4 + n;
+    const colM = iniciales.length;
+    const colV = colM + 1 + n;
     poner(1, 0, { v: this.titulo, s: E.TITULO });
     poner(1, colV, { v: "% mínimo para cobrar", s: E.ETIQUETA_GRIS });
     poner(1, colV + 1, { v: c.pct / 100, s: E.PCT_AZUL });
-    const enc = ["Vendedor", "Nombre", "Productos", "Meta (u)", ...semanas, "Vendido (u)", "Avance", "Con meta cumplida", "Incentivo ganado", "Incentivo a meta"];
-    enc.forEach((texto, col) => poner(3, col, { v: texto, s: col >= 4 && col < 4 + n ? E.ENC_SEMANA : E.ENC }));
-    this.vendedores.forEach((v, i) => {
+    const enc = [...iniciales, "Meta (u)", ...semanas, "Vendido (u)", "Avance", "Con meta cumplida", "Incentivo ganado", "Incentivo a meta"];
+    enc.forEach((texto, col) => poner(3, col, { v: texto, s: col > colM && col <= colM + n ? E.ENC_SEMANA : E.ENC }));
+    filas.forEach(({ inicio, r }, i) => {
       const fila = 4 + i;
       const alt = i % 2 === 1;
       const est = (a: number, b: number) => (alt ? b : a);
-      poner(fila, 0, { v: v.vendedor, s: est(E.CODIGO, E.CODIGO_ALT) });
-      poner(fila, 1, { v: v.nombre, s: est(E.TEXTO, E.TEXTO_ALT) });
-      poner(fila, 2, { v: v.productos, s: est(E.ENTERO, E.ENTERO_ALT) });
-      poner(fila, 3, { v: v.meta, s: est(E.META, E.META_ALT) });
-      v.semanas.forEach((x, k) => poner(fila, 4 + k, { v: x || null, s: E.SEMANA }));
-      poner(fila, colV, { v: v.vendido, s: est(E.ENTERO_NEGRITA, E.ENTERO_NEGRITA_ALT) });
-      poner(fila, colV + 1, { v: v.avance, s: est(E.PCT, E.PCT_ALT) });
-      poner(fila, colV + 2, { v: v.cumplidas, s: est(E.ENTERO, E.ENTERO_ALT) });
-      poner(fila, colV + 3, { v: Number(v.ganado.toFixed(2)), s: est(E.MONEDA_NEGRITA, E.MONEDA_NEGRITA_ALT) });
-      poner(fila, colV + 4, { v: Number(v.incentivoAlCien.toFixed(2)), s: est(E.MONEDA, E.MONEDA_ALT) });
+      inicio.forEach((v, col) =>
+        poner(fila, col, {
+          v,
+          s: typeof v === "number" ? est(E.ENTERO, E.ENTERO_ALT) : col === 0 ? est(E.CODIGO, E.CODIGO_ALT) : est(E.TEXTO, E.TEXTO_ALT),
+        })
+      );
+      poner(fila, colM, { v: r.meta, s: est(E.META, E.META_ALT) });
+      r.semanas.forEach((x, k) => poner(fila, colM + 1 + k, { v: x || null, s: E.SEMANA }));
+      poner(fila, colV, { v: r.vendido, s: est(E.ENTERO_NEGRITA, E.ENTERO_NEGRITA_ALT) });
+      poner(fila, colV + 1, { v: r.avance, s: est(E.PCT, E.PCT_ALT) });
+      poner(fila, colV + 2, { v: r.cumplidas, s: est(E.ENTERO, E.ENTERO_ALT) });
+      poner(fila, colV + 3, { v: Number(r.ganado.toFixed(2)), s: est(E.MONEDA_NEGRITA, E.MONEDA_NEGRITA_ALT) });
+      poner(fila, colV + 4, { v: Number(r.incentivoAlCien.toFixed(2)), s: est(E.MONEDA, E.MONEDA_ALT) });
     });
-    const ft = 4 + this.vendedores.length;
+    const ft = 4 + filas.length;
     for (let col = 0; col < enc.length; col++) poner(ft, col, { s: E.TOTAL_VACIO });
     poner(ft, 1, { v: "TOTAL", s: E.TOTAL_TEXTO });
-    poner(ft, 2, { v: t.productos, s: E.TOTAL_ENTERO });
-    poner(ft, 3, { v: t.meta, s: E.TOTAL_ENTERO });
-    t.semanas.forEach((x, k) => poner(ft, 4 + k, { v: x, s: E.TOTAL_ENTERO }));
-    poner(ft, colV, { v: t.vendido, s: E.TOTAL_ENTERO });
-    poner(ft, colV + 1, { v: t.avance, s: E.TOTAL_PCT });
-    poner(ft, colV + 2, { v: t.cumplidas, s: E.TOTAL_ENTERO });
-    poner(ft, colV + 3, { v: Number(t.ganado.toFixed(2)), s: E.TOTAL_MONEDA });
-    poner(ft, colV + 4, { v: Number(t.incentivoAlCien.toFixed(2)), s: E.TOTAL_MONEDA });
+    if (totalTercera !== null) poner(ft, 2, { v: totalTercera, s: E.TOTAL_ENTERO });
+    poner(ft, 3, { v: total.productos, s: E.TOTAL_ENTERO });
+    poner(ft, colM, { v: total.meta, s: E.TOTAL_ENTERO });
+    total.semanas.forEach((x, k) => poner(ft, colM + 1 + k, { v: x, s: E.TOTAL_ENTERO }));
+    poner(ft, colV, { v: total.vendido, s: E.TOTAL_ENTERO });
+    poner(ft, colV + 1, { v: total.avance, s: E.TOTAL_PCT });
+    poner(ft, colV + 2, { v: total.cumplidas, s: E.TOTAL_ENTERO });
+    poner(ft, colV + 3, { v: Number(total.ganado.toFixed(2)), s: E.TOTAL_MONEDA });
+    poner(ft, colV + 4, { v: Number(total.incentivoAlCien.toFixed(2)), s: E.TOTAL_MONEDA });
     const letra = (i: number) => String.fromCharCode(65 + i);
-    const blob = crearXlsxRico(
-      [
-        {
-          nombre: "Resumen por vendedor",
-          filas: hoja,
-          anchos: [10, 30, 10, 10, ...semanas.map(() => 10), 11, 10, 12, 13, 13],
-          altos: { 1: 23.25, 3: 33.75 },
-          fijar: { columnas: 2, filas: 3 },
-          autoFiltro: `A3:${letra(enc.length - 1)}${ft - 1}`,
-          formatoCondicionalXml: cfBarraAvance(`${letra(colV + 1)}4:${letra(colV + 1)}${ft - 1}`),
-          sinCuadricula: true,
-          ajustarPagina: true,
-          filasTituloImpresion: "$3:$3",
-        },
-      ],
-      ESTILOS_INFORME_XML
-    );
-    descargarBlob(blob, `${c.anio}-${String(c.mes).padStart(2, "0")}_Meta-Incentivo_Resumen.xlsx`);
+    return {
+      nombre,
+      filas: hoja,
+      anchos: [...anchosIniciales, 10, ...semanas.map(() => 10), 11, 10, 12, 13, 13],
+      altos: { 1: 23.25, 3: 33.75 },
+      fijar: { columnas: 2, filas: 3 },
+      autoFiltro: `A3:${letra(enc.length - 1)}${Math.max(ft - 1, 4)}`,
+      formatoCondicionalXml: filas.length ? cfBarraAvance(`${letra(colV + 1)}4:${letra(colV + 1)}${ft - 1}`) : "",
+      sinCuadricula: true,
+      ajustarPagina: true,
+      filasTituloImpresion: "$3:$3",
+    };
   }
 
   private _error(mensaje: string): void {

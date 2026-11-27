@@ -1,10 +1,87 @@
+$movil: 767.98px;
+$tablet: 1199.98px;
+
+// ---------- Filtros: una sola línea en escritorio; se reacomodan en tablet y celular
 .filtros {
   margin-bottom: 12px;
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
 
-  .acciones {
+.barra-filtros {
+  display: grid;
+  grid-template-columns: 100px 150px minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr) auto;
+  grid-template-areas: "anio mes vendedor lider linea acciones";
+  align-items: center;
+  gap: 12px;
+
+  .f-anio {
+    grid-area: anio;
+  }
+  .f-mes {
+    grid-area: mes;
+  }
+  .f-vendedor {
+    grid-area: vendedor;
+  }
+  .f-lider {
+    grid-area: lider;
+  }
+  .f-linea {
+    grid-area: linea;
+  }
+
+  mat-form-field,
+  app-select-buscable {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  // Sin el espacio del texto de ayuda: los campos y el botón quedan alineados al centro.
+  ::ng-deep .mat-form-field-wrapper {
+    padding-bottom: 0;
+    margin: 0;
+  }
+
+  ::ng-deep .mat-form-field-subscript-wrapper {
+    display: none;
+  }
+
+  .f-acciones {
+    grid-area: acciones;
     display: flex;
     align-items: center;
-    min-height: 56px;
+    gap: 4px;
+    white-space: nowrap;
+  }
+
+  .btn-consultar {
+    height: 44px;
+  }
+
+  @media (max-width: $tablet) {
+    grid-template-columns: 100px 150px minmax(0, 1fr) auto;
+    grid-template-areas:
+      "anio mes vendedor vendedor"
+      "lider lider linea acciones";
+  }
+
+  @media (max-width: $movil) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      "anio mes"
+      "vendedor vendedor"
+      "lider lider"
+      "linea linea"
+      "acciones acciones";
+    gap: 10px;
+
+    .f-acciones {
+      .btn-consultar {
+        flex: 1 1 auto;
+      }
+    }
   }
 }
 
@@ -208,6 +285,33 @@
   white-space: nowrap;
 }
 
+// Fila de subtotal por línea de negocio (azul claro, como en el Excel)
+.tabla-informe tr.subtotal td {
+  background: #e3e8f4;
+  color: #1b2a5c;
+  font-weight: 700;
+  border-bottom: 2px solid #c5cde3;
+
+  small {
+    font-weight: 400;
+    color: #5f6368;
+  }
+}
+
+.subtitulo-tabla {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 18px 0 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1b2a5c;
+
+  mat-icon {
+    color: #c62828;
+  }
+}
+
 .tabla-informe tr.fila-clic {
   cursor: pointer;
 
@@ -223,4 +327,79 @@
   background: #fff8e1;
   color: #8d6e00;
   font-size: 13px;
+}
+
+// ---------- Responsive (tablet y celular)
+.tabla-informe {
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: $movil) {
+  .fr-title {
+    font-size: 20px;
+  }
+
+  .encabezado-informe {
+    gap: 6px;
+
+    h3 {
+      flex: 1 1 calc(100% - 56px);
+      font-size: 15px;
+      line-height: 1.3;
+    }
+
+    .espacio {
+      display: none;
+    }
+
+    button[mat-stroked-button] {
+      width: 100%;
+    }
+  }
+
+  .resumen {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 8px;
+
+    .dato {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+      font-size: 12px;
+
+      strong {
+        font-size: 15px;
+      }
+    }
+  }
+
+  .tabla-informe {
+    max-height: none;
+
+    table {
+      font-size: 12px;
+    }
+
+    th,
+    td {
+      padding: 4px 6px;
+    }
+
+    .col-producto {
+      min-width: 150px;
+    }
+
+    .col-avance .barra {
+      width: 36px;
+    }
+  }
+
+  .subtitulo-tabla {
+    font-size: 14px;
+  }
+
+  .aviso,
+  .pendiente {
+    font-size: 12px;
+  }
 }

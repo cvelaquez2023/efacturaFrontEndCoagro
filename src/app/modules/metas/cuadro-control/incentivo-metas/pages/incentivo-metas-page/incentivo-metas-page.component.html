@@ -2,40 +2,46 @@
   <h2 class="fr-title">Incentivo y Metas</h2>
 
   <div class="fr-card filtros" [formGroup]="filtros">
-    <div class="row g-2 align-items-start">
-      <div class="col-6 col-md-2">
-        <mat-form-field appearance="outline">
-          <mat-label>Año</mat-label>
-          <input matInput type="number" formControlName="anio" min="2000" max="2100" />
-        </mat-form-field>
-      </div>
-      <div class="col-6 col-md-2">
-        <mat-form-field appearance="outline">
-          <mat-label>Mes</mat-label>
-          <mat-select formControlName="mes">
-            <mat-option *ngFor="let m of meses; let i = index" [value]="i + 1">{{ m }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-      <div class="col-12 col-md-4">
-        <app-select-buscable
-          etiqueta="Vendedor"
-          formControlName="vendedor"
-          [opciones]="opcionesVendedores"
-          textoTodos="Todos (resumen por vendedor)"
-        ></app-select-buscable>
-      </div>
-      <div class="col-6 col-md-2">
-        <mat-form-field appearance="outline">
-          <mat-label>% mínimo para cobrar</mat-label>
-          <input matInput type="number" formControlName="pctMinimo" min="0" step="1" (change)="recalcular()" />
-          <span matSuffix>%</span>
-          <mat-hint>Del mínimo de cada producto</mat-hint>
-        </mat-form-field>
-      </div>
-      <div class="col-6 col-md-2 acciones">
-        <button mat-raised-button color="warn" type="button" [disabled]="consultando" (click)="consultar()">
+    <div class="barra-filtros">
+      <mat-form-field appearance="outline" class="f-anio">
+        <mat-label>Año</mat-label>
+        <input matInput type="number" formControlName="anio" min="2000" max="2100" />
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="f-mes">
+        <mat-label>Mes</mat-label>
+        <mat-select formControlName="mes">
+          <mat-option *ngFor="let m of meses; let i = index" [value]="i + 1">{{ m }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <app-select-buscable
+        class="f-vendedor"
+        etiqueta="Vendedor"
+        formControlName="vendedor"
+        [opciones]="opcionesVendedores"
+        textoTodos="Todos (resumen)"
+      ></app-select-buscable>
+      <app-select-buscable class="f-lider" etiqueta="Líder" formControlName="lider" [opciones]="opcionesLideres" textoTodos="Todos"></app-select-buscable>
+      <app-select-buscable
+        class="f-linea"
+        etiqueta="Línea de negocio"
+        formControlName="linea"
+        [opciones]="opcionesLineas"
+        textoTodos="Todas"
+      ></app-select-buscable>
+      <div class="f-acciones">
+        <button mat-raised-button color="warn" type="button" class="btn-consultar" [disabled]="consultando" (click)="consultar()">
           <mat-icon>search</mat-icon>{{ consultando ? "Consultando…" : "Consultar" }}
+        </button>
+        <button
+          mat-icon-button
+          type="button"
+          class="btn-quitar"
+          [disabled]="!hayFiltroLiderLinea"
+          matTooltip="Quitar líder y línea"
+          aria-label="Quitar líder y línea"
+          (click)="quitarFiltroLiderLinea()"
+        >
+          <mat-icon>filter_alt_off</mat-icon>
         </button>
       </div>
     </div>
@@ -57,7 +63,6 @@
       </button>
       <h3>{{ titulo }}</h3>
       <span class="espacio"></span>
-      <span class="pct">% mínimo para cobrar <strong>{{ filtros.value.pctMinimo }}%</strong></span>
       <button mat-stroked-button type="button" (click)="exportar()" [disabled]="esResumen ? !vendedores.length : !filas.length">
         <mat-icon>download</mat-icon>Excel
       </button>
@@ -82,6 +87,7 @@
             <tr>
               <th>Vendedor</th>
               <th class="col-producto">Nombre</th>
+              <th>Líder</th>
               <th class="fr-num">Productos</th>
               <th class="fr-num">Meta (u)</th>
               <th class="semana fr-center" *ngFor="let s of semanas">Sem {{ s.numero }}<br /><small>{{ etiquetaSemana(s) }}</small></th>
@@ -96,6 +102,7 @@
             <tr *ngFor="let v of vendedores" class="fila-clic" matTooltip="Ver el detalle de {{ v.nombre }}" (click)="verVendedor(v)">
               <td>{{ v.vendedor }}</td>
               <td class="col-producto">{{ v.nombre }}</td>
+              <td>{{ v.lider }}</td>
               <td class="fr-num">{{ v.productos }}</td>
               <td class="fr-num meta">{{ v.meta | number: "1.0-2" }}</td>
               <td class="semana fr-center" *ngFor="let x of v.semanas">{{ x ? (x | number: "1.0-2") : "" }}</td>
@@ -113,6 +120,7 @@
             <tr>
               <td></td>
               <td class="col-producto">TOTAL</td>
+              <td></td>
               <td class="fr-num">{{ t.productos }}</td>
               <td class="fr-num">{{ t.meta | number: "1.0-2" }}</td>
               <td class="fr-center" *ngFor="let x of t.semanas">{{ x | number: "1.0-2" }}</td>
@@ -126,6 +134,63 @@
         </table>
       </div>
       <p class="nota">Haga clic en un vendedor para ver su detalle por producto y semana.</p>
+
+      <!-- Totales por línea de negocio (todos los vendedores) -->
+      <ng-container *ngIf="lineas.length">
+        <h4 class="subtitulo-tabla"><mat-icon>category</mat-icon>Totales por línea de negocio</h4>
+        <div class="fr-table-wrap tabla-informe">
+          <table>
+            <thead>
+              <tr>
+                <th class="col-producto">Línea</th>
+                <th>Líder</th>
+                <th class="fr-num">Vendedores</th>
+                <th class="fr-num">Metas</th>
+                <th class="fr-num">Meta (u)</th>
+                <th class="semana fr-center" *ngFor="let s of semanas">Sem {{ s.numero }}<br /><small>{{ etiquetaSemana(s) }}</small></th>
+                <th class="fr-num">Vendido (u)</th>
+                <th class="col-avance">Avance</th>
+                <th class="fr-num">Cumplidas</th>
+                <th class="fr-num">Incentivo ganado</th>
+                <th class="fr-num">Incentivo a meta</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let l of lineas">
+                <td class="col-producto"><strong>{{ l.linea }}</strong></td>
+                <td>{{ l.lider }}</td>
+                <td class="fr-num">{{ l.vendedores }}</td>
+                <td class="fr-num">{{ l.productos }}</td>
+                <td class="fr-num meta">{{ l.meta | number: "1.0-2" }}</td>
+                <td class="semana fr-center" *ngFor="let x of l.semanas">{{ x ? (x | number: "1.0-2") : "" }}</td>
+                <td class="fr-num"><strong>{{ l.vendido | number: "1.0-2" }}</strong></td>
+                <td class="col-avance">
+                  <div class="barra"><div class="relleno" [style.width.%]="anchoBarra(l.avance)"></div></div>
+                  <span>{{ l.avance | percent: "1.0-0" }}</span>
+                </td>
+                <td class="fr-num">{{ l.cumplidas }}</td>
+                <td class="fr-num"><strong>{{ l.ganado | currency: "USD" }}</strong></td>
+                <td class="fr-num">{{ l.incentivoAlCien | currency: "USD" }}</td>
+              </tr>
+            </tbody>
+            <tfoot *ngIf="totalVendedores as t">
+              <tr>
+                <td class="col-producto">TOTAL</td>
+                <td></td>
+                <td class="fr-num">{{ vendedores.length }}</td>
+                <td class="fr-num">{{ t.productos }}</td>
+                <td class="fr-num">{{ t.meta | number: "1.0-2" }}</td>
+                <td class="fr-center" *ngFor="let x of t.semanas">{{ x | number: "1.0-2" }}</td>
+                <td class="fr-num">{{ t.vendido | number: "1.0-2" }}</td>
+                <td>{{ t.avance | percent: "1.0-0" }}</td>
+                <td class="fr-num">{{ t.cumplidas }}</td>
+                <td class="fr-num">{{ t.ganado | currency: "USD" }}</td>
+                <td class="fr-num">{{ t.incentivoAlCien | currency: "USD" }}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </ng-container>
     </ng-container>
 
     <!-- ===================== Detalle de un vendedor ===================== -->
@@ -137,23 +202,28 @@
               <th>Código</th>
               <th class="col-producto">Producto</th>
               <th>Proveedor</th>
+              <th>Línea</th>
+              <th>Líder</th>
               <th class="fr-num">$ por unidad</th>
               <th class="fr-num">Meta (u)</th>
-              <th class="fr-num">Mínimo {{ filtros.value.pctMinimo }} % (u)</th>
+              <th class="fr-num">Mínimo (u)</th>
               <th class="semana fr-center" *ngFor="let s of semanas">Sem {{ s.numero }}<br /><small>{{ etiquetaSemana(s) }}</small></th>
               <th class="fr-num">Vendido (u)</th>
               <th class="col-avance">Avance</th>
-              <th class="fr-num">Faltan para {{ filtros.value.pctMinimo }} % (u)</th>
+              <th class="fr-num">Faltan para el mínimo (u)</th>
               <th>Estado</th>
               <th class="fr-num">Incentivo ganado</th>
               <th class="fr-num">Incentivo a meta</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let f of filas" [class.cumplida]="f.estado === 'CUMPLIDA'">
+            <ng-container *ngFor="let l of lineas">
+            <tr *ngFor="let f of l.filas" [class.cumplida]="f.estado === 'CUMPLIDA'">
               <td>{{ f.codigo }}</td>
               <td class="col-producto">{{ f.producto }}</td>
               <td>{{ f.proveedor }}</td>
+              <td>{{ f.linea }}</td>
+              <td>{{ f.lider }}</td>
               <td class="fr-num incentivo">{{ f.incentivo ? (f.incentivo | currency: "USD":"symbol":"1.3-3") : "" }}</td>
               <td class="fr-num meta">{{ f.meta | number: "1.0-2" }}</td>
               <td class="fr-num"><strong>{{ f.minimo | number: "1.0-2" }}</strong></td>
@@ -168,11 +238,35 @@
               <td class="fr-num"><strong>{{ f.ganado | currency: "USD" }}</strong></td>
               <td class="fr-num">{{ f.aMeta | currency: "USD" }}</td>
             </tr>
+            <!-- Subtotal de la línea -->
+            <tr class="subtotal">
+              <td></td>
+              <td class="col-producto">Subtotal {{ l.linea }} <small>({{ l.productos }} productos)</small></td>
+              <td></td>
+              <td>{{ l.linea }}</td>
+              <td>{{ l.lider }}</td>
+              <td></td>
+              <td class="fr-num">{{ l.meta | number: "1.0-2" }}</td>
+              <td class="fr-num">{{ l.minimo | number: "1.0-2" }}</td>
+              <td class="fr-center" *ngFor="let x of l.semanas">{{ x ? (x | number: "1.0-2") : "" }}</td>
+              <td class="fr-num">{{ l.vendido | number: "1.0-2" }}</td>
+              <td class="col-avance">
+                <div class="barra"><div class="relleno" [style.width.%]="anchoBarra(l.avance)"></div></div>
+                <span>{{ l.avance | percent: "1.0-0" }}</span>
+              </td>
+              <td></td>
+              <td class="fr-num">{{ l.cumplidas }}/{{ l.productos }} pagan</td>
+              <td class="fr-num">{{ l.ganado | currency: "USD" }}</td>
+              <td class="fr-num">{{ l.incentivoAlCien | currency: "USD" }}</td>
+            </tr>
+            </ng-container>
           </tbody>
           <tfoot *ngIf="resumen as t">
             <tr>
               <td></td>
               <td class="col-producto">TOTAL</td>
+              <td></td>
+              <td></td>
               <td></td>
               <td></td>
               <td class="fr-num">{{ t.meta | number: "1.0-2" }}</td>
@@ -197,11 +291,13 @@
     </div>
 
     <ng-template #sinMetas>
-      <div class="fr-card vacio">No hay metas cargadas para ese mes{{ esResumen ? "" : " y vendedor" }}.</div>
+      <div class="fr-card vacio">
+        No hay metas cargadas para ese mes{{ esResumen ? "" : " y vendedor" }}{{ hayFiltroLiderLinea ? " con el líder y la línea elegidos" : "" }}.
+      </div>
     </ng-template>
 
     <p class="nota">
-      Mínimo = redondeo hacia arriba de (mínimo cargado × {{ filtros.value.pctMinimo }} %). «Ya paga» al llegar al mínimo
+      Mínimo = el mínimo cargado en la meta (si no se cargó, la meta). «Ya paga» al llegar al mínimo
       y «Meta cumplida» al llegar a la meta. Incentivo ganado = vendido × $ por unidad (al llegar al mínimo); incentivo
       a meta = meta × $ por unidad. Semanas de lunes a sábado. El Excel se descarga con el formato y las fórmulas del
       libro de COAGRO.

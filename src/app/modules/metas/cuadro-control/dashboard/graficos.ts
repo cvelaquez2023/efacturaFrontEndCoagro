@@ -1,6 +1,6 @@
 /**
- * Opciones de Highcharts para el Dashboard (estilo uniforme: Arial, colores de la empresa,
- * sin créditos, tooltips en español con formato de dinero/unidades).
+ * Opciones de Highcharts para el Dashboard de Metas (estilo uniforme: Arial, colores de la empresa,
+ * sin créditos, tooltips en español con formato de unidades y porcentajes).
  */
 import * as Highcharts from "highcharts";
 
@@ -11,147 +11,206 @@ export const COLORES = {
   turquesa: "#2FA39A",
   ambar: "#F2A900",
   gris: "#9AA0A6",
+  grisClaro: "#DADCE0",
   azul: "#1565C0",
-  morado: "#6A4C93",
 };
 
-export const PALETA = [
-  COLORES.marino,
-  COLORES.rojo,
-  COLORES.turquesa,
-  COLORES.ambar,
-  COLORES.verde,
-  COLORES.azul,
-  COLORES.morado,
-  "#E76F51",
-  "#8D6E63",
-  COLORES.gris,
-];
+/** Color de un avance: verde ≥ 100 %, ámbar ≥ 50 %, rojo por debajo. */
+export const colorAvance = (avance: number): string =>
+  avance >= 1 ? COLORES.verde : avance >= 0.5 ? COLORES.ambar : COLORES.rojo;
 
-const dinero = (v: number) => "$" + Highcharts.numberFormat(v, 2, ".", ",");
 const entero = (v: number) => Highcharts.numberFormat(v, 0, ".", ",");
+const pct = (v: number) => Highcharts.numberFormat(v, 1, ".", ",") + "%";
 
 const base = (alto = 320): Highcharts.Options => ({
-  chart: { height: alto, style: { fontFamily: "Arial, Roboto, sans-serif" }, backgroundColor: "transparent", spacing: [10, 10, 10, 10] },
+  chart: {
+    height: alto,
+    style: { fontFamily: "Arial, Roboto, sans-serif" },
+    backgroundColor: "transparent",
+    spacing: [10, 6, 10, 6],
+  },
   title: { text: undefined },
   credits: { enabled: false },
-  colors: PALETA,
   legend: { itemStyle: { fontWeight: "normal", color: "#3c4043" } },
-  lang: { noData: "Sin datos para los filtros elegidos" } as Highcharts.LangOptions,
+  lang: { noData: "Sin metas para los filtros elegidos" } as Highcharts.LangOptions,
   accessibility: { enabled: false },
 });
 
-/** Columnas de ventas ($) + línea de unidades (eje derecho). */
-export const graficoTendencia = (categorias: string[], ventas: number[], unidades: number[], titulo: string): Highcharts.Options => ({
-  ...base(330),
-  xAxis: { categories: categorias, title: { text: titulo }, crosshair: true },
+/**
+ * % de avance contra la meta (barras horizontales coloreadas por estado) con la línea del 100 %.
+ * Sirve para vendedores, proveedores, líneas o líderes.
+ */
+export const graficoAvance = (nombres: string[], avances: number[], detalle: string[]): Highcharts.Options => {
+  const alto = Math.max(220, nombres.length * 30 + 70);
+  const maximo = Math.max(110, ...avances.map((a) => a * 100 + 10));
+  return {
+    ...base(alto),
+    chart: { ...base().chart, type: "bar", height: alto },
+    xAxis: { categories: nombres, labels: { style: { fontSize: "11px", color: "#3c4043" } }, lineColor: COLORES.grisClaro },
+    yAxis: {
+      title: { text: undefined },
+      min: 0,
+      max: Math.ceil(maximo / 10) * 10,
+      labels: { format: "{value}%" },
+      gridLineColor: "#eef0f2",
+      plotLines: [
+        {
+          value: 100,
+          color: COLORES.verde,
+          width: 2,
+          dashStyle: "Dash",
+          zIndex: 5,
+          label: { text: "Meta", align: "right", x: -4, style: { color: COLORES.verde, fontSize: "10px" } },
+        },
+      ],
+    },
+    legend: { enabled: false },
+    tooltip: {
+      formatter: function () {
+        return `<b>${this.x}</b><br/>Avance: <b>${pct(Number(this.y))}</b><br/>${detalle[this.point.index] ?? ""}`;
+      },
+    },
+    plotOptions: {
+      bar: {
+        borderRadius: 3,
+        borderWidth: 0,
+        pointPadding: 0.12,
+        groupPadding: 0.08,
+        dataLabels: { enabled: true, format: "{y:.0f}%", style: { fontWeight: "600", fontSize: "10px", textOutline: "none" } },
+      },
+    },
+    series: [
+      {
+        type: "bar",
+        name: "Avance",
+        data: avances.map((a) => ({ y: Number((a * 100).toFixed(1)), color: colorAvance(a) })),
+      },
+    ],
+  };
+};
+
+/**
+ * Mes: unidades vendidas acumuladas por día contra el ritmo ideal (de 0 a la meta) y la meta total.
+ * `acumulado` trae null en los días que todavía no llegan.
+ */
+export const graficoEvolucionMes = (dias: string[], acumulado: (number | null)[], meta: number): Highcharts.Options => {
+  const n = dias.length;
+  const ideal = dias.map((_, i) => Math.round((meta * (i + 1)) / n));
+  return {
+    ...base(320),
+    xAxis: { categories: dias, title: { text: "Día del mes" }, crosshair: true, lineColor: COLORES.grisClaro },
+    yAxis: {
+      title: { text: "Unidades" },
+      min: 0,
+      gridLineColor: "#eef0f2",
+      plotLines: meta
+        ? [{ value: meta, color: COLORES.verde, width: 2, dashStyle: "Dash", zIndex: 5, label: { text: `Meta ${entero(meta)} u`, style: { color: COLORES.verde, fontSize: "10px" } } }]
+        : [],
+    },
+    tooltip: {
+      shared: true,
+      formatter: function () {
+        const puntos = this.points ?? [];
+        const lineas = puntos.map((p) => `<span style="color:${p.color}">●</span> ${p.series.name}: <b>${entero(Number(p.y))}</b>`);
+        const real = puntos.find((p) => p.series.index === 0);
+        if (real && meta) lineas.push(`Avance: <b>${pct((Number(real.y) / meta) * 100)}</b>`);
+        return `<b>Día ${this.x}</b><br/>` + lineas.join("<br/>");
+      },
+    },
+    plotOptions: { series: { marker: { enabled: false, radius: 3 } } },
+    series: [
+      {
+        type: "areaspline",
+        name: "Vendido acumulado",
+        data: acumulado,
+        color: COLORES.marino,
+        fillColor: {
+          linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+          stops: [
+            [0, "rgba(27,42,92,0.28)"],
+            [1, "rgba(27,42,92,0.02)"],
+          ],
+        },
+        lineWidth: 2.5,
+      },
+      { type: "line", name: "Ritmo ideal", data: ideal, color: COLORES.ambar, dashStyle: "ShortDash", lineWidth: 2 },
+    ],
+  };
+};
+
+/** Año: meta y vendido (unidades) por mes, con el % de avance en el eje derecho. */
+export const graficoEvolucionAnio = (meses: string[], metas: number[], vendidos: number[]): Highcharts.Options => ({
+  ...base(320),
+  xAxis: { categories: meses, crosshair: true, lineColor: COLORES.grisClaro },
   yAxis: [
-    { title: { text: "Ventas ($)" }, labels: { formatter: function () { return dinero(Number(this.value)); } } },
-    { title: { text: "Unidades" }, opposite: true },
+    { title: { text: "Unidades" }, min: 0, gridLineColor: "#eef0f2" },
+    {
+      title: { text: "Avance" },
+      opposite: true,
+      min: 0,
+      labels: { format: "{value}%" },
+      plotLines: [{ value: 100, color: COLORES.verde, width: 1, dashStyle: "Dash" }],
+    },
   ],
   tooltip: {
     shared: true,
     formatter: function () {
       const puntos = this.points ?? [];
-      return `<b>${this.x}</b><br/>` + puntos.map((p) => `<span style="color:${p.color}">●</span> ${p.series.name}: <b>${p.series.index === 0 ? dinero(Number(p.y)) : entero(Number(p.y))}</b>`).join("<br/>");
+      return (
+        `<b>${this.x}</b><br/>` +
+        puntos
+          .map((p) => `<span style="color:${p.color}">●</span> ${p.series.name}: <b>${p.series.index === 2 ? pct(Number(p.y)) : entero(Number(p.y))}</b>`)
+          .join("<br/>")
+      );
     },
   },
-  plotOptions: { column: { borderRadius: 3, borderWidth: 0 } },
+  plotOptions: { column: { borderRadius: 3, borderWidth: 0, groupPadding: 0.12 } },
   series: [
-    { type: "column", name: "Ventas ($)", data: ventas, color: COLORES.marino },
-    { type: "spline", name: "Unidades", data: unidades, yAxis: 1, color: COLORES.rojo, marker: { radius: 3 } },
+    { type: "column", name: "Meta (u)", data: metas, color: COLORES.grisClaro },
+    { type: "column", name: "Vendido (u)", data: vendidos, color: COLORES.marino },
+    {
+      type: "spline",
+      name: "Avance",
+      yAxis: 1,
+      data: metas.map((m, i) => (m ? Number(((vendidos[i] / m) * 100).toFixed(1)) : null)),
+      color: COLORES.rojo,
+      marker: { enabled: true, radius: 4 },
+    },
   ],
 });
 
-/** Barras horizontales (ranking) en dinero, con un dato extra en el tooltip. */
-export const graficoRanking = (
-  nombres: string[],
-  valores: number[],
-  extra: string[],
-  color = COLORES.marino,
-  esDinero = true
-): Highcharts.Options => ({
-  ...base(Math.max(260, nombres.length * 28 + 60)),
-  chart: { ...base().chart, type: "bar", height: Math.max(260, nombres.length * 28 + 60) },
-  xAxis: { categories: nombres, labels: { style: { fontSize: "11px" } } },
-  yAxis: { title: { text: undefined }, labels: { formatter: function () { return esDinero ? dinero(Number(this.value)) : entero(Number(this.value)); } } },
-  legend: { enabled: false },
+/** Dona de cantidades con color propio por punto (p. ej. estado de las metas). */
+export const graficoDona = (datos: { nombre: string; valor: number; color: string }[], centro: string): Highcharts.Options => ({
+  ...base(320),
+  chart: { ...base().chart, type: "pie", height: 320 },
+  title: {
+    text: centro,
+    verticalAlign: "middle",
+    floating: true,
+    y: -8,
+    style: { fontSize: "13px", color: "#5f6368", fontWeight: "normal" },
+    useHTML: true,
+  },
   tooltip: {
     formatter: function () {
-      const i = this.point.index;
-      return `<b>${this.x}</b><br/>${esDinero ? dinero(Number(this.y)) : entero(Number(this.y))}${extra[i] ? "<br/>" + extra[i] : ""}`;
+      return `<b>${this.key}</b><br/>${entero(Number(this.y))} metas (${pct(Number(this.percentage))})`;
     },
   },
+  legend: { enabled: true, itemStyle: { fontWeight: "normal", color: "#3c4043", fontSize: "11px" } },
   plotOptions: {
-    bar: {
-      borderRadius: 3,
-      borderWidth: 0,
-      color,
-      dataLabels: { enabled: true, formatter: function () { return esDinero ? dinero(Number(this.y)) : entero(Number(this.y)); }, style: { fontWeight: "normal", fontSize: "10px" } },
+    pie: {
+      innerSize: "68%",
+      borderWidth: 2,
+      borderColor: "#ffffff",
+      showInLegend: true,
+      dataLabels: { enabled: false },
     },
   },
-  series: [{ type: "bar", name: "Valor", data: valores }],
-});
-
-/** % de avance contra la meta por vendedor (rojo < 50 %, ámbar < 100 %, verde ≥ 100 %) y línea del 100 %. */
-export const graficoAvanceMetas = (nombres: string[], avances: number[], detalle: string[]): Highcharts.Options => ({
-  ...base(Math.max(240, nombres.length * 28 + 60)),
-  chart: { ...base().chart, type: "bar", height: Math.max(240, nombres.length * 28 + 60) },
-  xAxis: { categories: nombres, labels: { style: { fontSize: "11px" } } },
-  yAxis: {
-    title: { text: undefined },
-    labels: { format: "{value}%" },
-    plotLines: [{ value: 100, color: COLORES.verde, width: 2, dashStyle: "Dash", zIndex: 5, label: { text: "Meta 100 %", style: { color: COLORES.verde } } }],
-  },
-  legend: { enabled: false },
-  tooltip: {
-    formatter: function () {
-      return `<b>${this.x}</b><br/>Avance: <b>${Highcharts.numberFormat(Number(this.y), 1)}%</b><br/>${detalle[this.point.index] ?? ""}`;
-    },
-  },
-  plotOptions: { bar: { borderRadius: 3, borderWidth: 0, dataLabels: { enabled: true, format: "{y:.0f}%", style: { fontWeight: "normal", fontSize: "10px" } } } },
   series: [
     {
-      type: "bar",
-      name: "Avance",
-      data: avances.map((a) => ({ y: Number((a * 100).toFixed(1)), color: a >= 1 ? COLORES.verde : a >= 0.5 ? COLORES.ambar : COLORES.rojo })),
+      type: "pie",
+      name: "Metas",
+      data: datos.filter((d) => d.valor > 0).map((d) => ({ name: d.nombre, y: d.valor, color: d.color })),
     },
   ],
-});
-
-/** Dona de participación (top N + "Otros"). */
-export const graficoDona = (datos: { nombre: string; valor: number }[], esDinero = true, top = 8): Highcharts.Options => {
-  const orden = [...datos].filter((d) => d.valor > 0).sort((a, b) => b.valor - a.valor);
-  const principales = orden.slice(0, top);
-  const otros = orden.slice(top).reduce((t, d) => t + d.valor, 0);
-  const puntos = principales.map((d) => ({ name: d.nombre, y: Number(d.valor.toFixed(2)) }));
-  if (otros > 0) puntos.push({ name: "Otros", y: Number(otros.toFixed(2)) });
-  return {
-    ...base(330),
-    chart: { ...base().chart, type: "pie", height: 330 },
-    tooltip: {
-      formatter: function () {
-        return `<b>${this.key}</b><br/>${esDinero ? dinero(Number(this.y)) : entero(Number(this.y))} (${Highcharts.numberFormat(Number(this.percentage), 1)}%)`;
-      },
-    },
-    plotOptions: {
-      pie: {
-        innerSize: "58%",
-        borderWidth: 1,
-        dataLabels: { enabled: true, format: "{point.name}: {point.percentage:.1f}%", style: { fontWeight: "normal", fontSize: "10px", textOutline: "none" }, distance: 12 },
-      },
-    },
-    series: [{ type: "pie", name: "Participación", data: puntos }],
-  };
-};
-
-/** Columnas apiladas (p. ej. visitas con/sin pedido por día). */
-export const graficoApilado = (categorias: string[], series: { nombre: string; datos: number[]; color: string }[], tituloX: string): Highcharts.Options => ({
-  ...base(300),
-  chart: { ...base().chart, type: "column", height: 300 },
-  xAxis: { categories: categorias, title: { text: tituloX } },
-  yAxis: { title: { text: "Visitas" }, allowDecimals: false, stackLabels: { enabled: true, style: { fontWeight: "normal", color: "#3c4043" } } },
-  tooltip: { shared: true },
-  plotOptions: { column: { stacking: "normal", borderWidth: 0, borderRadius: 2 } },
-  series: series.map((s) => ({ type: "column", name: s.nombre, data: s.datos, color: s.color })),
 });

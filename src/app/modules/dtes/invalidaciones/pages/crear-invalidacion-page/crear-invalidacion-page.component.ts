@@ -13,18 +13,43 @@ import { SnotifyPosition, SnotifyService } from "ng-snotify";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { ClienteDteApiService } from "@app/modules/dtes/cliente/service/cliente-dte-api.service";
 
+/** Tipos de invalidación (CAT-024 del MH). */
+export const TIPOS_ANULACION = [
+  {
+    valor: 1,
+    texto: "1 - Error en la información del DTE",
+    ayuda: "Se emitió un DTE nuevo que corrige al invalidado: indique su código de generación.",
+  },
+  {
+    valor: 2,
+    texto: "2 - Rescindir la operación realizada",
+    ayuda: "La operación no se realizó o se deshizo; no lleva documento de reemplazo.",
+  },
+  {
+    valor: 3,
+    texto: "3 - Otro",
+    ayuda: "Explique el motivo e indique el código de generación del DTE que lo reemplaza.",
+  },
+];
+
+/** Código de generación MH: UUID en mayúsculas (36 caracteres). */
+const PATRON_CODIGO_GENERACION = /^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$/;
+
 @Component({
   selector: "app-crear-invalidacion-page",
   templateUrl: "./crear-invalidacion-page.component.html",
   styleUrls: ["./crear-invalidacion-page.component.scss"],
 })
 export class CrearInvalidacionPageComponent {
+  readonly tiposAnulacion = TIPOS_ANULACION;
   vendedorForm!: FormGroup;
   // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   actionBtn: string = "Guardar";
   activo = true;
   fechaanula = "";
   monto = 0;
+  /** Evita el doble envío mientras se espera a Hacienda. */
+  enviando = false;
   constructor(
     private _formBuilder: FormBuilder,
     private _servcio: ClienteDteApiService,
@@ -50,8 +75,13 @@ export class CrearInvalidacionPageComponent {
       personaSolicita: ["", Validators.required],
       tipoDocSolicita: ["", Validators.required],
       docSolicita: ["", Validators.required],
-      motivo: ["", Validators.required],
+      motivo: ["", [Validators.required, Validators.maxLength(200)]],
+      tipoAnulacion: [2, Validators.required],
+      codigoGeneracionR: [""],
     });
+    // Tipos 1 y 3 exigen el código de generación del DTE que reemplaza; el 2 no lo lleva.
+    this.tipoAnulacionField.valueChanges.subscribe(() => this._reglasReemplazo());
+    this._reglasReemplazo();
     if (this.ediData) {
       this.actionBtn = "Enviar";
 
@@ -76,14 +106,46 @@ export class CrearInvalidacionPageComponent {
       this.monto = this.ediData.monto;
     }
   }
+  /** El tipo elegido exige documento de reemplazo (1 y 3). */
+  get requiereReemplazo(): boolean {
+    return Number(this.tipoAnulacionField.value) !== 2;
+  }
+
+  get ayudaTipo(): string {
+    return this.tiposAnulacion.find((t) => t.valor === Number(this.tipoAnulacionField.value))?.ayuda ?? "";
+  }
+
+  private _reglasReemplazo(): void {
+    const control = this.codigoGeneracionRField;
+    if (this.requiereReemplazo) {
+      control.setValidators([Validators.required, Validators.pattern(PATRON_CODIGO_GENERACION)]);
+    } else {
+      control.clearValidators();
+      control.setValue("", { emitEvent: false });
+    }
+    control.updateValueAndValidity({ emitEvent: false });
+  }
+
   clickSave(): void {
+    if (this.enviando) return;
     if (this.vendedorForm.invalid) {
+      this.vendedorForm.markAllAsTouched();
+      this._snotifyService.warning("Revise los campos marcados en rojo", {
+        position: SnotifyPosition.rightTop,
+      });
+      return;
+    }
+    const reemplazo = String(this.codigoGeneracionRField.value ?? "").trim().toUpperCase();
+    if (this.requiereReemplazo && reemplazo === String(this.codigogeneracionField.value ?? "").trim().toUpperCase()) {
+      this._snotifyService.warning("El documento de reemplazo no puede ser el mismo que se invalida", {
+        position: SnotifyPosition.rightTop,
+      });
       return;
     }
     const datos = {
-      empresa_id: 1,
       documento: this.dteField.value as string,
-      tipoAnulacion: 2,
+      tipoAnulacion: Number(this.tipoAnulacionField.value),
+      codigoGeneracionR: this.requiereReemplazo ? reemplazo : null,
       motivoAnulacion: this.motivoField.value as string,
       nombreResponsable: this.personaResponsableField.value as string,
       tipoDocResponsable: this.tipoDocResponsableField.value as string,
@@ -92,8 +154,10 @@ export class CrearInvalidacionPageComponent {
       numDocSolicita: this.docSolicitaField.value as string,
       tipoDocSolicita: this.tipoDocSolicitaField.value as string,
     };
+    this.enviando = true;
     this._servcio.postDteCreateInvalidacion(datos).subscribe({
       next: (response) => {
+        this.enviando = false;
         if (response.success) {
           this.vendedorForm.reset();
           this._snotifyService.info("El registro se guardo sin problema", {
@@ -101,16 +165,33 @@ export class CrearInvalidacionPageComponent {
           });
           this._dialogRef.close("update");
         } else {
-          this._snotifyService.error(response.errors[0], {
+          this._snotifyService.error(this._mensajeError(response), {
             position: SnotifyPosition.rightTop,
+            timeout: 10000,
           });
         }
       },
-
-      error: (error) => {
-        console.log("error", error);
+      error: (e) => {
+        this.enviando = false;
+        // Antes solo se escribía en consola: "Sitio en Contingencia", "Documento no existe"...
+        this._snotifyService.error(this._mensajeError(e?.error), {
+          position: SnotifyPosition.rightTop,
+          timeout: 10000,
+        });
       },
     });
+  }
+
+  /** Mensaje para el usuario: el motivo real de Hacienda o del backend, no uno genérico. */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private _mensajeError(r: any): string {
+    const hacienda = r?.result?.descripcionMsg;
+    const observaciones: string[] = Array.isArray(r?.result?.observaciones) ? r.result.observaciones : [];
+    const base = r?.errors?.[0] || r?.messaje || "No se pudo enviar la invalidación";
+    if (hacienda) {
+      return `Hacienda: ${hacienda}${observaciones.length ? " · " + observaciones.join(" · ") : ""}`;
+    }
+    return String(base);
   }
 
   get dteField(): AbstractControl {
@@ -153,5 +234,11 @@ export class CrearInvalidacionPageComponent {
   }
   get motivoField(): AbstractControl {
     return this.vendedorForm.get("motivo")!;
+  }
+  get tipoAnulacionField(): AbstractControl {
+    return this.vendedorForm.get("tipoAnulacion")!;
+  }
+  get codigoGeneracionRField(): AbstractControl {
+    return this.vendedorForm.get("codigoGeneracionR")!;
   }
 }
